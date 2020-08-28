@@ -287,6 +287,7 @@ if __name__ == "__main__":
         button.destroy()
         button_two.destroy()
         cls_button.destroy()
+    #when the settings button gets clicked
     def settings():
         popup = Tk()
         popup.geometry("400x350")
@@ -328,7 +329,8 @@ if __name__ == "__main__":
     cls_button.pack(pady=20)
     label = Label(root, text="")
     label.pack(pady=5)
-    label_two = Label(root, text="")
+    tipshr_percent = str(float(config.get("DEFAULT", "tip share percent"))*100)
+    label_two = Label(root, text="Tip share percent: "+ tipshr_percent + "%")
     label_two.pack(pady=5)
 
     root.mainloop()
