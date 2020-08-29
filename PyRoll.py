@@ -19,6 +19,7 @@ import pandas.io.excel._xlsxwriter
 import glob
 import calendar
 import xlsxwriter
+import sys
 from babel.dates import format_date, parse_date, get_day_names, get_month_names
 from babel.numbers import *
 from os import path
@@ -58,6 +59,8 @@ qtoday = date.today()
 manual_adj = 0
 working_dict = []
 output_dict = []
+start_date = ''
+end_date = ''
 
 #convert dbf to csv
 def processdatabase (dayofreport):
@@ -316,7 +319,11 @@ if __name__ == "__main__":
         dtbse_btn = Button(popup, text='Set Database location', command=config.set("DEFAULT", "databaseloc", dtbsecfg))
         config.write(open('config.ini','w'))
         dtbse_btn.pack()
-
+    def on_closing():
+        root.destroy()
+        sys.exit()
+        
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     month = int(date.today().strftime("%m"))
     main_label = Label(root, 
         text="Must be processed after the end of last day for payroll\n \nSelecting today (" + qtoday.strftime("%m-%d-%Y") + ") or future days will cancel process\n \nIf changes were made in POS, tips must be run again")
@@ -330,11 +337,11 @@ if __name__ == "__main__":
     #settings = Button(root, text="Settings", command=settings)
     #settings.pack(pady=5)
     button = Button(root, text="Select First Day", command=grab_date)
-    button.pack(pady=20)
+    button.pack(pady=10)
     button_two = Button(root, text="Select Last Day", command=grab_date_two)
-    button_two.pack(pady=20)
+    button_two.pack(pady=10)
     cls_button = Button(root, text="PROCESS TIPS", command=popup)
-    cls_button.pack(pady=20)
+    cls_button.pack(pady=15)
     label = Label(root, text="")
     label.pack(pady=5)
     label_two = Label(root, text="")
@@ -345,7 +352,8 @@ if __name__ == "__main__":
     startday = start_date #save into different value, so it can be used to write file names
     delta = datetime.timedelta(days=1)
     dayofreport = ''
-    days=[]
+    global days
+    days =[]
 
     #process loop
     while start_date <= end_date:
@@ -367,4 +375,3 @@ if __name__ == "__main__":
             os.remove(f)
 
     print('process complete -- exiting\n')
-    

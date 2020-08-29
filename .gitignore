@@ -2434,3 +2434,12 @@ build/PyRoll/Tree-01.toc
 build/PyRoll/warn-PyRoll.txt
 build/PyRoll/xref-PyRoll.html
 __pycache__/PyRoll.cpython-38.pyc
+output/bad clockouts_20200801_20200801.xlsx
+output/bad clockouts_20200801_20200815.xlsx
+output/nightly_20200801_20200801.xlsx
+output/nightly_20200801_20200815.xlsx
+output/total_20200801_20200801.xlsx
+output/total_20200801_20200815.xlsx
+output/bad clockouts_20200801_20200815.xlsx
+output/nightly_20200801_20200815.xlsx
+output/total_20200801_20200815.xlsx
