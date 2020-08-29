@@ -88,6 +88,14 @@ def processdatabase (dayofreport):
         writer.writerow(employee.field_names)
         for record in employee:
             writer.writerow(list(record.values()))
+    
+    #house accounts
+    house = DBF(databaseloc + dayofreport + '/HSE.DBF')
+    with open('csv/'+ dayofreport +'_house.csv','w', newline='') as houseexport:
+        writer = csv.writer(houseexport, delimiter=',')
+        writer.writerow(house.field_names)
+        for row in house:
+            writer.writerow(list(row.values()))
 
     #https://pandas.pydata.org/docs/user_guide/io.html#io-read-csv-table
 
