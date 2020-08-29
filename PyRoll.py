@@ -241,7 +241,7 @@ def printtoexcel(days=[]):
     workbook_ttl = ttl_writer.book
     worksheet_ttl = ttl_writer.sheets['Payroll_total']
     format1 = workbook_ttl.add_format({'border': 1, 'font_size': 11.5})
-    worksheet_ttl.set_column('A:C', 10, format1)
+    worksheet_ttl.set_column('A:C', 10.5, format1)
     worksheet_ttl.set_column('D:I', 9, format1)
     worksheet_ttl.set_default_row(22.5)
 
@@ -313,7 +313,8 @@ if __name__ == "__main__":
         dtbse_btn.pack()
 
     month = int(date.today().strftime("%m"))
-    main_label = Label(root, text="Must be processed after the end of last day for payroll\n \nSelecting today (" + qtoday.strftime("%m-%d-%Y") + ") or future days will cancel process\n")
+    main_label = Label(root, 
+        text="Must be processed after the end of last day for payroll\n \nSelecting today (" + qtoday.strftime("%m-%d-%Y") + ") or future days will cancel process\n \nIf changes were made in POS, tips must be run again")
     main_label.pack(pady=5)
     tipshr_percent = str(float(config.get("DEFAULT", "tip share percent"))*100)
     label_tip = Label(root, text="Tip share percent: "+ tipshr_percent + "%\n")
