@@ -3,9 +3,6 @@
 # python -m pip install pandas
 # python -m pip install dbfread
 
-# python -m pip install openpyxl
-
-#other notes: C:\Program Files (x86)\Python38-32\Lib\site-packages\dbfread
 print('...app starting, please wait...\n')
 
 import subprocess
