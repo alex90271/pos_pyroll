@@ -52,7 +52,6 @@ except FileExistsError:
     pass
 try:
     os.mkdir('csv')
-    os.mkdir('csv/processed_csv')
 except FileExistsError:
     pass
 
@@ -108,13 +107,13 @@ def processdatabase (dayofreport):
     labordata = laborpd.merge(employeepd, on='EMPLOYEE')
     labordata = labordata.merge(jobcodepd, on='JOBCODE')
     #labordata = labordata.drop(0, axis=0)
-    labordata.to_csv('csv/processed_csv/'+ dayofreport +'_labordata.csv')
+    labordata.to_csv('csv/'+ dayofreport +'_labordata.csv')
     
     print("report data for " + dayofreport + " was successfully compiled")
 
 #calculate tips
 def processtips (day):
-    file_name = 'csv/processed_csv/'+ day +'_labordata.csv'
+    file_name = 'csv/'+ day +'_labordata.csv'
     #don't calculate tips if COUT by EOD
     coutbyeod = pd.read_csv(file_name, usecols=['SYSDATEIN','EMPLOYEE','LASTNAME','FIRSTNAME', 'COUTBYEOD',])
     coutbyeod.loc[(coutbyeod['COUTBYEOD']=="N")]
@@ -198,14 +197,14 @@ def processtips (day):
 
         #dataframe to csv
         working_pd = pd.DataFrame(list(working_dict))
-        working_pd.to_csv('csv/processed_csv/'+ day +'_labordata.csv')
+        working_pd.to_csv('csv/'+ day +'_labordata.csv')
     print('\ntips code ran fine\n')
 
 def printtoexcel(days=[]):
     #sum up all csvs and make it a readable report
     print('Days to print', list(days))
 
-    df = pd.concat((pd.read_csv('csv/processed_csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
+    df = pd.concat((pd.read_csv('csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
     df.groupby(['EMPLOYEE','SYSDATEIN'], as_index=True)
     df = df.drop(columns=['Unnamed: 0', 'Unnamed: 1', 'JOBCODE'])
     df = df[['EMPLOYEE', 'SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'CCTIPS', 'SALES', 'TIPSHR_CON', 'COUTBYEOD','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
@@ -316,6 +315,9 @@ if __name__ == "__main__":
     month = int(date.today().strftime("%m"))
     main_label = Label(root, text="Must be processed after the end of last day for payroll\n \nSelecting today (" + qtoday.strftime("%m-%d-%Y") + ") or future days will cancel process\n")
     main_label.pack(pady=5)
+    tipshr_percent = str(float(config.get("DEFAULT", "tip share percent"))*100)
+    label_tip = Label(root, text="Tip share percent: "+ tipshr_percent + "%\n")
+    label_tip.pack(pady=5)
     cal = Calendar(root, selectmode="day", firstweekday="sunday", showweeknumbers=False, 
         showothermonthdays=False, year=2020, month=month, date_pattern="mm-dd-yyyy")
     cal.pack(pady=20)
@@ -329,8 +331,7 @@ if __name__ == "__main__":
     cls_button.pack(pady=20)
     label = Label(root, text="")
     label.pack(pady=5)
-    tipshr_percent = str(float(config.get("DEFAULT", "tip share percent"))*100)
-    label_two = Label(root, text="Tip share percent: "+ tipshr_percent + "%")
+    label_two = Label(root, text="")
     label_two.pack(pady=5)
 
     root.mainloop()
