@@ -361,4 +361,5 @@ if __name__ == "__main__":
         for f in files:
             os.remove(f)
 
-    print('process done\n')
+    print('process complete -- exiting\n')
+    
