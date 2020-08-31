@@ -61,6 +61,7 @@ working_dict = []
 output_dict = []
 start_date = ''
 end_date = ''
+tip_rates = pd.DataFrame
 
 #convert dbf to csv
 def processdatabase (dayofreport):
@@ -88,14 +89,6 @@ def processdatabase (dayofreport):
         writer.writerow(employee.field_names)
         for record in employee:
             writer.writerow(list(record.values()))
-    
-    #house accounts
-    house = DBF(databaseloc + dayofreport + '/HSE.DBF')
-    with open('csv/'+ dayofreport +'_house.csv','w', newline='') as houseexport:
-        writer = csv.writer(houseexport, delimiter=',')
-        writer.writerow(house.field_names)
-        for row in house:
-            writer.writerow(list(row.values()))
 
     #https://pandas.pydata.org/docs/user_guide/io.html#io-read-csv-table
 
@@ -193,6 +186,8 @@ def processtips (day):
             p_hourly_rate = round(hourly_rate,2)
         print("Hourly Rate: " + str(p_hourly_rate))
 
+        tips = pd.DataFrame(data={'day': [day], 'rate': [p_hourly_rate]})
+
         #Adding tipshare to working_dict
         for item in working_dict:
             portion = 0
@@ -206,6 +201,7 @@ def processtips (day):
         #dataframe to csv
         working_pd = pd.DataFrame(list(working_dict))
         working_pd.to_csv('csv/'+ day +'_labordata.csv')
+        tips.to_csv('csv/'+ day +'_tiprates.csv')
     print('\ntips code ran fine\n')
 
 def printtoexcel(days=[]):
@@ -213,6 +209,7 @@ def printtoexcel(days=[]):
     print('Days to print', list(days))
 
     df = pd.concat((pd.read_csv('csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
+    tips = pd.concat((pd.read_csv('csv/'+ date +'_tiprates.csv')for date in days), ignore_index=True)
     df.groupby(['EMPLOYEE','SYSDATEIN'], as_index=True)
     df = df.drop(columns=['Unnamed: 0', 'Unnamed: 1', 'JOBCODE'])
     df = df[['EMPLOYEE', 'SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'CCTIPS', 'SALES', 'TIPSHR_CON', 'COUTBYEOD','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
@@ -240,6 +237,9 @@ def printtoexcel(days=[]):
     ttl_writer = pd.ExcelWriter('output/total_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tdf.to_excel(ttl_writer, sheet_name='Payroll_total', index=True, header=True, float_format="%.2f")
 
+    tips_writer = pd.ExcelWriter('output/tiprates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
+    tips.to_excel(tips_writer, sheet_name='tiprates', index=True, header=True, float_format="%.2f")
+
     #write indiviudal
     ind_writer = pd.ExcelWriter('output/nightly_' + str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     df.to_excel(ind_writer, sheet_name='Payroll_nightly', index=False, header=True, float_format="%.2f")
@@ -249,8 +249,8 @@ def printtoexcel(days=[]):
     workbook_ttl = ttl_writer.book
     worksheet_ttl = ttl_writer.sheets['Payroll_total']
     format1 = workbook_ttl.add_format({'border': 1, 'font_size': 11.5})
-    worksheet_ttl.set_column('A:C', 10.5, format1)
-    worksheet_ttl.set_column('D:I', 9, format1)
+    worksheet_ttl.set_column('A:C', 10.25, format1)
+    worksheet_ttl.set_column('D:I', 8.5, format1)
     worksheet_ttl.set_default_row(22.5)
 
     workbook_coutxlsx = coutxlsx.book
@@ -266,6 +266,7 @@ def printtoexcel(days=[]):
     coutxlsx.save()
     ind_writer.save()
     ttl_writer.save()
+    tips_writer.save()
     print('\noutput created\n')
 
 #main code
@@ -357,8 +358,8 @@ if __name__ == "__main__":
 
     #process loop
     while start_date <= end_date:
-        print("now processing " + dayofreport + "\n")
         dayofreport = start_date.strftime("%Y%m%d")
+        print("now processing " + dayofreport + "\n")
         processdatabase(dayofreport)
         processtips(dayofreport)
         days.append(dayofreport)
@@ -375,3 +376,4 @@ if __name__ == "__main__":
             os.remove(f)
 
     print('process complete -- exiting\n')
+    breakpoint
