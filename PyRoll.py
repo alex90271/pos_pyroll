@@ -186,7 +186,8 @@ def processtips (day):
             p_hourly_rate = round(hourly_rate,2)
         print("Hourly Rate: " + str(p_hourly_rate))
 
-        tips = pd.DataFrame(data={'day': [day], 'rate': [p_hourly_rate]})
+        datetime_rate = datetime.datetime.strptime(day, "%Y%m%d")
+        tips = pd.DataFrame(data={'day': [datetime_rate.strftime("%a %b %e")], 'rate': [p_hourly_rate]})
 
         #Adding tipshare to working_dict
         for item in working_dict:
@@ -200,8 +201,8 @@ def processtips (day):
 
         #dataframe to csv
         working_pd = pd.DataFrame(list(working_dict))
-        working_pd.to_csv('csv/'+ day +'_labordata.csv')
-        tips.to_csv('csv/'+ day +'_tiprates.csv')
+        working_pd.to_csv('csv/'+ day +'_labordata.csv', index=False)
+        tips.to_csv('csv/'+ day +'_tiprates.csv', index=False)
     print('\ntips code ran fine\n')
 
 def printtoexcel(days=[]):
@@ -211,7 +212,7 @@ def printtoexcel(days=[]):
     df = pd.concat((pd.read_csv('csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
     tips = pd.concat((pd.read_csv('csv/'+ date +'_tiprates.csv')for date in days), ignore_index=True)
     df.groupby(['EMPLOYEE','SYSDATEIN'], as_index=True)
-    df = df.drop(columns=['Unnamed: 0', 'Unnamed: 1', 'JOBCODE'])
+    df = df.drop(columns=['JOBCODE'])
     df = df[['EMPLOYEE', 'SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'CCTIPS', 'SALES', 'TIPSHR_CON', 'COUTBYEOD','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
     df = df.sort_values(['EMPLOYEE', 'JOB_NAME'], ascending=(True, False))
     df = df.append(df.sum(numeric_only=True), ignore_index=True)
