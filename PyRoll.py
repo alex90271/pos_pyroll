@@ -3,6 +3,8 @@
 # python -m pip install pandas
 # python -m pip install dbfread
 
+# python -m pip install python-quickbooks -- https://pypi.org/project/python-quickbooks/
+
 print('...app starting, please wait...\n')
 
 import subprocess
@@ -58,6 +60,7 @@ databaseloc = config.get("DEFAULT", "databaseloc")
 qtoday = date.today()
 manual_adj = 0
 working_dict = []
+working_panda = pd.DataFrame
 output_dict = []
 start_date = ''
 end_date = ''
@@ -65,6 +68,7 @@ tip_rates = pd.DataFrame
 
 #convert dbf to csv
 def processdatabase (dayofreport):
+    '''when function is given a date, it will look for the database location of aloha, find the database files and process them into a readable csv'''
 
     #tips, labor, etc
     labor = DBF(databaseloc + dayofreport + '/ADJTIME.Dbf')
@@ -114,10 +118,8 @@ def processdatabase (dayofreport):
 
 #calculate tips
 def processtips (day):
+    '''this function assumes a data grind has already been run. runs over the date its given and calculates the tips and overwrites previous data'''
     file_name = 'csv/'+ day +'_labordata.csv'
-    #don't calculate tips if COUT by EOD
-    coutbyeod = pd.read_csv(file_name, usecols=['SYSDATEIN','EMPLOYEE','LASTNAME','FIRSTNAME', 'COUTBYEOD',])
-    coutbyeod.loc[(coutbyeod['COUTBYEOD']=="N")]
 
     #config options
     takeout_reg = str(config.get("DEFAULT", "take out reg job code number")).split(',')
@@ -206,6 +208,9 @@ def processtips (day):
     print('\ntips code ran fine\n')
 
 def printtoexcel(days=[]):
+    '''
+    function assumes that a data grind has already been run, and adds them up to make a readable excel report
+    '''
     #sum up all csvs and make it a readable report
     print('Days to print', list(days))
 
@@ -238,15 +243,20 @@ def printtoexcel(days=[]):
     ttl_writer = pd.ExcelWriter('output/total_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tdf.to_excel(ttl_writer, sheet_name='Payroll_total', index=True, header=True, float_format="%.2f")
 
+    tips = tips.drop(labels=0, axis=0)
     tips_writer = pd.ExcelWriter('output/tiprates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tips.to_excel(tips_writer, sheet_name='tiprates', index=True, header=True, float_format="%.2f")
 
     #write indiviudal
+    ind_df = df.sort_values(by='SYSDATEIN')
     ind_writer = pd.ExcelWriter('output/nightly_' + str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
-    df.to_excel(ind_writer, sheet_name='Payroll_nightly', index=False, header=True, float_format="%.2f")
-
+    ind_df.to_excel(ind_writer, sheet_name='Payroll_nightly', index=False, header=True, float_format="%.2f")
 
     #excel formatting
+
+    header1 = '&CHere is some centered text.'
+    footer1 = '&LHere is some left aligned text.'
+    
     workbook_ttl = ttl_writer.book
     worksheet_ttl = ttl_writer.sheets['Payroll_total']
     format1 = workbook_ttl.add_format({'border': 1, 'font_size': 11.5})
@@ -263,6 +273,10 @@ def printtoexcel(days=[]):
     worksheet_ind = ind_writer.sheets['Payroll_nightly']
     format1 = workbook_ind.add_format({'border': 1})
     worksheet_ind.set_column('A:R', 10, format1)
+
+    tips_wrkbook = tips_writer.book
+    tips_wrksheet = tips_writer.sheets['tiprates']
+    tips_wrksheet.set_column('A:C', 14, format1)
 
     coutxlsx.save()
     ind_writer.save()
@@ -377,4 +391,3 @@ if __name__ == "__main__":
             os.remove(f)
 
     print('process complete -- exiting\n')
-    breakpoint
