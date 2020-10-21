@@ -2,6 +2,7 @@
 # python -m pip install tkcalendar
 # python -m pip install pandas
 # python -m pip install dbfread
+# python -m pip install xlsxwriter
 
 # python -m pip install python-quickbooks -- https://pypi.org/project/python-quickbooks/
 
@@ -128,11 +129,8 @@ def processtips (day):
     tipshare_percent = float(config.get("DEFAULT", "tip share percent"))
     #combine_tipshr = bool(config.get("DEFAULT", "combine tipshare and takeout"))
 
-    print('\ntakeout tip contributors',takeout_reg,'\nserver jobcode',server_jobcode,'\ntipshare recipients',tipout_recip,'\ntipshare percent',tipshare_percent,'\n')
+    #print('\ntakeout tip contributors',takeout_reg,'\nserver jobcode',server_jobcode,'\ntipshare recipients',tipout_recip,'\ntipshare percent',tipshare_percent,'\n')
 
-    output_dict = []
-    ppl_currently_in_output_dict = []
-    hourly_dict= []
     iterative_keys = ['HOURS', 'OVERHRS', 'CCTIPS', 'DECTIPS', 'SALES', 'SRVTIPS', 'TIPOUT']
 
     #jobcodes - 1:Server, 2:Assist/Bus, 5:Bar/Dessert, 6:Shag, 7:Dish, 8:Fry Cook, 9:Kitchen, 11:Register, 13:Pay/Phones, 14:Bagger, 50:Manager
@@ -141,6 +139,9 @@ def processtips (day):
     with open(file_name) as labordata:
         labordata = csv.DictReader(labordata)
         working_dict = []
+        reg_cash = 0
+        server_tipshrpool = 0
+        to_cctips = 0
         for item in labordata:
             working_dict.append(item)
             for item in working_dict:
@@ -151,18 +152,18 @@ def processtips (day):
         #Calculates tips and tipouts
         for item in working_dict:
             server_tips = 0
-            tipshare = 0
             hrs = 0
+            tipshare = 0
             if float(item["OVERHRS"]) > 0:
                 hrs = float(item["HOURS"]) - float(item["OVERHRS"])
                 item.update({"HOURS": hrs})
             if item["JOBCODE"] in server_jobcode:
                 tipshare = float(item['SALES']) * tipshare_percent
                 server_tips = float(item['CCTIPS']) - tipshare
-                server_tips = server_tips
             if item["JOBCODE"] in takeout_reg:
                 reg_cash = float(item['DECTIPS'])
                 tipshare = float(item['CCTIPS']) + reg_cash
+                to_cctips += float(item['CCTIPS'])
                 item.update({'DECTIPS': (item['DECTIPS']-reg_cash)})
             item.update({"SRVTIPS": round(server_tips,2)})
             item.update({"TIPSHR_CON": round(tipshare,2)})
@@ -170,6 +171,8 @@ def processtips (day):
         tip_pool = 0
         for item in working_dict:
             if float(item["TIPSHR_CON"]) > 0:
+                if item["JOBCODE"] in server_jobcode:
+                    server_tipshrpool += round(float(item["TIPSHR_CON"]),2)
                 tip_pool += round(float(item["TIPSHR_CON"]),2)
         print("Tip Pool: " + str(tip_pool))          
 
@@ -189,7 +192,7 @@ def processtips (day):
         print("Hourly Rate: " + str(p_hourly_rate))
 
         datetime_rate = datetime.datetime.strptime(day, "%Y%m%d")
-        tips = pd.DataFrame(data={'day': [datetime_rate.strftime("%a %b %e")], 'rate': [p_hourly_rate]})
+        tips = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")], 'Tip Hourly': [p_hourly_rate], 'TO Cash': [reg_cash], 'Server Tipshare': [server_tipshrpool],'TO CC tips': [to_cctips-reg_cash], 'Total Tip Pool': [tip_pool], 'Total Tipped Hrs': [total_hours]})
 
         #Adding tipshare to working_dict
         for item in working_dict:
@@ -216,11 +219,11 @@ def printtoexcel(days=[]):
 
     df = pd.concat((pd.read_csv('csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
     tips = pd.concat((pd.read_csv('csv/'+ date +'_tiprates.csv')for date in days), ignore_index=True)
+
     df.groupby(['EMPLOYEE','SYSDATEIN'], as_index=True)
     df = df.drop(columns=['JOBCODE'])
     df = df[['EMPLOYEE', 'SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'CCTIPS', 'SALES', 'TIPSHR_CON', 'COUTBYEOD','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
     df = df.sort_values(['EMPLOYEE', 'JOB_NAME'], ascending=(True, False))
-    df = df.append(df.sum(numeric_only=True), ignore_index=True)
 
     coutbyeod = df.loc[(df['COUTBYEOD']=="Y")]
     coutxlsx = pd.ExcelWriter('output/bad clockouts_' + str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
@@ -253,7 +256,6 @@ def printtoexcel(days=[]):
     ind_df.to_excel(ind_writer, sheet_name='Payroll_nightly', index=False, header=True, float_format="%.2f")
 
     #excel formatting
-
     header1 = '&CHere is some centered text.'
     footer1 = '&LHere is some left aligned text.'
     
@@ -276,7 +278,8 @@ def printtoexcel(days=[]):
 
     tips_wrkbook = tips_writer.book
     tips_wrksheet = tips_writer.sheets['tiprates']
-    tips_wrksheet.set_column('A:C', 14, format1)
+    format1 = tips_wrkbook.add_format({'border': 1, 'num_format': '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'})
+    tips_wrksheet.set_column('B:H', 15, format1)
 
     coutxlsx.save()
     ind_writer.save()
@@ -369,7 +372,7 @@ if __name__ == "__main__":
     delta = datetime.timedelta(days=1)
     dayofreport = ''
     global days
-    days =[]
+    days = []
 
     #process loop
     while start_date <= end_date:
