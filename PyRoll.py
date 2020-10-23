@@ -139,9 +139,9 @@ def processtips (day):
     with open(file_name) as labordata:
         labordata = csv.DictReader(labordata)
         working_dict = []
-        reg_cash = 0
         server_tipshrpool = 0
         to_cctips = 0
+        reg_cash = 0
         for item in labordata:
             working_dict.append(item)
             for item in working_dict:
@@ -161,12 +161,16 @@ def processtips (day):
                 tipshare = float(item['SALES']) * tipshare_percent
                 server_tips = float(item['CCTIPS']) - tipshare
             if item["JOBCODE"] in takeout_reg:
-                reg_cash = float(item['DECTIPS'])
-                tipshare = float(item['CCTIPS']) + reg_cash
+                tipshare = float(item['CCTIPS'])
                 to_cctips += float(item['CCTIPS'])
+            if item["JOBCODE"] in takeout_reg and float(item["DECTIPS"]) > 0:
+                reg_cash = float(item['DECTIPS'])
                 item.update({'DECTIPS': (item['DECTIPS']-reg_cash)})
             item.update({"SRVTIPS": round(server_tips,2)})
             item.update({"TIPSHR_CON": round(tipshare,2)})
+
+        #add cash to tip pool
+        tipshare += reg_cash
 
         tip_pool = 0
         for item in working_dict:
