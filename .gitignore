@@ -2443,3 +2443,9 @@ output/total_20200801_20200815.xlsx
 output/bad clockouts_20200801_20200815.xlsx
 output/nightly_20200801_20200815.xlsx
 output/total_20200801_20200815.xlsx
+pyroll.spec
+dist/pyroll/lib2to3/Grammar3.8.5.final.0.pickle
+dist/pyroll/lib2to3/PatternGrammar3.8.5.final.0.pickle
+dist/pyroll/pandas/_libs/tslibs/base.cp38-win32.pyd
+dist/pyroll/pandas/_libs/tslibs/dtypes.cp38-win32.pyd
+dist/pyroll/pandas/_libs/tslibs/vectorized.cp38-win32.pyd

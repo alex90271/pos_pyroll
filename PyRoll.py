@@ -222,7 +222,7 @@ def printtoexcel(days=[]):
     print('Days to print', list(days))
 
     df = pd.concat((pd.read_csv('csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
-    tips = pd.concat((pd.read_csv('csv/'+ date +'_tiprates.csv')for date in days), ignore_index=True)
+    tips = pd.concat((pd.read_csv('csv/'+ date +'_tiprates.csv') for date in days), ignore_index=True)
 
     df.groupby(['EMPLOYEE','SYSDATEIN'], as_index=True)
     df = df.drop(columns=['JOBCODE'])
@@ -250,14 +250,24 @@ def printtoexcel(days=[]):
     ttl_writer = pd.ExcelWriter('output/total_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tdf.to_excel(ttl_writer, sheet_name='Payroll_total', index=True, header=True, float_format="%.2f")
 
-    tips = tips.drop(labels=0, axis=0)
+    #tips = tips.drop(labels=0, axis=0)
     tips_writer = pd.ExcelWriter('output/tiprates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tips.to_excel(tips_writer, sheet_name='tiprates', index=True, header=True, float_format="%.2f")
 
-    #write indiviudal
-    ind_df = df.sort_values(by='SYSDATEIN')
-    ind_writer = pd.ExcelWriter('output/nightly_' + str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
-    ind_df.to_excel(ind_writer, sheet_name='Payroll_nightly', index=False, header=True, float_format="%.2f")
+    #write indiviudal, if option is selected
+    if config.get("DEFAULT", "debug") == 'True':
+        ind_df = df.sort_values(by='SYSDATEIN')
+        ind_writer = pd.ExcelWriter('output/nightly_' + str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
+        ind_df.to_excel(ind_writer, sheet_name='Payroll_nightly', index=False, header=True, float_format="%.2f")
+
+        workbook_ind = ind_writer.book
+        worksheet_ind = ind_writer.sheets['Payroll_nightly']
+        format1 = workbook_ind.add_format({'border': 1})
+        worksheet_ind.set_column('A:R', 10, format1)
+
+        ind_writer.save()
+    else:
+        pass
 
     #excel formatting
     header1 = '&CHere is some centered text.'
@@ -275,18 +285,12 @@ def printtoexcel(days=[]):
     format1 = workbook_coutxlsx.add_format({'border': 1})
     worksheet_coutxlsx.set_column('A:R', 10, format1)
 
-    workbook_ind = ind_writer.book
-    worksheet_ind = ind_writer.sheets['Payroll_nightly']
-    format1 = workbook_ind.add_format({'border': 1})
-    worksheet_ind.set_column('A:R', 10, format1)
-
     tips_wrkbook = tips_writer.book
     tips_wrksheet = tips_writer.sheets['tiprates']
     format1 = tips_wrkbook.add_format({'border': 1, 'num_format': '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'})
     tips_wrksheet.set_column('B:H', 15, format1)
 
     coutxlsx.save()
-    ind_writer.save()
     ttl_writer.save()
     tips_writer.save()
     print('\noutput created\n')
