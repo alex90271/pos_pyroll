@@ -23,6 +23,8 @@ import glob
 import calendar
 import xlsxwriter
 import sys
+import base64
+import binascii
 from babel.dates import format_date, parse_date, get_day_names, get_month_names
 from babel.numbers import *
 from os import path
@@ -30,6 +32,7 @@ from datetime import date, time
 from tkinter import *
 from tkcalendar import *
 from dbfread import DBF
+from bs4 import UnicodeDammit
 
 #config stuff
 config = configparser.ConfigParser()
@@ -71,7 +74,16 @@ tip_rates = pd.DataFrame
 def processdatabase (dayofreport):
     '''when function is given a date, it will look for the database location of aloha, find the database files and process them into a readable csv'''
 
-    #tips, labor, etc
+    #attempting to decode house account info
+    # with open('HOUSE50', mode='rb') as file:
+    #     fileContent = file.read()
+    #     fileDecode = UnicodeDammit(fileContent)
+    #     fileMsg = fileDecode.unicode_markup
+    #     fileDecode.original_encoding
+    #     with open("out.txt", "w") as f:
+    #         f.write(" ".join(map(str,fileMsg)))
+    #         f.write("\n")
+    
     labor = DBF(databaseloc + dayofreport + '/ADJTIME.Dbf')
     with open('csv/'+ dayofreport +'_labor.csv','w', newline='') as lbrexport:
         writer = csv.writer(lbrexport, delimiter=',')
@@ -127,14 +139,8 @@ def processtips (day):
     server_jobcode = str(config.get("DEFAULT", "server jobcode number")).split(',')  #reg cc tips, but wanted to leave it flexible.
     tipout_recip = str(config.get("DEFAULT", "jobcode numbers to receive tips")).split(',')
     tipshare_percent = float(config.get("DEFAULT", "tip share percent"))
-    #combine_tipshr = bool(config.get("DEFAULT", "combine tipshare and takeout"))
-
-    #print('\ntakeout tip contributors',takeout_reg,'\nserver jobcode',server_jobcode,'\ntipshare recipients',tipout_recip,'\ntipshare percent',tipshare_percent,'\n')
-
     iterative_keys = ['HOURS', 'OVERHRS', 'CCTIPS', 'DECTIPS', 'SALES', 'SRVTIPS', 'TIPOUT']
-
     #jobcodes - 1:Server, 2:Assist/Bus, 5:Bar/Dessert, 6:Shag, 7:Dish, 8:Fry Cook, 9:Kitchen, 11:Register, 13:Pay/Phones, 14:Bagger, 50:Manager
-
     #process labordata into a dict object, and turn iterative keys above into floats vs strings
     with open(file_name) as labordata:
         labordata = csv.DictReader(labordata)
@@ -166,11 +172,9 @@ def processtips (day):
             if item["JOBCODE"] in takeout_reg and float(item["DECTIPS"]) > 0:
                 reg_cash = float(item['DECTIPS'])
                 item.update({'DECTIPS': (item['DECTIPS']-reg_cash)})
+                tipshare += reg_cash
             item.update({"SRVTIPS": round(server_tips,2)})
             item.update({"TIPSHR_CON": round(tipshare,2)})
-
-        #add cash to tip pool
-        tipshare += reg_cash
 
         tip_pool = 0
         for item in working_dict:
@@ -196,7 +200,7 @@ def processtips (day):
         print("Hourly Rate: " + str(p_hourly_rate))
 
         datetime_rate = datetime.datetime.strptime(day, "%Y%m%d")
-        tips = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")], 'Tip Hourly': [p_hourly_rate], 'TO Cash': [reg_cash], 'Server Tipshare': [server_tipshrpool],'TO CC tips': [to_cctips-reg_cash], 'Total Tip Pool': [tip_pool], 'Total Tipped Hrs': [total_hours]})
+        tips = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")], 'Tip Hourly': [p_hourly_rate], 'TO Cash': [reg_cash], 'Server Tipshare': [server_tipshrpool],'TO CC tips': [to_cctips], 'Total Tip Pool': [tip_pool], 'Total Tipped Hrs': [total_hours]})
 
         #Adding tipshare to working_dict
         for item in working_dict:
@@ -234,25 +238,31 @@ def printtoexcel(days=[]):
     coutbyeod.to_excel(coutxlsx, sheet_name='End of day Clockouts', index=False, header=True, float_format="%.2f")
 
     #write totals
-    tdf = df.pivot_table(df, index=['LASTNAME', 'FIRSTNAME','JOB_NAME'], aggfunc=np.sum)
+    tdf = df.pivot_table(df, index=['LASTNAME', 'FIRSTNAME','JOB_NAME'], aggfunc=np.sum, fill_value=np.NaN, margins=True, margins_name='TOTAL')
     tdf = tdf.drop(columns=['INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE'])
     tdf = tdf[['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS']]
-    tdf.at['Total', 'HOURS'] = tdf['HOURS'].sum()
-    tdf.at['Total', 'OVERHRS'] = tdf['OVERHRS'].sum()
-    tdf.at['Total', 'SRVTIPS'] = tdf['SRVTIPS'].sum()
-    tdf.at['Total', 'TIPOUT'] = tdf['TIPOUT'].sum()
 
     #renaming a few headers, adding a meals category
     tdf = tdf.rename(columns={'OVERHRS':'OVRTIME'})
     tdf = tdf.rename(columns={'DECTIPS':'DECLTIPS'})
     tdf['MEALS'] = np.nan
 
+    #making zeros blank
+    cols = ['HOURS', 'OVRTIME', 'SRVTIPS', 'TIPOUT', 'DECLTIPS']
+    tdf[cols] = tdf[cols].replace({0:np.nan})
+
     ttl_writer = pd.ExcelWriter('output/total_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tdf.to_excel(ttl_writer, sheet_name='Payroll_total', index=True, header=True, float_format="%.2f")
 
-    #tips = tips.drop(labels=0, axis=0)
+    tips.at['Total', 'TO Cash'] = tips['TO Cash'].sum()
+    tips.at['Total', 'Server Tipshare'] = tips['Server Tipshare'].sum()
+    tips.at['Total', 'TO CC tips'] = tips['TO CC tips'].sum()
+    tips.at['Total', 'Total Tip Pool'] = tips['Total Tip Pool'].sum()
+    tips.at['Total', 'Total Tipped Hrs'] = tips['Total Tipped Hrs'].sum()
+    tips.at['Average', 'Tip Hourly'] = tips['Tip Hourly'].mean()
     tips_writer = pd.ExcelWriter('output/tiprates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tips.to_excel(tips_writer, sheet_name='tiprates', index=True, header=True, float_format="%.2f")
+
 
     #write indiviudal, if option is selected
     if config.get("DEFAULT", "debug") == 'True':
@@ -277,7 +287,7 @@ def printtoexcel(days=[]):
     worksheet_ttl = ttl_writer.sheets['Payroll_total']
     format1 = workbook_ttl.add_format({'border': 1, 'font_size': 11.5})
     worksheet_ttl.set_column('A:C', 10.25, format1)
-    worksheet_ttl.set_column('D:I', 8.5, format1)
+    worksheet_ttl.set_column('D:I', 8, format1)
     worksheet_ttl.set_default_row(22.5)
 
     workbook_coutxlsx = coutxlsx.book
