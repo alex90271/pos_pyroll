@@ -39,7 +39,7 @@ config = configparser.ConfigParser()
 def generateconfig ():
     config['DEFAULT'] = {'tip share percent': 0.03, 'databaseloc': 'D:\\Bootdrv\\Aloha\\', 'server jobcode number': '1',
                         'take out reg job code number': '11', 'jobcode numbers to receive tips': '2,3,5,10,11,12,13,14',
-                        'debug': False}
+                        'debug': False, 'labor report jobcodes': '8'}
     with open ('config.ini', 'w') as configfile:
         config.write(configfile)
 
@@ -61,35 +61,24 @@ except FileExistsError:
 
 #global variables
 databaseloc = config.get("DEFAULT", "databaseloc")
-qtoday = date.today()
-manual_adj = 0
-working_dict = []
-working_panda = pd.DataFrame
-output_dict = []
-start_date = ''
-end_date = ''
-tip_rates = pd.DataFrame
+qtoday = datetime.datetime.now()
 
 #convert dbf to csv
 def processdatabase (dayofreport):
     '''when function is given a date, it will look for the database location of aloha, find the database files and process them into a readable csv'''
 
-    #attempting to decode house account info
-    # with open('HOUSE50', mode='rb') as file:
-    #     fileContent = file.read()
-    #     fileDecode = UnicodeDammit(fileContent)
-    #     fileMsg = fileDecode.unicode_markup
-    #     fileDecode.original_encoding
-    #     with open("out.txt", "w") as f:
-    #         f.write(" ".join(map(str,fileMsg)))
-    #         f.write("\n")
-    
-    labor = DBF(databaseloc + dayofreport + '/ADJTIME.Dbf')
+    labor = DBF(databaseloc + dayofreport + '/ADJTIME.DBF')
+    counter = 0
     with open('csv/'+ dayofreport +'_labor.csv','w', newline='') as lbrexport:
         writer = csv.writer(lbrexport, delimiter=',')
         writer.writerow(labor.field_names)
         for row in labor:
-            writer.writerow(list(row.values())) 
+            writer.writerow(list(row.values()))
+            counter += 1
+        if counter == 0:
+            #writes in a fake shift is the data is empty-- pandas cannot parse empty csvs, but we still need the date in the data
+            writer.writerow(list([9999,0,'N',0,datetime.datetime.strptime(dayofreport,'%Y%m%d'),datetime.datetime.strptime(dayofreport,'%Y%m%d'),datetime.datetime.strptime(dayofreport,'%Y%m%d'),4,5,00,5,00,0,0,0.0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,0,0.0,0.0,0,0.0,0.0,'N','N',0,0.0,0.0,0,0.0,0.0,1,1,1,0,0,0,0,0.0,0.0,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,0,0.0,0.0,0.0,0,0,0.0,0.0,0,'00:00:00',0,0,0,0,0,0.0,0.0,0.0,0.0,'N','N',0,'N']))
+        print(counter)
             
     #jobcode numbers
     jobcode = DBF(databaseloc + dayofreport + '/JOB.Dbf')
@@ -110,7 +99,7 @@ def processdatabase (dayofreport):
     #https://pandas.pydata.org/docs/user_guide/io.html#io-read-csv-table
 
     #collects sales, tips, and hours data from aloha. Data does not include jobcode names or employee names, jobcode.csv and employee.csv contain this information
-    laborpd = pd.read_csv('csv/'+ dayofreport +'_labor.csv', usecols=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE'])
+    laborpd = pd.read_csv('csv/'+ dayofreport +'_labor.csv', usecols=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'])
     laborpd = laborpd.loc[(laborpd['INVALID']=="N")]
     #jobcode names
     jobcodepd = pd.read_csv('csv/'+ dayofreport +'_jobcode.csv', usecols=['ID','SHORTNAME'])
@@ -129,6 +118,12 @@ def processdatabase (dayofreport):
     
     print("report data for " + dayofreport + " was successfully compiled")
 
+def salesZero(tltsales, tltpay):
+    if tltsales == 0:
+        return 0
+    else:
+        return (tltpay/tltsales * 100)
+
 #calculate tips
 def processtips (day):
     '''this function assumes a data grind has already been run. runs over the date its given and calculates the tips and overwrites previous data'''
@@ -136,10 +131,16 @@ def processtips (day):
 
     #config options
     takeout_reg = str(config.get("DEFAULT", "take out reg job code number")).split(',')
-    server_jobcode = str(config.get("DEFAULT", "server jobcode number")).split(',')  #reg cc tips, but wanted to leave it flexible.
+    server_jobcode = str(config.get("DEFAULT", "server jobcode number")).split(',')
     tipout_recip = str(config.get("DEFAULT", "jobcode numbers to receive tips")).split(',')
     tipshare_percent = float(config.get("DEFAULT", "tip share percent"))
-    iterative_keys = ['HOURS', 'OVERHRS', 'CCTIPS', 'DECTIPS', 'SALES', 'SRVTIPS', 'TIPOUT']
+    labor_jobcode = str(config.get("DEFAULT", "labor report jobcodes")).split(',')
+
+    iterative_keys = ['HOURS', 'OVERHRS', 'CCTIPS', 'DECTIPS', 'SALES', 'SRVTIPS', 'TIPOUT', 'RATE', 'SALES']
+
+    working_dict = []
+    working_panda = pd.DataFrame
+    output_dict = []
     #jobcodes - 1:Server, 2:Assist/Bus, 5:Bar/Dessert, 6:Shag, 7:Dish, 8:Fry Cook, 9:Kitchen, 11:Register, 13:Pay/Phones, 14:Bagger, 50:Manager
     #process labordata into a dict object, and turn iterative keys above into floats vs strings
     with open(file_name) as labordata:
@@ -156,6 +157,8 @@ def processtips (day):
                         item[key] = float(item[key])
         
         #Calculates tips and tipouts
+        tltsales = 0
+        tltpay = 0
         for item in working_dict:
             server_tips = 0
             hrs = 0
@@ -173,6 +176,17 @@ def processtips (day):
                 reg_cash = float(item['DECTIPS'])
                 item.update({'DECTIPS': (item['DECTIPS']-reg_cash)})
                 tipshare += reg_cash
+            if item["SALES"] > 0:
+                tltsales = tltsales + item["SALES"]
+            if item["JOBCODE"] in labor_jobcode:
+                if item["RATE"] > 0:
+                    regpay = item["RATE"] * item["HOURS"]
+                    overpay = (item["RATE"]* 1.5) * item["OVERHRS"]
+                    totalpay = regpay + overpay
+                    tltpay += totalpay
+                    item.update({"REGPAY": regpay})
+                    item.update({"OVERPAY": overpay})
+                    item.update({"TOTALPAY": totalpay})
             item.update({"SRVTIPS": round(server_tips,2)})
             item.update({"TIPSHR_CON": round(tipshare,2)})
 
@@ -202,6 +216,9 @@ def processtips (day):
         datetime_rate = datetime.datetime.strptime(day, "%Y%m%d")
         tips = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")], 'Tip Hourly': [p_hourly_rate], 'TO Cash': [reg_cash], 'Server Tipshare': [server_tipshrpool],'TO CC tips': [to_cctips], 'Total Tip Pool': [tip_pool], 'Total Tipped Hrs': [total_hours]})
 
+        labor = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")],'Tracked JobCodes': [labor_jobcode], 'Total Tracked Pay': [tltpay], 'Total Sales': [tltsales], 'Labor Rate': [salesZero(tltsales, tltpay)]})
+        ##OVERTIME -- Overpay specifies only the amount paid in additon to the normal rate. for example, rate is 10/hr, with 1 hour overtime at the rate of 15. the overpay shows 1 * 5, meaning $5 on top of the regular pay for the overtime hour only
+
         #Adding tipshare to working_dict
         for item in working_dict:
             portion = 0
@@ -216,17 +233,19 @@ def processtips (day):
         working_pd = pd.DataFrame(list(working_dict))
         working_pd.to_csv('csv/'+ day +'_labordata.csv', index=False)
         tips.to_csv('csv/'+ day +'_tiprates.csv', index=False)
-    print('\ntips code ran fine\n')
+        labor.to_csv('csv/'+ day +'_laborrates.csv', index=False)
+    print('\nnightly code ran finished\n')
 
 def printtoexcel(days=[]):
     '''
     function assumes that a data grind has already been run, and adds them up to make a readable excel report
     '''
     #sum up all csvs and make it a readable report
-    print('Days to print', list(days))
+    print('Concatenating Days')#, list(days))
 
     df = pd.concat((pd.read_csv('csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
     tips = pd.concat((pd.read_csv('csv/'+ date +'_tiprates.csv') for date in days), ignore_index=True)
+    labor = pd.concat((pd.read_csv('csv/'+ date +'_laborrates.csv') for date in days), ignore_index=True)
 
     df.groupby(['EMPLOYEE','SYSDATEIN'], as_index=True)
     df = df.drop(columns=['JOBCODE'])
@@ -254,15 +273,25 @@ def printtoexcel(days=[]):
     ttl_writer = pd.ExcelWriter('output/total_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tdf.to_excel(ttl_writer, sheet_name='Payroll_total', index=True, header=True, float_format="%.2f")
 
+    tips['Tip Hourly'] = tips['Tip Hourly'].replace({0:np.nan})
     tips.at['Total', 'TO Cash'] = tips['TO Cash'].sum()
     tips.at['Total', 'Server Tipshare'] = tips['Server Tipshare'].sum()
     tips.at['Total', 'TO CC tips'] = tips['TO CC tips'].sum()
     tips.at['Total', 'Total Tip Pool'] = tips['Total Tip Pool'].sum()
     tips.at['Total', 'Total Tipped Hrs'] = tips['Total Tipped Hrs'].sum()
-    tips.at['Average', 'Tip Hourly'] = tips['Tip Hourly'].mean()
+    tips.at['Average', 'Tip Hourly'] = tips['Tip Hourly'].mean(skipna=True)
     tips_writer = pd.ExcelWriter('output/tiprates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
-    tips.to_excel(tips_writer, sheet_name='tiprates', index=True, header=True, float_format="%.2f")
+    tips.to_excel(tips_writer, sheet_name='Tip Rates', index=True, header=True, float_format="%.2f")
 
+    #'Total Tracked Pay': [tltpay], 'Total Sales': [tltsales], 'Labor Rate'
+    paysum = labor['Total Tracked Pay'].sum()
+    salesum = labor['Total Sales'].sum()
+    rate = salesZero(salesum, paysum)
+    labor.at['TOTAL', 'Total Tracked Pay'] = paysum
+    labor.at['TOTAL', 'Total Sales'] = salesum
+    labor.at['TOTAL', 'Labor Rate'] = rate
+    labor_writer = pd.ExcelWriter('output/laborrates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
+    labor.to_excel(labor_writer, sheet_name='Labor Rates', index=True, header=True, float_format="%.2f")
 
     #write indiviudal, if option is selected
     if config.get("DEFAULT", "debug") == 'True':
@@ -280,8 +309,8 @@ def printtoexcel(days=[]):
         pass
 
     #excel formatting
-    header1 = '&CHere is some centered text.'
-    footer1 = '&LHere is some left aligned text.'
+    header = '&CREPORT DATES: ' + (datetime.datetime.strptime(days[0], "%Y%m%d").strftime("%a %b %d")) + ' through ' + (datetime.datetime.strptime(days[len(days)-1], "%Y%m%d").strftime("%a %b %d")) + ''
+    footer = '&CDATE PRINTED: ' + qtoday.strftime("%a %b %d %H %M %S")
     
     workbook_ttl = ttl_writer.book
     worksheet_ttl = ttl_writer.sheets['Payroll_total']
@@ -294,16 +323,30 @@ def printtoexcel(days=[]):
     worksheet_coutxlsx = coutxlsx.sheets['End of day Clockouts']
     format1 = workbook_coutxlsx.add_format({'border': 1})
     worksheet_coutxlsx.set_column('A:R', 10, format1)
+    worksheet_coutxlsx.set_header(header)
+    worksheet_coutxlsx.set_footer(footer)
 
     tips_wrkbook = tips_writer.book
-    tips_wrksheet = tips_writer.sheets['tiprates']
+    tips_wrksheet = tips_writer.sheets['Tip Rates']
     format1 = tips_wrkbook.add_format({'border': 1, 'num_format': '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'})
     tips_wrksheet.set_column('B:H', 15, format1)
+    tips_wrksheet.set_header(header)
+    tips_wrksheet.set_footer(footer)
+    tips_wrksheet.set_landscape()
+
+    labor_wrkbook = labor_writer.book
+    labor_wrksheet = labor_writer.sheets['Labor Rates']
+    format1 = labor_wrkbook.add_format({'border': 1, 'num_format': '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'})
+    labor_wrksheet.set_column('B:H', 15, format1)
+    labor_wrksheet.set_header(header)
+    labor_wrksheet.set_footer(footer)
 
     coutxlsx.save()
     ttl_writer.save()
     tips_writer.save()
-    print('\noutput created\n')
+    labor_writer.save()
+
+    print('reports printed created\n')
 
 #main code
 if __name__ == "__main__":
@@ -322,6 +365,8 @@ if __name__ == "__main__":
         label_two.config(text="Last Day Selected: " + cal.get_date())
         global end_date
         end_date = cal.selection_get()
+    def yesterday():
+        pass
     def popup():
         label_pop = Label(root, text="\nTips will now be processed")
         label_pop.pack()
@@ -359,9 +404,12 @@ if __name__ == "__main__":
     def on_closing():
         root.destroy()
         sys.exit()
-        
+
+    start_date = ''
+    end_date = ''    
     root.protocol("WM_DELETE_WINDOW", on_closing)
     month = int(date.today().strftime("%m"))
+    year = int(date.today().strftime("%Y"))
     main_label = Label(root, 
         text="Must be processed after the end of last day for payroll\n \nSelecting today (" + qtoday.strftime("%m-%d-%Y") + ") or future days will cancel process\n \nIf changes were made in POS, tips must be run again")
     main_label.pack(pady=5)
@@ -369,7 +417,7 @@ if __name__ == "__main__":
     label_tip = Label(root, text="Tip share percent: "+ tipshr_percent + "%\n")
     label_tip.pack(pady=5)
     cal = Calendar(root, selectmode="day", firstweekday="sunday", showweeknumbers=False, 
-        showothermonthdays=False, year=2020, month=month, date_pattern="mm-dd-yyyy")
+        showothermonthdays=False, year=year, month=month, date_pattern="mm-dd-yyyy")
     cal.pack(pady=20)
     #settings = Button(root, text="Settings", command=settings)
     #settings.pack(pady=5)
