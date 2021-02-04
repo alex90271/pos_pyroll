@@ -86,7 +86,7 @@ def processdatabase (dayofreport):
     jobcode = DBF(databaseloc + dayofreport + '/JOB.Dbf')
     with open('csv/'+ dayofreport +'_jobcode.csv','w', newline='') as jobcodeexport:
         writer = csv.writer(jobcodeexport, delimiter=',')
-        writer.writerow(jobcode.field_names)
+        writer.writerow(jobcode.field_names) 
         for row in jobcode:
             writer.writerow(list(row.values()))
 
@@ -233,7 +233,7 @@ def processtips (day):
         jobname = jobs.loc[(jobs['ID'] == 8),'SHORTNAME'].values[0]
         datetime_rate = datetime.datetime.strptime(day, "%Y%m%d")
         tips = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")], 'Tip Hourly': [p_hourly_rate], 'TO Cash': [reg_cash], 'Server Tipshare': [server_tipshrpool],'TO CC tips': [to_cctips], 'Total Tip Pool': [tip_pool], 'Total Tipped Hrs': [total_hours]})
-        labor = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")],'Tracked Jobs': [jobname + '' + salary], 'Total Tracked Pay': [tltpay], 'Total Sales': [tltsales], 'Labor Rate': [salesZero(tltsales, tltpay)], 'Regular Hours': [tlt_reg_hour], 'Overtime Hours': [tlt_over_hours]})
+        labor = pd.DataFrame(data={'Date': [datetime_rate.strftime("%a %b %e")],'Tracked Jobs': [jobname + '' + salary], 'Total Pay': [tltpay], 'Total Sales': [tltsales], 'Labor Rate (%)': [salesZero(tltsales, tltpay)], 'Regular Hrs': [tlt_reg_hour], 'Overtime Hrs': [tlt_over_hours], 'Total Hours': [tlt_over_hours + tlt_reg_hour]})
         ##OVERTIME -- Overpay specifies only the amount paid in additon to the normal rate. for example, rate is 10/hr, with 1 hour overtime at the rate of 15. the overpay shows 1 * 5, meaning $5 on top of the regular pay for the overtime hour only
         
         #Adding tipshare to working_dict
@@ -259,6 +259,10 @@ def printtoexcel(days=[]):
     '''
     #sum up all csvs and make it a readable report
     print('Concatenating Days')#, list(days))
+
+    files = glob.glob('output/*.xlsx')
+    for f in files:
+        os.remove(f)
 
     df = pd.concat((pd.read_csv('csv/'+ date +'_labordata.csv') for date in days), ignore_index=True)
     tips = pd.concat((pd.read_csv('csv/'+ date +'_tiprates.csv') for date in days), ignore_index=True)
@@ -300,15 +304,16 @@ def printtoexcel(days=[]):
     tips_writer = pd.ExcelWriter('output/tiprates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     tips.to_excel(tips_writer, sheet_name='Tip Rates', index=True, header=True, float_format="%.2f")
 
-    #'Total Tracked Pay': [tltpay], 'Total Sales': [tltsales], 'Labor Rate'
-    paysum = labor['Total Tracked Pay'].sum()
+    paysum = labor['Total Pay'].sum()
     salesum = labor['Total Sales'].sum()
     rate = salesZero(salesum, paysum)
-    labor.at['TOTAL', 'Total Tracked Pay'] = paysum
+    labor.at['TOTAL', 'Total Pay'] = paysum
     labor.at['TOTAL', 'Total Sales'] = salesum
-    labor.at['TOTAL', 'Labor Rate'] = rate
-    labor.at['TOTAL', 'Regular Hours'] = labor['Regular Hours'].sum()
-    labor.at['TOTAL', 'Overtime Hours'] = labor['Overtime Hours'].sum()
+    labor.at['TOTAL', 'Labor Rate (%)'] = rate
+    labor.at['TOTAL', 'Regular Hrs'] = labor['Regular Hrs'].sum()
+    labor.at['TOTAL', 'Overtime Hrs'] = labor['Overtime Hr
+    s'].sum()
+    labor.at['TOTAL', 'Total Hours'] = labor['Total Hours'].sum()
     labor_writer = pd.ExcelWriter('output/laborrates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     labor.to_excel(labor_writer, sheet_name='Labor Rates', index=True, header=True, float_format="%.2f")
 
@@ -359,7 +364,7 @@ def printtoexcel(days=[]):
     labor_wrkbook = labor_writer.book
     labor_wrksheet = labor_writer.sheets['Labor Rates']
     format1 = labor_wrkbook.add_format({'border': 1, 'num_format': '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'})
-    labor_wrksheet.set_column('B:H', 15, format1)
+    labor_wrksheet.set_column('B:I', 13, format1)
     labor_wrksheet.set_header(header)
     labor_wrksheet.set_footer(footer)
     labor_wrksheet.set_landscape()
@@ -485,6 +490,7 @@ if __name__ == "__main__":
         pass
     else:
         files = glob.glob('csv/*.csv')
+        #file_2 = glob.glob('output/*.xlsx')
         for f in files:
             os.remove(f)
 
