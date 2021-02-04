@@ -311,8 +311,7 @@ def printtoexcel(days=[]):
     labor.at['TOTAL', 'Total Sales'] = salesum
     labor.at['TOTAL', 'Labor Rate (%)'] = rate
     labor.at['TOTAL', 'Regular Hrs'] = labor['Regular Hrs'].sum()
-    labor.at['TOTAL', 'Overtime Hrs'] = labor['Overtime Hr
-    s'].sum()
+    labor.at['TOTAL', 'Overtime Hrs'] = labor['Overtime Hrs'].sum()
     labor.at['TOTAL', 'Total Hours'] = labor['Total Hours'].sum()
     labor_writer = pd.ExcelWriter('output/laborrates_'+ str(days[0]) + '_' + str(days[len(days)-1]) + '.xlsx')
     labor.to_excel(labor_writer, sheet_name='Labor Rates', index=True, header=True, float_format="%.2f")
