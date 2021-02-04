@@ -9191,3 +9191,6 @@ dist/PyRoll/pytz/zoneinfo/US/Samoa
 dist/PyRoll/sqlalchemy/cprocessors.cp38-win_amd64.pyd
 dist/PyRoll/sqlalchemy/cresultproxy.cp38-win_amd64.pyd
 dist/PyRoll/sqlalchemy/cutils.cp38-win_amd64.pyd
+labor.csv
+job.csv
+emp.csv

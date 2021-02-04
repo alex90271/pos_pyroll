@@ -9,6 +9,7 @@ import configparser
 import os
 import datetime
 import timeit
+import numpy as np
 from dbfread import DBF
 
 def day_list(first_day: datetime, last_day: datetime, increment = 1):
@@ -38,16 +39,17 @@ class Config():
 
     def generate_config (self):
         self.config['DEFAULT'] = {
-                            'sales_percent': 0.03, 
-                            'database': 'D:\\Bootdrv\\Aloha\\',  # set config.ini to database\ for testing
-                            'server_code': 1,
-                            'takeout_code': 11, 
-                            'tipped_code': '2,3,5,10,11,12,13,14', 
-                            'tracked_labor_codes': 8, 
-                            'payroll_days': 15,
+                            'tip_sales_percent': 0.03,
+                            'tip_amt_percent': 100,
+                            'percent_sale_codes': 1,
+                            'percent_tip_codes': 11, 
+                            'tipped_codes': '2,3,5,10,11,12,13,14', 
+                            'tracked_labor': 8, 
+                            'pay_period_days': 15,
                             'count_salary': True, 
                             'debug': False,
-                            'tip_percent': 100
+                            'database': 'D:\\Bootdrv\\Aloha\\',# set config.ini to database\ for testing
+                            'use_aloha_tipshare': True
                             }
         with open (self.file_name, 'w') as configfile:
             self.config.write(configfile)
@@ -96,18 +98,19 @@ class DatabaseQuery():
         if db_type == 'employees':
             a = self.dbf_to_list('/EMP.Dbf')
             df = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED'])
+            df.set_index('ID')
             return df
         elif db_type == 'jobcodes':
             a = self.dbf_to_list('/JOB.Dbf')
             df = pd.DataFrame(a, columns=['ID', 'SHORTNAME'])
-            df.reset_index()
+            df.set_index('ID')
             return df
         elif db_type == 'labor':
             a = self.dbf_to_list('/ADJTIME.DBF')
             db_type = db_type + self.day
-            df = pd.DataFrame(a)
+            df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'TIPSHCON'])
             df = df.loc[df['INVALID'] == 'N']
-            df.reset_index()
+            df.set_index('EMPLOYEE')
             return df
 
     def process_names(self, *df):
@@ -128,27 +131,45 @@ class DatabaseQuery():
         return df
 
 class Labor_Process():
-    def __init__(self, df):
+    #'SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'
+    def __init__(self, day):
+        d = DatabaseQuery(day)
         c = Config()
-        self.percent_tips = c.query('register') #jobcodes that contribute based on a percentage of tips
-        self.percent_sales = c.query('server') #jobcodes that contribute based on a percentage of sales
-        self.tipout_recip = c.query('tipout_recip')
-        self.sales_percent = c.query('sales_percent')
-        self.tip_percent = c.query('tip_percent')
-        self.tracked_labor = c.query('tracked_labor')
-        self.pay_period = c.query('pay_period')
-        self.df = df
+        self.percent_tips_codes = c.query('percent_tip_codes').split(',') #jobcodes that contribute based on a percentage of tips
+        self.percent_sales_codes = c.query('percent_sale_codes').split(',') #jobcodes that contribute based on a percentage of sales
+        self.tipped_code = c.query('tipped_codes').split(',')
+        self.sales_percent = float(c.query('tip_sales_percent'))
+        self.tip_percent = float(c.query('tip_amt_percent'))
+        self.tracked_labor = c.query('tracked_labor').split(',')
+        self.pay_period = int(c.query('pay_period_days'))
+        self.use_aloha_tipshare = bool(c.query('use_aloha_tipshare'))
+        self.df = d.process_names()
         self.total_pool = 0
         self.to_cctip = 0
         self.to_cashtip = 0
 
-    def get_tipshare(self):
-        pass
+    def get_percent_sales(self):
+        '''returns tip share from server jobcodes'''
+        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_sales_codes)]
+        total = 0
+
+        if self.use_aloha_tipshare:
+            total = cur_df['TIPSHCON'].sum()
+        else:
+            total = cur_df['SALES'].sum() * self.sales_percent
+
+        return total
+
+    def get_percent_tips(self):
+        '''returns tip share from register jobcodes'''
+        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_tips_codes)]
+        total = cur_df['CCTIPS'].sum() + cur_df['DECTIPS'].sum()
+
+        return total
 
 if __name__ == '__main__':
-    a = DatabaseQuery('20210106')
-    df = a.process_names()
-    #df.to_csv('csv.csv')
-    print(df)
+    b = Labor_Process('20210106')
+    pool = b.get_percent_tips()
+    print(pool)
 
 
