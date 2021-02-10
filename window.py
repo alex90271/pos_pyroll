@@ -1,6 +1,31 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtGui import QIcon
+from tkinter import *
+from pandastable import Table, TableModel
+from gen_rpt import gen_rpt
+from chip import day_list
+
+class TestApp(Frame):
+        """Basic test frame for the table"""
+        def __init__(self, parent=None):
+            self.parent = parent
+            Frame.__init__(self)
+            self.main = self.master
+            self.main.geometry('600x400+200+100')
+            self.main.title('Table app')
+            f = Frame(self.main)
+            f.pack(fill=BOTH,expand=1)
+            first_day = '20210101'
+            last_day = '20210131'
+            self.table = pt = Table(
+                                    f, 
+                                    dataframe=gen_rpt(day_list(first_day, last_day)).tip_rate(),
+                                    showtoolbar=True, 
+                                    showstatusbar=True,
+                                    )
+            pt.show()
+            return
 
 class App(QWidget):
 
@@ -23,6 +48,5 @@ class App(QWidget):
 
     
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())
+    app = TestApp()
+    app.mainloop()
