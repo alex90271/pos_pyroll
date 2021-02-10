@@ -35,16 +35,16 @@ class process_tips():
 
     def get_percent_tips(self):
         '''returns tip share from register jobcodes'''
-        cur_df = self.df.loc[self.df.JOBCODE.isin(self.percent_tips_codes)].copy()
-        cur_df.loc[:,('TIP_CONT')] = np.add(cur_df.loc[:,('CCTIPS')].values, cur_df.loc[:,('DECTIPS')].values)
-        total = np.sum(cur_df.loc[:,('TIP_CONT')].values)
+        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_tips_codes)].copy()
+        cur_df['TIP_CONT'] = np.add(cur_df['CCTIPS'].values, cur_df['DECTIPS'].values)
+        total = np.sum(cur_df['TIP_CONT'].values)
         #print('reg tips ' + str(total))
         return total
 
     def get_tipped_hours(self):
         '''returns total hours to be tipped'''
-        cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tipped_code)].copy()
-        total = np.add(np.sum(cur_df.loc[:, ('HOURS')].values), np.sum(cur_df.loc[:,('OVERHRS')].values))
+        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.tipped_code)].copy()
+        total = np.add(np.sum(cur_df['HOURS'].values), np.sum(cur_df['OVERHRS'].values))
         #print('total hours ' + str(total))
         return total
 
@@ -54,16 +54,14 @@ class process_tips():
         total_pool = np.add(self.get_percent_sales(), self.get_percent_tips())
         if tipped_hours and total_pool == 0:
             return 0
-        rate = np.divide(total_pool, tipped_hours)
-        sales = self.db.get_total_sales()
-        print(sales)
+        rate = np.true_divide(total_pool, tipped_hours)
         #print('tip rate ' + str(rate))
         return rate
 
     def calc_tipout(self):
         '''calculates tipouts and returns a dataframe with added tipout values'''
-        cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tipped_code)].copy()
-        cur_df.loc[:,('TIPOUT')] = np.multiply(cur_df.loc[:,('HOURS')].values, self.get_tip_rate())
+        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.tipped_code)].copy()
+        cur_df['TIPOUT'] = np.round(np.multiply(cur_df['HOURS'].values, self.get_tip_rate()),2)
 
         if self.debug:
             cur_df.to_csv('debug/calc_tipout' + self.day + '.csv')
@@ -71,19 +69,32 @@ class process_tips():
         return cur_df
 
     def calc_servtips(self, merge=False): 
-        cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.percent_sales_codes)].copy()
+        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_sales_codes)].copy()
 
         if self.use_aloha_tipshare:
-            cur_df.loc[:,('TIP_CONT')] = cur_df.loc[:,('TIPSHCON')].values
+            cur_df['TIP_CONT'] = cur_df['TIPSHCON'].values
         else:
-            cur_df.loc[:,('TIP_CONT')].values = np.multiply(cur_df.loc[:,('SALES')].values, self.sales_percent)
+            cur_df['TIP_CONT'].values = np.multiply(cur_df['SALES'].values, self.sales_percent)
 
-        cur_df.loc[:,('SRVTIPS')] = np.subtract(cur_df.loc[:,('CCTIPS')].values, cur_df.loc[:,('TIP_CONT')].values)
+        cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
 
         if merge:
             return self.df.merge(cur_df, on='EMPLOYEE', suffixes=(False, False))
 
         return cur_df
+    
+    def calc_tiprate_df(self, r=1):
+        df = pd.DataFrame(data={
+                    'Date': [self.get_day()], 
+                    'Rate': [np.round(self.get_tip_rate(),r)],
+                    'Cash Tips': [0],
+                    'Takeout Tips': [np.round(self.get_percent_tips(),r)],
+                    'Server Tipshare': [np.round(self.get_percent_sales(),r)],
+                    'Total Pool': [np.round(np.add(self.get_percent_sales(),self.get_percent_tips()),r)], 
+                    'Tipped Hours': [np.round(self.get_tipped_hours(),r)]
+                    #TODO finish
+                })
+        return df
 
     def calc_all_tips(self):
         s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]]

@@ -68,6 +68,12 @@ class process_labor():
         else:
             return np.round(np.multiply(np.divide(labor_cost, sales), 100),2)
 
+    def calc_laborrate_df(self, r=3):
+        pd.DataFrame(data={
+                    'day': [self.get_day()],
+                    'rate': [np.round(self.get_labor_rate(),r)]
+            })
+
 if __name__ == '__main__':
     print("loading process_labor.py")
     print(process_labor("20210109").get_labor_hours())

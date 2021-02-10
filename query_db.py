@@ -12,10 +12,8 @@ class query_db():
         return self.day
     
     def dbf_to_list(self, dbf):
-        a = []
         c = cfg()
-        for record in DBF(c.query('database') + self.day + dbf, char_decode_errors='ignore'):
-            a.append(record)
+        a = list(DBF(c.query('database') + self.day + dbf, char_decode_errors='ignore'))
         return a
 
     def process_db(self, db_type):
@@ -35,7 +33,9 @@ class query_db():
         elif db_type == 'labor':
             a = self.dbf_to_list('/ADJTIME.DBF')
             db_type = db_type + self.day
-            df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'TIPSHCON'])
+            df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
+                                          'CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE',
+                                          'RATE', 'TIPSHCON'])
             df = df.loc[df.loc[:,('INVALID')] == 'N']
             df.loc[:,('HOURS')] = np.subtract(df.loc[:,('HOURS')], df.loc[:,('OVERHRS')])
             df.set_index('EMPLOYEE')
@@ -68,7 +68,7 @@ class query_db():
 
     def get_total_sales(self):
         df = self.process_db('labor')
-        return np.sum(df['SALES'].values)
+        return np.round(np.sum(df['SALES'].values),2)
 
 if __name__ == '__main__':
     print("loading query_db.py")

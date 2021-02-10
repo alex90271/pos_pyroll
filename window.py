@@ -4,7 +4,6 @@ from PyQt5.QtGui import QIcon
 from tkinter import *
 from pandastable import Table, TableModel
 from gen_rpt import gen_rpt
-from chip import day_list
 
 class TestApp(Frame):
         """Basic test frame for the table"""
@@ -17,10 +16,11 @@ class TestApp(Frame):
             f = Frame(self.main)
             f.pack(fill=BOTH,expand=1)
             first_day = '20210101'
-            last_day = '20210131'
+            last_day = '20210115'
+            inc = 1
             self.table = pt = Table(
                                     f, 
-                                    dataframe=gen_rpt(day_list(first_day, last_day)).tip_rate(),
+                                    dataframe=gen_rpt(first_day, last_day, inc).tip_rate(),
                                     showtoolbar=True, 
                                     showstatusbar=True,
                                     )
