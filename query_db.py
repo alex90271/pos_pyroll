@@ -1,8 +1,10 @@
 import datetime
 import numpy as np
 import pandas as pd
+import timeit
 from cfg import cfg
 from dbfread import DBF
+#from itertools import izip
 
 class query_db():
     def __init__(self, day):
@@ -13,7 +15,7 @@ class query_db():
     
     def dbf_to_list(self, dbf):
         c = cfg()
-        a = list(DBF(c.query('database') + self.day + dbf, char_decode_errors='ignore'))
+        a = DBF(c.query('database') + self.day + dbf, char_decode_errors='ignore', load=True)
         return a
 
     def process_db(self, db_type):
@@ -23,12 +25,10 @@ class query_db():
         if db_type == 'employees':
             a = self.dbf_to_list('/EMP.Dbf')
             df = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED'])
-            df.set_index('ID')
             return df
         elif db_type == 'jobcodes':
             a = self.dbf_to_list('/JOB.Dbf')
             df = pd.DataFrame(a, columns=['ID', 'SHORTNAME'])
-            df.set_index('ID')
             return df
         elif db_type == 'labor':
             a = self.dbf_to_list('/ADJTIME.DBF')
@@ -36,12 +36,11 @@ class query_db():
             df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
                                           'CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE',
                                           'RATE', 'TIPSHCON'])
-            df = df.loc[df.loc[:,('INVALID')] == 'N']
-            df.loc[:,('HOURS')] = np.subtract(df.loc[:,('HOURS')], df.loc[:,('OVERHRS')])
-            df.set_index('EMPLOYEE')
+            df = df.loc[np.where(df['INVALID'] == 'N')]
+            df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values)
             return df
 
-    def process_names(self, *df):
+    def process_names(self, df):
         #print('adding names')
         job = self.process_db('jobcodes')
         job = job.rename(columns={'ID': 'JOBCODE'})
@@ -49,11 +48,6 @@ class query_db():
 
         emp = self.process_db('employees')
         emp = emp.rename(columns={'ID':'EMPLOYEE'})
-
-        if df is not None:
-            df = self.process_db('labor')
-        else:
-            df = df[0]
 
         df = df.merge(job, on='JOBCODE')
         df = df.merge(emp, on='EMPLOYEE')
@@ -72,4 +66,10 @@ class query_db():
 
 if __name__ == '__main__':
     print("loading query_db.py")
-    print(query_db("20210109").process_db('jobcodes'))
+
+    def main():
+        #print("loading process_tips.py")
+        query_db("20210109").process_db('labor')
+    r = 100
+    f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
+    print("completed with an average of " + str(np.round(np.mean(f),6)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),3)) + "s")

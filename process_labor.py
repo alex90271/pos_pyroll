@@ -11,7 +11,7 @@ class process_labor():
 
     def __init__(self, day):
         self.db = db(day)
-        self.df = self.db.process_names()
+        self.df = self.db.process_db('labor')
         self.day = day
         #config options
         c = cfg()
@@ -48,20 +48,24 @@ class process_labor():
         cur_df.loc[:,('TOTAL_PAY')] = np.add(reg,over)
         return cur_df
     
-    def get_labor_cost(self):
+    def get_total_pay(self):
         '''returns total cost of labor'''
         cur_df = self.calc_labor_cost()
         total = np.sum(cur_df.loc[:, ('TOTAL_PAY')])
         return total
 
-    def get_labor_hours(self):
+    def get_total_hours(self, over=False, reg=False):
         '''returns total hours tracked on the labor tracker'''
         cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tracked_labor)].copy()
-        total = np.add(np.sum(cur_df.loc[:, ('HOURS')]), np.sum(cur_df.loc[:,('OVERHRS')]))
+        total = 0
+        if reg:
+            total += np.sum(cur_df.loc[:, ('HOURS')])
+        if over:
+            total += np.sum(cur_df.loc[:,('OVERHRS')])
         return total
     
     def get_labor_rate(self):
-        labor_cost = self.get_labor_cost()
+        labor_cost = self.get_total_pay()
         sales = self.db.get_total_sales()
         if sales == 0:
             return 0
@@ -69,11 +73,17 @@ class process_labor():
             return np.round(np.multiply(np.divide(labor_cost, sales), 100),2)
 
     def calc_laborrate_df(self, r=3):
-        pd.DataFrame(data={
-                    'day': [self.get_day()],
-                    'rate': [np.round(self.get_labor_rate(),r)]
+        return pd.DataFrame(data={
+                    'Day': [self.get_day()],
+                    'Rate (%)': [np.round(self.get_labor_rate(),r)],
+                    'Total Pay': [np.round(self.get_total_pay(),r)],
+                    'Total Sales': [np.round(self.db.get_total_sales(),r)],
+                    'Reg Hours': [np.round(self.get_total_hours(reg=True),r)],
+                    'Over Hours': [np.round(self.get_total_hours(over=True),r)],
+                    'Total Hours': [np.round(self.get_total_hours(reg=True, over=True),r)]
             })
 
+        
 if __name__ == '__main__':
     print("loading process_labor.py")
-    print(process_labor("20210109").get_labor_hours())
+    print(process_labor("20210109").calc_laborrate_df())

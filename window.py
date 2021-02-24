@@ -20,9 +20,9 @@ class TestApp(Frame):
             inc = 1
             self.table = pt = Table(
                                     f, 
-                                    dataframe=gen_rpt(first_day, last_day, inc).tip_rate(),
-                                    showtoolbar=True, 
-                                    showstatusbar=True,
+                                    dataframe=gen_rpt(first_day, last_day, inc).labor_main(),
+                                    showtoolbar=False, 
+                                    showstatusbar=False,
                                     )
             pt.show()
             return
