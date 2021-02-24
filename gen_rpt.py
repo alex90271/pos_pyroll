@@ -43,13 +43,19 @@ class gen_rpt():
 
         return df
 
-    def tip_rate(
+    def rate_rpt(
                 self,
-                totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
-                averaged_cols=['Tip Hourly']
+                rpt: str,
+                totaled_cols: list, 
+                averaged_cols: list
                 ):
-        t = [tips(day).calc_tiprate_df() for day in self.days]
-        df = pd.concat(t).reset_index(drop=True)
+        a = []
+        if rpt == 'Tip':
+            a = [tips(day).calc_tiprate_df() for day in self.days]
+        if rpt == 'Labor':
+            a = [labor(day).calc_laborrate_df() for day in self.days]
+
+        df = pd.concat(a).reset_index(drop=True)
 
         self.append_totals(df, 
             totaled_cols=totaled_cols, 
@@ -58,22 +64,6 @@ class gen_rpt():
 
         return df
         
-        #TODO Combine these functions, the code is similar enough. 
-
-    def labor_rate(
-                self,
-                totaled_cols=['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
-                averaged_cols=['Rate (%)']
-                ):
-        l = [labor(day).calc_laborrate_df() for day in self.days]
-        df = pd.concat(l).reset_index(drop=True)
-
-        self.append_totals(df, 
-            totaled_cols=totaled_cols, 
-            averaged_cols=averaged_cols
-            )
-
-        return df
 
     def cout_by_eod(
                     self, 
@@ -138,7 +128,10 @@ class gen_rpt():
         f3 = wrkbook.add_format({'border': 1, 'num_format': '0'}) #no formatting
         
         if rpt == options[0]:
-            df = self.tip_rate()
+            df = self.rate_rpt(
+                rpt='Tip',
+                totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
+                averaged_cols=['Tip Hourly'])
             wrksheet.set_column('B:H', 15, f1)
             wrksheet.set_landscape()
         elif rpt == options[1]:
@@ -148,7 +141,10 @@ class gen_rpt():
             wrksheet.set_column('D:D', 8, f3) #employee numbers 
             wrksheet.set_column('H:K', 10, f2)
         elif rpt == options[2]:
-            df = self.labor_rate()
+            df = self.rate_rpt(
+                rpt='Labor',
+                totaled_cols=['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
+                averaged_cols=['Rate (%)'])
             wrksheet.set_column('B:H', 12, f1)
             wrksheet.set_landscape()
         elif rpt == options[3]:

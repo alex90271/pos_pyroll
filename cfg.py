@@ -1,11 +1,11 @@
 import configparser
 import os
 
-class config():
+class cfg():
 
     def __init__(
                 self, 
-                file_name='config2.ini'
+                file_name='chip.ini'
                 ):
         self.file_name = file_name
         self.config = configparser.ConfigParser()
@@ -35,8 +35,7 @@ class config():
             
             possible options: 
             register, server, tipout_recip, tip_percent,
-            tracked_labor, pay_period, debug, database, and salary
-        '''
+            tracked_labor, pay_period, debug, database, and salary'''
 
         if os.path.isfile(self.file_name):
             self.config.read(self.file_name)
@@ -45,3 +44,7 @@ class config():
             self.generate_config()
 
         return self.config.get("DEFAULT", query)
+
+if __name__ == '__main__':
+    print("loading cfg.py")
+    print(cfg().query('tipped_codes'))
