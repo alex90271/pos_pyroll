@@ -1,6 +1,7 @@
 from process_labor import process_labor as labor
 from process_tips import process_tips as tips
 from query_db import query_db as query_db
+from datetime import date
 import xlsxwriter
 import numpy as np
 import pandas as pd
@@ -12,8 +13,6 @@ class gen_rpt():
     def __init__(self, first_day, last_day=None, increment=1):
         self.first_day = first_day
         self.last_day = last_day
-        self.first_full = datetime.datetime.strptime(self.first_day, "%Y%m%d").strftime("%a %b %d, %Y")
-        self.last_full = datetime.datetime.strptime(self.last_day, "%Y%m%d").strftime("%a %b %d, %Y")
         self.days = []
 
         if last_day == None:
@@ -29,6 +28,8 @@ class gen_rpt():
                 cur_day = first_day.strftime("%Y%m%d")
                 self.days.append(cur_day)
                 first_day += datetime.timedelta(days=increment)
+        self.first_full = datetime.datetime.strptime(self.first_day, "%Y%m%d").strftime("%a %b %d, %Y")
+        self.last_full = datetime.datetime.strptime(self.last_day, "%Y%m%d").strftime("%a %b %d, %Y")
     
     def append_totals(
                     self,
@@ -52,8 +53,12 @@ class gen_rpt():
         a = []
         if rpt == 'Tip':
             a = [tips(day).calc_tiprate_df() for day in self.days]
-        if rpt == 'Labor':
+        elif rpt == 'Labor':
             a = [labor(day).calc_laborrate_df() for day in self.days]
+        else:
+            print('no proper data provided the following report is blank:')
+            return pd.DataFrame({}) #returns a blank dataframe
+
 
         df = pd.concat(a).reset_index(drop=True)
 
@@ -67,8 +72,8 @@ class gen_rpt():
 
     def cout_by_eod(
                     self, 
-                    cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
-                    cout_col='COUTBYEOD'
+                    cols: list,
+                    cout_col: str
                     ):
         cout = [query_db(day).process_db('labor') for day in self.days]
         df = pd.concat(cout).reset_index(drop=True)
@@ -80,12 +85,11 @@ class gen_rpt():
 
     #concatenates the data
     def labor_main(
-                    self, 
-                    debug=False,
-                    drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
-                    index_cols=['LASTNAME', 'FIRSTNAME', 'EMPLOYEE', 'JOB_NAME'],
-                    totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                    addl_cols=[]
+                    self,
+                    drop_cols: list,
+                    index_cols: list,
+                    totaled_cols: list,
+                    addl_cols: list
                     ): 
         a = [tips(day).calc_payroll() for day in self.days]
         df = pd.concat(a)
@@ -95,16 +99,18 @@ class gen_rpt():
                             index=index_cols,
                             aggfunc=np.sum, 
                             fill_value=np.NaN)
-
-        _df = _df[totaled_cols]
+        try:
+            _df = _df[totaled_cols]
+            self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[])
+        except:
+            _df[totaled_cols] = np.nan
 
         if addl_cols is not None:
             for col in addl_cols:
                  _df[col] = np.nan
+            
 
-        self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[])
-
-        return _df#.reset_index()
+        return _df.reset_index()
 
     def print_to_excel(self, rpt):
         '''
@@ -112,7 +118,6 @@ class gen_rpt():
             returns true when the file is printed
         
         '''
-        options = ['tip_rate', 'labor_main', 'labor_rate', 'cout_eod']
         file_name = (rpt + '_' + self.first_day + '_' + self.last_day + '.xlsx')
         try:
             os.mkdir('reports')
@@ -127,38 +132,44 @@ class gen_rpt():
         f2 = wrkbook.add_format({'border': 1, 'num_format': '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'}) #adds $
         f3 = wrkbook.add_format({'border': 1, 'num_format': '0'}) #no formatting
         
-        if rpt == options[0]:
+        if rpt == 'tip_rate':
             df = self.rate_rpt(
                 rpt='Tip',
                 totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
                 averaged_cols=['Tip Hourly'])
             wrksheet.set_column('B:H', 15, f1)
             wrksheet.set_landscape()
-        elif rpt == options[1]:
-            df = self.labor_main(addl_cols=['MEALS'])
-            wrksheet.set_column('B:E', 12, f1)
-            wrksheet.set_column('F:G', 10, f1)
-            wrksheet.set_column('D:D', 8, f3) #employee numbers 
-            wrksheet.set_column('H:K', 10, f2)
-        elif rpt == options[2]:
+        elif rpt == 'labor_main':
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+                index_cols=['LASTNAME', 'FIRSTNAME', 'EMPLOYEE', 'JOB_NAME'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                addl_cols=['MEALS'])
+            wrksheet.set_column('B:E', 10, f1)
+            wrksheet.set_column('F:G', 8, f1)
+            wrksheet.set_column('D:D', 6, f3) #employee numbers 
+            wrksheet.set_column('H:K', 8, f2)
+        elif rpt == 'labor_rate':
             df = self.rate_rpt(
                 rpt='Labor',
                 totaled_cols=['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
                 averaged_cols=['Rate (%)'])
             wrksheet.set_column('B:H', 12, f1)
             wrksheet.set_landscape()
-        elif rpt == options[3]:
-            df = self.cout_by_eod()
+        elif rpt == 'cout_eod':
+            df = self.cout_by_eod(
+                cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
+                cout_col='COUTBYEOD')
             wrksheet.set_column('B:M', 10, f3)
             wrksheet.set_column('G:H', 10, f1)
         else:
-            o = ', '.join(options)
-            print('' + rpt + ' is an invalid selection - valid options: ' + o)
+            print('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             return False
 
         wrksheet.set_column('A:A', 4, f3) #make index column small
-        df.to_excel(writer, sheet_name=file_name[:-5], index=True, header=True, float_format="%.2f") #write with the updated data
-        wrksheet.set_header('&DREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '')
+        df.to_excel(writer, sheet_name=file_name[:-5], header=df.keys(), float_format="%.2f") #write with the updated data
+        wrksheet.set_header('REPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '\nREPORT TYPE: ' + rpt)
+        wrksheet.set_footer('DATE AND TIME PRINTED: ' + date.today().strftime("%a %b %d, %Y, %H:%M:%S"))
         writer.save()
 
         if os.path.isfile('reports/' + file_name):
