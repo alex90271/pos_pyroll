@@ -20,7 +20,7 @@ class process_tips():
         self.percent_sales_codes = c.query('percent_sale_codes').split(',') #jobcodes that contribute based on a percentage of sales
         self.tipped_code = c.query('tipped_codes').split(',') #jobcodes that receive
         self.sales_percent = float(c.query('tip_sales_percent'))
-        self.tip_percent = float(c.query('tip_amt_percent'))
+        self.tip_percent = float(c.query('tip_amt_percent')) #TODO actually implement this
         self.use_aloha_tipshare = bool(c.query('use_aloha_tipshare'))
         self.debug = False
     
