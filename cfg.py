@@ -27,23 +27,23 @@ class cfg():
             'use_aloha_tipshare': False #bool
             }
         self.data['RPT_TIP_RATE'] = {
-            'col_names': 'Date, Tip Hourly, Cash Tips, Takeout CC Tips, Server Tipshare, Total Tip Pool, Total Tip\'d Hours',
-            'totaled_cols':'Cash Tips, Takeout CC Tips, Server Tipshare, Total Tip Pool, Total Tip\'d Hours', 
-            'averaged_cols':'Tip Hourly'
+            'col_names': ['Date', 'Tip Hourly', 'Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'],
+            'totaled_cols':['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
+            'averaged_cols':['Tip Hourly']
             }
         self.data['RPT_LABOR_RATE'] = {
-            'col_names': 'Day, Rate (%), Total Pay, Total Sales, Reg Hours, Over Hours, Total Hours',
-            'totaled_cols':'Total Pay, Total Sales, Reg Hours, Over Hours, Total Hours', 
-            'averaged_cols':'Rate (%)'
+            'col_names': ['Day', 'Rate (%)','Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'],
+            'totaled_cols':['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
+            'averaged_cols':['Rate (%)']
             }
         self.data['RPT_LABOR_MAIN'] = {
-            'drop_cols':'RATE, TIPSHCON, TIP_CONT, SALES, CCTIPS, INHOUR, INMINUTE, OUTHOUR, OUTMINUTE, JOBCODE',
-            'index_cols':'LASTNAME, FIRSTNAME, EMPLOYEE, JOB_NAME',
-            'totaled_cols':'HOURS, OVERHRS, SRVTIPS, TIPOUT, DECTIPS',
-            'addl_cols':'MEALS'
+            'drop_cols':['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+            'index_cols':['LASTNAME', 'FIRSTNAME', 'EMPLOYEE', 'JOB_NAME'],
+            'totaled_cols':['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+            'addl_cols':['MEALS']
             }
         self.data['RPT_COUT_EOD'] = {
-            'keep_cols_order':'SYSDATEIN, EMPLOYEE, FIRSTNAME, LASTNAME, JOB_NAME, HOURS, OVERHRS, INHOUR, INMINUTE, OUTHOUR, OUTMINUTE, COUTBYEOD',
+            'keep_cols_order':['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
             'cout_col':'COUTBYEOD', 
             'cout_var':'Y'
             }
