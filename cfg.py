@@ -50,7 +50,7 @@ class cfg():
         with open (self.file_name, 'w') as jsonfile:
             json.dump(self.data, jsonfile, indent=4)
 
-    def query (self):#query, config):
+    def query (self, query, config='SETTINGS'):
         '''returns config settings as a string
 
             Ex. usage for single config settings
@@ -66,9 +66,10 @@ class cfg():
 
         with open(self.file_name) as jsonfile:
             self.data = json.load(jsonfile) 
-        
-        print(self.data)
+
+        return self.data[config][query]
 
 if __name__ == '__main__':
     print("loading cfg.py")
-    cfg().query()
+    a = cfg().query('database')
+    print(a)

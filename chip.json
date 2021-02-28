@@ -9,8 +9,8 @@
         "pay_period_days": "15",
         "count_salary": true,
         "debug": false,
-        "database": "D:\\Bootdrv\\Aloha\\",
-        "use_aloha_tipshare": false
+        "database": "database\\",
+        "use_aloha_tipshare": true
     },
     "RPT_TIP_RATE": {
         "col_names": [

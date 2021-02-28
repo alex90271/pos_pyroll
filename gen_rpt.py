@@ -141,14 +141,13 @@ class gen_rpt():
             wrksheet.set_landscape()
         elif rpt == 'labor_main':
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
-                index_cols=['LASTNAME', 'FIRSTNAME', 'EMPLOYEE', 'JOB_NAME'],
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
+                index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                 addl_cols=['MEALS'])
-            wrksheet.set_column('B:E', 10, f1)
-            wrksheet.set_column('F:G', 8, f1)
-            wrksheet.set_column('D:D', 6, f3) #employee numbers 
-            wrksheet.set_column('H:K', 8, f2)
+            wrksheet.set_column('B:D', 12, f1)
+            wrksheet.set_column('E:F', 10, f1)
+            wrksheet.set_column('G:J', 10, f2)
         elif rpt == 'labor_rate':
             df = self.rate_rpt(
                 rpt='Labor',
@@ -167,9 +166,12 @@ class gen_rpt():
             return False
 
         wrksheet.set_column('A:A', 4, f3) #make index column small
+        wrksheet.repeat_rows(0)
         df.to_excel(writer, sheet_name=file_name[:-5], header=df.keys(), float_format="%.2f") #write with the updated data
-        wrksheet.set_header('REPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '\nREPORT TYPE: ' + rpt)
-        wrksheet.set_footer('DATE AND TIME PRINTED: ' + date.today().strftime("%a %b %d, %Y, %H:%M:%S"))
+        wrksheet.set_margins(left=0.5, right=0.5, top=0.7, bottom=0.7)
+        wrksheet.fit_to_pages(1,0)
+        wrksheet.set_header('&LREPORT TYPE: ' + rpt + '&CREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '&RPAGE &P of &N')
+        wrksheet.set_footer('DATE AND TIME PRINTED: &D &T')
         writer.save()
 
         if os.path.isfile('reports/' + file_name):
@@ -181,6 +183,5 @@ class gen_rpt():
 
 if __name__ == '__main__':
     print("loading gen_rpt.py")
-    for rpt in ['tip_rate', 'labor_main', 'labor_rate', 'cout_eod']:
-        gen_rpt('20210101','20210115').print_to_excel(rpt)
+    gen_rpt('20210101','20210115').print_to_excel('labor_main')
     
