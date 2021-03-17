@@ -11,11 +11,19 @@ const CalendarComponent = (props) => {
 
     let displayedRange = '';
     if (selectedDayRange.from && selectedDayRange.to) {
-        displayedRange = `Dates selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year} - ${selectedDayRange.to.month}/${selectedDayRange.to.day}/${selectedDayRange.to.year}`
+        if (selectedDayRange.from.day === selectedDayRange.to.day) {
+            displayedRange = `Date selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year}`
+        } else {
+            displayedRange = `Dates selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year} - ${selectedDayRange.to.month}/${selectedDayRange.to.day}/${selectedDayRange.to.year}`;
+        }
+    } else {
+        displayedRange = 'Select first and last day. If calculating a single day, click it twice.';
     }
+        
+
 
     return (
-        <div className='calendar-container' >
+        <div className='Custom-calendar'>
             <Calendar
             value={selectedDayRange}
             onChange={setSelectedDayRange}

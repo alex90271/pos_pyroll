@@ -1,6 +1,6 @@
-.calendar-container {
+.Custom-calendar {
+  text-align: center;
 }
-
 .DatePicker {
   position: relative;
   display: inline-block;
@@ -87,6 +87,7 @@
   z-index: 10;
   max-width: 90vw;
   min-height: 36.7em;
+  margin: auto;
 }
 
 .DatePicker .Calendar,
