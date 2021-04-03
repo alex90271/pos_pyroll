@@ -15,8 +15,9 @@ class process_labor():
         self.day = day
         #config options
         c = cfg()
-        self.tracked_labor = c.query('tracked_labor').split(',')
-        self.pay_period = int(c.query('pay_period_days'))
+        self.tracked_labor = c.query('SETTINGS','tracked_labor').split(',')
+        self.pay_period = int(c.query('SETTINGS','pay_period_days'))
+        self.salary = c.query('SETTINGS','count_salary')
         self.debug = True
     
     def get_day(self, fmt="%a %b %e"):
@@ -32,14 +33,11 @@ class process_labor():
         salary_df.loc[:,('OVERHRS')] = np.divide(salary_df.loc[:,('OVERHRS')], self.pay_period)
         return salary_df
 
-    def calc_labor_cost(
-                        self, 
-                        salary=True
-                        ):
+    def calc_labor_cost(self):
         '''returns a dataframe with pay based on pay rate and hours on tracked labor
            use salary=False to skip calculating salary'''
         cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tracked_labor)].copy()
-        if salary:
+        if self.salary:
             cur_df = cur_df.append(self.calc_salary())
         reg = np.multiply(cur_df.loc[:,('HOURS')], cur_df.loc[:,('RATE')])
         over = np.multiply(cur_df.loc[:,('OVERHRS')], np.multiply(cur_df.loc[:,('RATE')],1.5))
@@ -74,6 +72,7 @@ class process_labor():
 
     def calc_laborrate_df(self, r=3):
         return pd.DataFrame(data={
+                    'Tracked Codes': [self.tracked_labor],
                     'Day': [self.get_day()],
                     'Rate (%)': [np.round(self.get_labor_rate(),r)],
                     'Total Pay': [np.round(self.get_total_pay(),r)],

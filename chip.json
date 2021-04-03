@@ -5,12 +5,21 @@
         "percent_sale_codes": "1",
         "percent_tip_codes": "11",
         "tipped_codes": "2,3,5,10,11,12,13,14",
-        "tracked_labor": "8",
+        "tracked_labor": "7,8",
         "pay_period_days": "15",
         "count_salary": true,
         "debug": false,
         "database": "database\\",
-        "use_aloha_tipshare": true
+        "use_aloha_tipshare": false
+    },
+    "RPT_GENERAL": {
+        "margins_LeftRightTopBottom": [
+            0.5,
+            0.5,
+            0.7,
+            0.7
+        ],
+        "default_row_width": 20
     },
     "RPT_TIP_RATE": {
         "col_names": [
@@ -31,7 +40,8 @@
         ],
         "averaged_cols": [
             "Tip Hourly"
-        ]
+        ],
+        "col_width": 12
     },
     "RPT_LABOR_RATE": {
         "col_names": [
@@ -52,7 +62,8 @@
         ],
         "averaged_cols": [
             "Rate (%)"
-        ]
+        ],
+        "col_width": 12
     },
     "RPT_LABOR_MAIN": {
         "drop_cols": [
@@ -82,7 +93,8 @@
         ],
         "addl_cols": [
             "MEALS"
-        ]
+        ],
+        "col_width": 12
     },
     "RPT_COUT_EOD": {
         "keep_cols_order": [
@@ -100,6 +112,7 @@
             "COUTBYEOD"
         ],
         "cout_col": "COUTBYEOD",
-        "cout_var": "Y"
+        "cout_var": "Y",
+        "col_width": 12
     }
 }

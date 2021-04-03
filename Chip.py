@@ -24,9 +24,8 @@ class rpt_out():
     def grab_date(self):
         label = Label(self.root, text="")
         label.config(text="First Day Selected: " + self.cal.get_date())
-        global day_one,day_two
+        global day_one
         day_one = self.cal.selection_get().strftime("%Y%m%d")
-        day_two = self.cal.selection_get().strftime("%Y%m%d")
         label.pack(pady=5)
 
     def grab_date_two(self):
@@ -69,9 +68,9 @@ if __name__ == '__main__':
     print("\nloading chip.py\n")
     
     def main():
-        rpt_out().launch()
-        #day_one = '20210101'
-        #day_two = '20210115'
+        #rpt_out().launch() #--- legacy UX
+        day_one = '20210101'
+        day_two = '20210115'
 
         [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod'])]
 
