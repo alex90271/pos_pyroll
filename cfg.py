@@ -5,11 +5,8 @@ from os import path
 
 class cfg():
 
-    def __init__(
-                self, 
-                file_name='chip.json'
-                ):
-        self.file_name = file_name
+    def __init__(self):
+        self.json_name = os.environ.get('json_name')
         self.data = {}
 
     def generate_config (self):
@@ -57,9 +54,9 @@ class cfg():
             'col_width': 12
             }
             
-        with open (self.file_name, 'w') as jsonfile:
+        with open (self.json_name, 'w') as jsonfile:
             json.dump(self.data, jsonfile, indent=4)
-
+    
     def query (self, config, query):
         '''returns config settings as a string
 
@@ -69,11 +66,11 @@ class cfg():
             possible options: 
             register, server, tipout_recip, tip_percent,
             tracked_labor, pay_period, debug, database, and salary'''
-        if not os.path.isfile(self.file_name):
-            print ('generating new ' + self.file_name)
+        if not os.path.isfile(self.json_name):
+            print ('generating new default config')
             self.generate_config()
 
-        with open(self.file_name) as jsonfile:
+        with open(self.json_name) as jsonfile:
             self.data = json.load(jsonfile) 
         
         return self.data[config][query]
