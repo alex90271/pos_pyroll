@@ -7,6 +7,7 @@
 import timeit
 import numpy as np
 import sys
+import os
 from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from tkcalendar import Calendar
@@ -24,9 +25,8 @@ class rpt_out():
     def grab_date(self):
         label = Label(self.root, text="")
         label.config(text="First Day Selected: " + self.cal.get_date())
-        global day_one,day_two
+        global day_one
         day_one = self.cal.selection_get().strftime("%Y%m%d")
-        day_two = self.cal.selection_get().strftime("%Y%m%d")
         label.pack(pady=5)
 
     def grab_date_two(self):
@@ -69,9 +69,16 @@ if __name__ == '__main__':
     print("\nloading chip.py\n")
     
     def main():
-        rpt_out().launch()
-        #day_one = '20210101'
-        #day_two = '20210115'
+        #rpt_out().launch() #--- legacy UX
+
+        os.environ.clear()
+        os.environ['json_name'] = str(sys.argv[1]) #chip.json
+        day_one = str(sys.argv[2]) #'20210101'
+        day_two = str(sys.argv[3]) #'20210115'
+        #full command: python chip.py json_name day_one day_two
+        #testing: python chip.py chip.json 20210101 20210115
+
+        print('Args: ' + str(sys.argv) + '\n')
 
         [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod'])]
 

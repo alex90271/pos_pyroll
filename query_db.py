@@ -15,7 +15,7 @@ class query_db():
     
     def dbf_to_list(self, dbf):
         c = cfg()
-        a = DBF(c.query('database') + self.day + dbf, char_decode_errors='ignore', load=True)
+        a = DBF(c.query('SETTINGS','database') + self.day + dbf, char_decode_errors='ignore', load=False)
         return a
 
     def process_db(self, db_type):

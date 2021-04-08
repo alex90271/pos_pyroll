@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './settingsList.css';
 import PercentSetting from '../SettingComponents/percentSetting/percentSetting';
 import NumberSetting from '../SettingComponents/NumberSetting/NumberSetting';
@@ -7,22 +7,21 @@ import NumberArraySetting from '../SettingComponents/NumberArraySetting/NumberAr
 import PathSetting from '../SettingComponents/PathSetting/PathSetting';
 
 export default function SettingsList(props) {
-    let addedSettings;
-    addedSettings = props.settings.map((setting) => {
+    let addedSettings = Object.keys(props.settings).map((key) => {
+        let setting = props.settings[key];
         switch (setting.dataType) {
             case 'percent':
-                return <PercentSetting setting={setting}/>;
+                return <PercentSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
             case 'number':
-                return <NumberSetting setting={setting}/>;
+                return <NumberSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
             case 'bool':
-                return <BoolSetting setting={setting}/>;
+                return <BoolSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
             case 'numberArray':
-                return <NumberArraySetting setting={setting}/>;
+                return <NumberArraySetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
             case 'path':
-                return <PathSetting setting={setting}/>;
+                return <PathSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
             default:
                 console.log("Unrecognized dataType is causing a setting to not display");
-                return undefined;
         };
     });
     return (

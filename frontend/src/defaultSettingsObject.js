@@ -1,70 +1,77 @@
-//dataType options: percent, number, numberArray, bool, path
+//dataType options: percent, number, numberArray, bool, path.
 
-export const defaultSettingsArray = [
-    {
+//value specifies initial or default value and later acts as a placeholder
+//for user updated vlaues.
+
+export const defaultSettingsObject = {
+    'tip_sales_percent': {
         displayName: "Tip Sales Percent",
         outputName: "tip_sales_percent",
         dataType: 'percent',
-        defaultValue: 0.03
-    }, 
-    {
+        value: 0.03
+    },
+    'tip_amt_percent': {
         displayName: "Tip Amount Percent",
         outputName: "tip_amt_percent",
         dataType: 'percent',
-        defaultValue: 100
-    }, 
-    {
+        value: 100
+    },
+    'percent_sale_codes': {
         displayName: "Percent Sales Codes",
         outputName: "percent_sale_codes",
         dataType: 'numberArray',
-        defaultValue: [1]
+        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
+        value: [1]
     },
-    {
+    'percent_tip_codes': {
         displayName: "Percent Tip Codes",
         outputName: "percent_tip_codes",
         dataType: 'numberArray',
-        defaultValue: [11]
+        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
+        value: [11]
     },
-    {
+    'tipped_codes': {
         displayName: "Tipped Codes",
         outputName: "tipped_codes",
         dataType: 'numberArray',
-        defaultValue: [2, 3, 5, 10, 11, 12, 13, 14]
+        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
+        value: [2, 3, 5, 10, 11, 12, 13, 14]
     },
-    {
+    'tracked_labor': {
         displayName: "Tracked Labor",
         outputName: "tracked_labor",
         dataType: 'numberArray',
-        defaultValue: [8]
+        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
+        value: [8]
     },
-    {
+    'pay_period_days': {
         displayName: "Pay Period Days",
         outputName: "pay_period_days",
         dataType: 'number',
-        defaultValue: 15
+        value: 15
     },
-    {
+    'count_salary': {
         displayName: "Count Salary",
         outputName: "count_salary",
         dataType: 'bool',
-        defaultValue: true
-    }, 
-    {
+        value: true
+    },
+    'debug': {
         displayName: "Debug",
         outputName: "debug",
         dataType: 'bool',
-        defaultValue: false
+        value: false
     },
-    {
+    'database': {
         displayName: "Database",
         outputName: "database",
         dataType: 'path',
-        defaultValue: 'D:\\Bootdrv\\Aloha\\'
-    }, 
-    {
+        value: 'D:\\Bootdrv\\Aloha\\'
+    },
+    'use_aloha_tipshare': {
         displayName: "Use Aloha Tipshare",
         outputName: "use_aloha_tipshare",
         dataType: 'bool',
-        defaultValue: false
+        value: false
     }
-];
+};

@@ -16,12 +16,13 @@ class process_tips():
         self.day = day
         #config options
         c = cfg()
-        self.percent_tips_codes = c.query('percent_tip_codes').split(',') #jobcodes that contribute based on a percentage of tips
-        self.percent_sales_codes = c.query('percent_sale_codes').split(',') #jobcodes that contribute based on a percentage of sales
-        self.tipped_code = c.query('tipped_codes').split(',') #jobcodes that receive
-        self.sales_percent = float(c.query('tip_sales_percent'))
-        self.tip_percent = float(c.query('tip_amt_percent')) #TODO actually implement this
-        self.use_aloha_tipshare = bool(c.query('use_aloha_tipshare'))
+        self._c = c
+        self.percent_tips_codes = c.query('SETTINGS','percent_tip_codes').split(',') #jobcodes that contribute based on a percentage of tips
+        self.percent_sales_codes = c.query('SETTINGS','percent_sale_codes').split(',') #jobcodes that contribute based on a percentage of sales
+        self.tipped_code = c.query('SETTINGS','tipped_codes').split(',') #jobcodes that receive
+        self.sales_percent = float(c.query('SETTINGS','tip_sales_percent'))
+        self.tip_percent = float(c.query('SETTINGS','tip_amt_percent')) #TODO actually implement this
+        self.use_aloha_tipshare = bool(c.query('SETTINGS','use_aloha_tipshare'))
         self.debug = False
     
     def get_day(self, fmt="%a %b %e"):
@@ -79,10 +80,11 @@ class process_tips():
         '''calculates server tips and returns a dataframe with added values'''
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_sales_codes)].copy()
 
+
         if self.use_aloha_tipshare:
             cur_df['TIP_CONT'] = cur_df['TIPSHCON'].values
         else:
-            cur_df['TIP_CONT'].values = np.multiply(cur_df['SALES'].values, self.sales_percent)
+            cur_df['TIP_CONT'] = np.multiply(cur_df['SALES'].values, self.sales_percent)
 
         cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
 
@@ -93,15 +95,16 @@ class process_tips():
     
     def calc_tiprate_df(self, r=3):
         '''returns a dataframe with a daily summary report, use r to change rounding'''
+        names = self._c.query('RPT_TIP_RATE', 'col_names')
         df = pd.DataFrame(data={
-                    'Date': [self.get_day()], 
-                    'Tip Hourly': [np.round(self.get_tip_rate(),r)],
-                    'Cash Tips': [np.round(self.get_percent_tips(only_decl=True),r)],
-                    'Takeout CC Tips': [np.round(self.get_percent_tips(),r)],
-                    'Server Tipshare': [np.round(self.get_percent_sales(),r)],
-                    'Total Tip Pool': [np.round(np.add(self.get_percent_sales(),self.get_percent_tips(total=True)), r)], 
-                    'Total Tip\'d Hours': [np.round(self.get_tipped_hours(),r)]
-                })
+            names[0]: [self.get_day()], #date
+            names[1]: [np.round(self.get_tip_rate(),r)], #Tip Hourly
+            names[2]: [np.round(self.get_percent_tips(only_decl=True),r)], #Cash Tips
+            names[3]: [np.round(self.get_percent_tips(),r)], #Takeout CC Tips
+            names[4]: [np.round(self.get_percent_sales(),r)], # Server Tipshare
+            names[5]: [np.round(np.add(self.get_percent_sales(),self.get_percent_tips(total=True)), r)], #Total Tip Pool
+            names[6]: [np.round(self.get_tipped_hours(),r)] #Total Tipped Hours
+            })
         return df
 
     def calc_payroll(self):
@@ -109,14 +112,17 @@ class process_tips():
         t = self.calc_tipout()[["TIPOUT"]]
         df = self.df
         tdf = df.join([s,t])
-
+        
+        #remove tips from tipcodes for payroll
+        a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS']
+        tdf.update(a.where(a<0, 0))
         return tdf
 
 if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        process_tips("20210116").calc_tiprate_df()
+        print(process_tips("20210116").calc_payroll())
     r = 5
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

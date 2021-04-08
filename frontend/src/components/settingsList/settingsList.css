@@ -15,4 +15,10 @@
     border: 1px solid;
     border-radius: 16px;
     padding: 5px;
+    padding: 20px;
+}
+
+.Setting h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
 }

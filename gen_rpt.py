@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import datetime
 import os
+import timeit
+from cfg import cfg
 
 class gen_rpt():
 
@@ -48,8 +50,10 @@ class gen_rpt():
                 self,
                 rpt: str,
                 totaled_cols: list, 
-                averaged_cols: list
+                averaged_cols: list,
                 ):
+        tracked_labor = cfg().query('SETTINGS','tracked_labor').split(',')
+        pay_period = int(cfg().query('SETTINGS', 'pay_period_days'))
         a = []
         if rpt == 'Tip':
             a = [tips(day).calc_tiprate_df() for day in self.days]
@@ -137,7 +141,7 @@ class gen_rpt():
                 rpt='Tip',
                 totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
                 averaged_cols=['Tip Hourly'])
-            wrksheet.set_column('B:H', 15, f1)
+            wrksheet.set_column('B:H', cfg().query('RPT_TIP_RATE', 'col_width'), f1)
             wrksheet.set_landscape()
         elif rpt == 'labor_main':
             df = self.labor_main(
@@ -145,33 +149,36 @@ class gen_rpt():
                 index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                 addl_cols=['MEALS'])
-            wrksheet.set_column('B:D', 12, f1)
-            wrksheet.set_column('E:F', 10, f1)
-            wrksheet.set_column('G:J', 10, f2)
+            wrksheet.set_column('B:D', cfg().query('RPT_LABOR_MAIN', 'col_width'), f1)
+            wrksheet.set_column('E:F', 12, f1)
+            wrksheet.set_column('G:J', 12, f2)
         elif rpt == 'labor_rate':
             df = self.rate_rpt(
                 rpt='Labor',
                 totaled_cols=['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
                 averaged_cols=['Rate (%)'])
-            wrksheet.set_column('B:H', 12, f1)
+            wrksheet.set_column('C:I', 12, f1)
             wrksheet.set_landscape()
         elif rpt == 'cout_eod':
             df = self.cout_by_eod(
                 cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
                 cout_col='COUTBYEOD')
-            wrksheet.set_column('B:M', 10, f3)
-            wrksheet.set_column('G:H', 10, f1)
+            wrksheet.set_column('B:M', 12, f3)
+            wrksheet.set_column('G:H', 12, f1)
         else:
             print('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             return False
 
-        wrksheet.set_column('A:A', 4, f3) #make index column small
-        wrksheet.repeat_rows(0)
         df.to_excel(writer, sheet_name=file_name[:-5], header=df.keys(), float_format="%.2f") #write with the updated data
+
+        wrksheet.set_column('A:A', 4, f3) #make index column small
+        wrksheet.repeat_rows(0) #repeat first row
         wrksheet.set_margins(left=0.5, right=0.5, top=0.7, bottom=0.7)
         wrksheet.fit_to_pages(1,0)
+        wrksheet.set_default_row(20)
         wrksheet.set_header('&LREPORT TYPE: ' + rpt + '&CREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '&RPAGE &P of &N')
         wrksheet.set_footer('DATE AND TIME PRINTED: &D &T')
+
         writer.save()
 
         if os.path.isfile('reports/' + file_name):
@@ -183,5 +190,8 @@ class gen_rpt():
 
 if __name__ == '__main__':
     print("loading gen_rpt.py")
-    gen_rpt('20210101','20210115').print_to_excel('labor_main')
-    
+    def main():
+        gen_rpt('20210101','20210115').print_to_excel('tip_rate')
+    r = 5
+    f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
+    print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
