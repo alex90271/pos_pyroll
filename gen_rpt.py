@@ -93,10 +93,16 @@ class gen_rpt():
                     drop_cols: list,
                     index_cols: list,
                     totaled_cols: list,
-                    addl_cols: list
+                    addl_cols: list,
+                    sum_only=False,
                     ): 
         a = [tips(day).calc_payroll() for day in self.days]
         df = pd.concat(a)
+        if sum_only:
+            try:
+                index_cols.remove('JOB_NAME')
+            except:
+                print('JOB_NAME not specified')
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df)
         _df = _df.drop(drop_cols, axis=1)
         _df = pd.pivot_table(_df,
@@ -112,13 +118,12 @@ class gen_rpt():
         if addl_cols is not None:
             for col in addl_cols:
                  _df[col] = np.nan
-            
 
         return _df.reset_index()
 
     def print_to_excel(self, rpt):
         '''
-            currently supports 'tip_rate' 'labor_main' 'labor_rate' 'cout_eod' 
+            currently supports 'tip_rate' 'labor_main' 'labor_rate' 'cout_eod' 'labor_total'
             returns true when the file is printed
         
         '''
@@ -143,12 +148,13 @@ class gen_rpt():
                 averaged_cols=['Tip Hourly'])
             wrksheet.set_column('B:H', cfg().query('RPT_TIP_RATE', 'col_width'), f1)
             wrksheet.set_landscape()
-        elif rpt == 'labor_main':
+        elif rpt == 'labor_main' or 'labor_total':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
                 index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                addl_cols=['MEALS'])
+                addl_cols=['MEALS'], 
+                sum_only=True)
             wrksheet.set_column('B:D', cfg().query('RPT_LABOR_MAIN', 'col_width'), f1)
             wrksheet.set_column('E:F', 12, f1)
             wrksheet.set_column('G:J', 12, f2)
@@ -169,7 +175,7 @@ class gen_rpt():
             print('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             return False
 
-        df.to_excel(writer, sheet_name=file_name[:-5], header=df.keys(), float_format="%.2f") #write with the updated data
+        df.to_excel(writer, sheet_name=file_name[:-5], float_format="%.2f") #write with the updated data
 
         wrksheet.set_column('A:A', 4, f3) #make index column small
         wrksheet.repeat_rows(0) #repeat first row

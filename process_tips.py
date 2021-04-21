@@ -9,7 +9,6 @@ from query_db import query_db as db
 
 class process_tips():
     #'SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'
-
     def __init__(self, day):
         self.db = db(day)
         self.df = self.db.process_db('labor')

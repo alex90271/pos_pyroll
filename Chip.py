@@ -8,6 +8,7 @@ import timeit
 import numpy as np
 import sys
 import os
+import babel.numbers
 from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from tkcalendar import Calendar
@@ -72,7 +73,7 @@ if __name__ == '__main__':
         #rpt_out().launch() #--- legacy UX
 
         os.environ.clear()
-        os.environ['json_name'] = str(sys.argv[1]) #chip.json
+        os.environ['json_name'] = str(sys.argv[1])
         day_one = str(sys.argv[2]) #'20210101'
         day_two = str(sys.argv[3]) #'20210115'
         #full command: python chip.py json_name day_one day_two
@@ -80,7 +81,10 @@ if __name__ == '__main__':
 
         print('Args: ' + str(sys.argv) + '\n')
 
-        [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod'])]
+        [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])]
+    
+    def jobcodes():
+        pass
 
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
