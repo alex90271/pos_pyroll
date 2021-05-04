@@ -10,7 +10,7 @@
         "count_salary": true,
         "debug": false,
         "database": "database\\",
-        "use_aloha_tipshare": false
+        "use_aloha_tipshare": true
     },
     "RPT_GENERAL": {
         "margins_LeftRightTopBottom": [

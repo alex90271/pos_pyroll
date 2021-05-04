@@ -10198,3 +10198,8 @@ database/test-case-data/10-30-2020 Nightly DW.xlsx
 database/test-case-data/10-31-2020 Nightly AA.xlsx
 database/test-case-data/rpt.pdf
 database/test-case-data/Workbook.xlsx
+reports/cout_eod_20210101_20210115.xlsx
+reports/labor_main_20210101_20210115.xlsx
+reports/labor_rate_20210101_20210115.xlsx
+reports/labor_total_20210101_20210115.xlsx
+reports/tip_rate_20210101_20210115.xlsx

@@ -148,7 +148,17 @@ class gen_rpt():
                 averaged_cols=['Tip Hourly'])
             wrksheet.set_column('B:H', cfg().query('RPT_TIP_RATE', 'col_width'), f1)
             wrksheet.set_landscape()
-        elif rpt == 'labor_main' or 'labor_total':
+        elif rpt == 'labor_main':
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
+                index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                addl_cols=['MEALS'], 
+                sum_only=False)
+            wrksheet.set_column('B:D', cfg().query('RPT_LABOR_MAIN', 'col_width'), f1)
+            wrksheet.set_column('E:F', 12, f1)
+            wrksheet.set_column('G:J', 12, f2)
+        elif rpt == 'labor_total':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
                 index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
@@ -197,7 +207,8 @@ class gen_rpt():
 if __name__ == '__main__':
     print("loading gen_rpt.py")
     def main():
-        gen_rpt('20210101','20210115').print_to_excel('tip_rate')
+        os.environ['json_name'] = 'chip.json'
+        gen_rpt('20210101','20210115').print_to_excel('labor_rate')
     r = 5
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
