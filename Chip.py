@@ -15,6 +15,7 @@ from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from tkcalendar import Calendar
 from tkinter import Tk, Label, Button
+from cfg import cfg
 
 class rpt_out():
     def __init__(self):
@@ -76,19 +77,23 @@ if __name__ == '__main__':
         addr = 'tcp://127.0.0.1:' + port
 
     def main():
-        from cfg import cfg
-        c = cfg()
+        #os.environ.clear()
+        os.environ['json_name'] = 'chip.json' #str(sys.argv[1])
+        #day_one = str(sys.argv[2]) #'20210101'
+        #day_two = str(sys.argv[3]) #'20210115'
+
+        #full command: python chip.py json_name day_one day_two
+        #testing: python chip.py chip.json 20210101 20210115
+        print('Args: ' + str(sys.argv) + '\n')
+        print('Loading from: ' + cfg().query('SETTINGS','database'))
 
         rpt_out().launch() #--- legacy UX
 
-        #os.environ.clear()
-        os.environ['json_name'] = 'chip.json' #str(sys.argv[1])y
-        #day_one = str(sys.argv[2]) #'20210101'
-        #day_two = str(sys.argv[3]) #'20210115'
-        #full command: python chip.py json_name day_one day_two
-        #testing: python chip.py chip.json 20210101 20210115
-
-        print('Args: ' + str(sys.argv) + '\n')
+        #if a second day is not selected, make the date range the same days
+        try:
+            day_two
+        except:
+            day_two = day_one
 
         [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])]
 
