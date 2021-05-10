@@ -78,7 +78,7 @@ class chipAPI(gen_rpt):
         #TODO implement hook to gen_rprt
         pass
     
-    def set_json(self, json_name)
+    def set_json(self, json_name):
         os.environ['json_name'] = json_name
         return json_name
 
