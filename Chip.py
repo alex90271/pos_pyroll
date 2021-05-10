@@ -69,12 +69,31 @@ class rpt_out():
 
         self.root.mainloop()
 
+class chipAPI(gen_rpt):
+
+    def echo(self, text):
+        return text
+
+    def print(self, rpt):
+        #TODO implement hook to gen_rprt
+        pass
+    
+    def set_json(self, json_name)
+        os.environ['json_name'] = json_name
+        return json_name
+
 if __name__ == '__main__':
     print("\nloading chip.py\n")
 
     def electron_hook():
-        port = '1234'
+        port = 1234
         addr = 'tcp://127.0.0.1:' + port
+        s = zerorpc.Server(chipAPI())
+        s.bind(addr)
+        gevent.signal(signal.SIGTERM, s.stop)
+        gevent.signal(signal.SIGINT, s.stop)  # ^C
+
+        s.run()
 
     def main():
         #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name
@@ -90,14 +109,10 @@ if __name__ == '__main__':
         print('Loading from: ' + cfg().query('SETTINGS','database'))
 
         rpt_out().launch() #--- legacy UX
+        electron_hook()
 
         #if a second day is not selected, make the date range the same days
-        try:
-            day_two
-        except:
-            day_two = day_one
-
-        [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])]
+        [gen_rpt(day_one).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])]
 
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
