@@ -77,8 +77,10 @@ if __name__ == '__main__':
         addr = 'tcp://127.0.0.1:' + port
 
     def main():
+        #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name
+        #if no variable is set here, it will use the default, set in cfg.py 'chip.json'
         #os.environ.clear()
-        os.environ['json_name'] = 'chip.json' #str(sys.argv[1])
+        #os.environ['json_name'] = 'chip.json' #str(sys.argv[1])
         #day_one = str(sys.argv[2]) #'20210101'
         #day_two = str(sys.argv[3]) #'20210115'
 

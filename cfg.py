@@ -6,6 +6,7 @@ from os import path
 class cfg():
 
     def __init__(self):
+        os.environ['json_name'] = 'chip.json'
         self.json_name = os.environ.get('json_name')
         self.data = {}
 
