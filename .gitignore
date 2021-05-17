@@ -13817,3 +13817,8 @@ database/Data/xico01.ini
 database/Data/xTRANS0605.LOG
 database/Data/xxxtrans.log
 database/Data/ZAP.DBF
+reports/cout_eod_20210416_20210430.xlsx
+reports/labor_main_20210416_20210430.xlsx
+reports/labor_rate_20210416_20210430.xlsx
+reports/labor_total_20210416_20210430.xlsx
+reports/tip_rate_20210416_20210430.xlsx

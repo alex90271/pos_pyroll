@@ -17,8 +17,8 @@ class gen_rpt():
         self.last_day = last_day
         self.days = []
 
-        if last_day == None:
-            self.days.append(first_day)
+        if self.last_day == None:
+            self.last_day = self.first_day
         else: 
             if type(first_day) and type(last_day) == str:
                 first_day = datetime.datetime.strptime(first_day, "%Y%m%d")
