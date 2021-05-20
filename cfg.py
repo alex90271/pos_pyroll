@@ -76,6 +76,9 @@ class cfg():
         
         return self.data[config][query]
 
+    def return_config(self, config):
+        pass
+
 if __name__ == '__main__':
     print("loading cfg.py")
     a = cfg().query('RPT_LABOR_MAIN', 'col_width')

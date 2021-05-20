@@ -8,23 +8,10 @@ import timeit
 import numpy as np
 import sys
 import os
+import flask
 from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from cfg import cfg
-
-
-class chipAPI(gen_rpt):
-
-    def echo(self, text):
-        return text
-
-    def print(self, rpt):
-        #TODO implement hook to gen_rprt
-        pass
-    
-    def set_json(self, json_name):
-        os.environ['json_name'] = json_name
-        return json_name
 
 if __name__ == '__main__':
     print("\nloading chip.py\n")
