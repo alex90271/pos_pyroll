@@ -10,6 +10,15 @@ class cfg():
         self.json_name = os.environ.get('json_name')
         self.data = {}
 
+    def save_json(self, data):
+        with open (self.json_name, 'w') as jsonfile:
+            json.dump(data, jsonfile, indent=4)
+    
+    def read_json(self, jsn):
+        with open(jsn) as jsonfile:
+            self.data = json.load(jsonfile)
+        return self.data
+
     def generate_config (self):
         '''generates the default config file, with default settings. To reset config file, just delete it'''
         self.data['SETTINGS'] = {
@@ -55,8 +64,7 @@ class cfg():
             'col_width': 12
             }
             
-        with open (self.json_name, 'w') as jsonfile:
-            json.dump(self.data, jsonfile, indent=4)
+        self.save_json(self.data)
     
     def query (self, config, query):
         '''returns config settings as a string
@@ -71,14 +79,13 @@ class cfg():
             print ('generating new default config')
             self.generate_config()
 
-        with open(self.json_name) as jsonfile:
-            self.data = json.load(jsonfile) 
+        self.read_json(self.json_name)
         
         return self.data[config][query]
 
-    def return_config(self, config):
-        pass
+def return_config():
+    return cfg().read_json(os.environ['json_name'])
 
 if __name__ == '__main__':
     print("loading cfg.py")
-    a = cfg().query('RPT_LABOR_MAIN', 'col_width')
+    print(cfg().return_config())

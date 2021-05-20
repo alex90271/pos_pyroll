@@ -1,0 +1,53 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Chip API Endpoints
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/api"
+
+# Paths supported by the server application
+paths:
+  /config:
+    get:
+      operationId: "cfg.return_config"
+      tags:
+        - "Cfg"
+      summary: "read the config"
+      description: "Read the list of people"
+      responses:
+        200:
+          description: "Successful read"
+          schema:
+            type: "array"
+            items:
+              properties:
+                tip_sales_percent:
+                  type: "string"
+                tip_amt_percent:
+                  type: "string"
+                tip_amt_percent: 
+                  type: "string"
+                percent_sale_codes:
+                  type: "string"
+                percent_tip_codes:
+                  type: "string"
+                tipped_codes:
+                  type: "string"
+                tracked_labor:
+                  type: "string"
+                pay_period_days:
+                  type: "string"
+                count_salary:
+                  type: "string"
+                debug:
+                  type: "string"
+                database:
+                  type: "string"
+                use_aloha_tipshare:
+                  type: "string"
+
