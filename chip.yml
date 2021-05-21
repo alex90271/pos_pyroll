@@ -1,0 +1,44 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Chip API Endpoints
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/api"
+
+# Paths supported by the server application
+paths:
+  /config:
+    get:
+      operationId: "api.config"
+      summary: "read the config"
+      description: "returns the config"
+      responses:
+        200:
+          description: "Successful read"
+          schema:
+            type: "array"
+  /employees:
+    get:
+      operationId: "api.employees"
+      summary: "read the employee list"
+      description: "returns employee list"
+      responses:
+        200:
+          description: "Successful read"
+          schema:
+            type: "object"
+  /jobcodes:
+    get:
+      operationId: "api.jobcodes"
+      summary: "read the jobcode list"
+      description: "Read the list of jobcodes"
+      responses:
+        200:
+          description: "Successful read"
+          schema:
+            type: "array"          

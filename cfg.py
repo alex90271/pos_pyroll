@@ -83,8 +83,6 @@ class cfg():
         
         return self.data[config][query]
 
-def return_config():
-    return cfg().read_json(os.environ['json_name'])
 
 if __name__ == '__main__':
     print("loading cfg.py")
