@@ -87,7 +87,7 @@ class gen_rpt():
 
         return _df
 
-    #concatenates the data
+    #concatenates all the data into a proper report ready for a spreadsheet
     def labor_main(
                     self,
                     drop_cols: list,
@@ -193,7 +193,7 @@ class gen_rpt():
         wrksheet.fit_to_pages(1,0)
         wrksheet.set_default_row(20)
         wrksheet.set_header('&LREPORT TYPE: ' + rpt + '&CREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '&RPAGE &P of &N')
-        wrksheet.set_footer('DATE AND TIME PRINTED: &D &T')
+        wrksheet.set_footer('DATE PRINTED: &D &T')
 
         writer.save()
 

@@ -61,7 +61,7 @@ class process_tips():
     def get_tip_rate(self):
         '''returns hourly rate rounded to the nearest cent'''
         tipped_hours = self.get_tipped_hours()
-        total_pool = np.add(self.get_percent_sales(), self.get_percent_tips())
+        total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(total=True)) #total true gives cash tips and credit card tips
         with np.errstate(invalid='ignore'): #some days may return zero and thats okay
             return np.divide(total_pool, tipped_hours)
 
@@ -87,7 +87,7 @@ class process_tips():
 
         cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
 
-        if merge:
+        if merge: #adds employee names, 
             return self.df.merge(cur_df, on='EMPLOYEE', suffixes=(False, False))
 
         return cur_df
