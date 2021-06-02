@@ -31,7 +31,7 @@ paths:
         200:
           description: "Successful read"
           schema:
-            type: "object"
+            type: "array"
   /jobcodes:
     get:
       operationId: "api.jobcodes"
@@ -41,4 +41,14 @@ paths:
         200:
           description: "Successful read"
           schema:
-            type: "array"          
+            type: "array"                 
+  /reports:
+    get:
+      operationId: "api.print_rpt"
+      summary: "requires the report params are set first"
+      description: "prints the report and returns True if they actually printed"
+      responses:
+        200:
+          description: "Successful read"
+          schema:
+            type: "string"

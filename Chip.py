@@ -1,21 +1,29 @@
-# python -m pip install tkcalendar
-# python -m pip install pandas
-# python -m pip install dbfread
-# python -m pip install xlsxwriter
-# python -m pip install python-quickbooks
-
 import timeit
 import numpy as np
 import sys
 import os
 import flask
+import jsonformatter
+import glob
+import connexion
+
 from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from cfg import cfg
+from flask import Flask, render_template
+
+app = connexion.App(__name__, specification_dir='./')
+
+# Read the yml file for the endpoints
+app.add_api('chip.yml')
 
 if __name__ == '__main__':
     print("\nloading chip.py\n")
 
+    for file in glob.glob('/reports/.*'):
+        os.remove(file)
+
+    #app.run(debug=True)
     def main():
         
         #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name

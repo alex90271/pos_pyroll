@@ -1,11 +1,11 @@
 {
     "SETTINGS": {
-        "tip_sales_percent": "0.03",
+        "tip_sales_percent": "0.04",
         "tip_amt_percent": "1",
         "percent_sale_codes": "1",
         "percent_tip_codes": "11",
         "tipped_codes": "2,3,5,10,11,12,13,14",
-        "tracked_labor": "7,8",
+        "tracked_labor": "8",
         "pay_period_days": "15",
         "count_salary": true,
         "debug": false,

@@ -6,36 +6,33 @@ import timeit
 import numpy as np
 import sys
 import os
+import json
+import connexion
 from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from cfg import cfg
-import json
-import connexion
-from flask import Flask, render_template
 
-app = connexion.App(__name__, specification_dir='./')
+first_day = ''
+last_day = ''
+type = ''
 
-# Read the yml file for the endpoints
-app.add_api('chip.yml')
+def set_rpt_params():
+    type = connexion.request.headers['type'] #options: ['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total']
+    first_day = connexion.request.headers['first_day'] #format YYYYMMDD
+    last_day = connexion.request.headers['last_day'] #format YYYYMMDD
 
 def config():
-    return cfg().read_json(os.environ['json_name'])
+    return cfg().return_config()
 
 def employees():
-    return query_db('20210401').employee_list()
+    emp_list = query_db(last_day).employee_list()
+    emp_json = emp_list.to_json(orient='records')
+    return emp_json
 
 def jobcodes():
-    return query_db('20210401').jobcode_list()
+    job_list = query_db(last_day).jobcode_list()
+    job_json = job_list.to_json(orient='records')
+    return job_json
 
-def print_rpt(type):
-    #TODO implement report printing and specifying the type. 
-    pass
-
-def set_date_environ(day_one, day_two):
-    os.environ['day_one'] = day_one
-    os.environ['day_two'] = day_two
-    return day_one, day_two
-
-# if api.py is ran, start the server
-if __name__ == '__main__':
-    app.run(debug=True)
+def print_rpt():
+    return gen_rpt(first_day, last_day).print_to_excel(type)
