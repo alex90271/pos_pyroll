@@ -9,7 +9,10 @@ python dependencies (updated 5-21-2021)
 # python -m pip install 'connexion[swagger-ui]'
 # python -m pip install flask
 # python -m pip install json
-# python -m pip install jsonformatter
+
+built on python 3.8.6 64Bit
+
+run chip.py to launch
 
 localhost:5000/api/ui
 

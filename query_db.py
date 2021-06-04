@@ -26,11 +26,11 @@ class query_db():
         _dbf = ''
         #print("processing_db")
         if db_type == 'employees':
-            a = self.dbf_to_list('/EMP.Dbf', newdata=True)
+            a = self.dbf_to_list('/EMP.Dbf')
             df = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']).sort_values(by='ID')
             return df
         elif db_type == 'jobcodes':
-            a = self.dbf_to_list('/JOB.Dbf', newdata=True)
+            a = self.dbf_to_list('/JOB.Dbf')
             df = pd.DataFrame(a, columns=['ID', 'SHORTNAME']).sort_values(by='ID')
             return df
         elif db_type == 'labor':
@@ -39,8 +39,14 @@ class query_db():
             df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
                                           'CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE',
                                           'RATE', 'TIPSHCON'])
-            df = df.loc[np.where(df['INVALID'] == 'N')]
-            df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values)
+            df = df.loc[np.where(df['INVALID'] == 'N')] #get rid of any invalid shifts (deleted or shifts that have been edited)
+            df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values) #when the data is pulled in and HOURS includes OVERHRS
+            return df
+        elif db_type == 'trans':
+            db_type = db_type + self.day
+            a = self.dbf_to_list('/GNDTndr.dbf')
+            df = pd.DataFrame(a)
+            df = df.loc[np.where(df['TYPE'] == 1)] #type ID 1 in Aloha Docs are normal transactions
             return df
 
     def process_names(self, df):
@@ -80,7 +86,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        print(query_db("20210416").employee_list())
+        print(query_db("20210520").process_db('jobcodes'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),6)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),3)) + "s")

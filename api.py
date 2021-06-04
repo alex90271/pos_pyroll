@@ -12,8 +12,8 @@ from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from cfg import cfg
 
-first_day = ''
-last_day = ''
+first_day = '20210416'
+last_day = '20210531'
 type = ''
 
 def set_rpt_params():

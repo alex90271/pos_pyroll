@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        print(process_tips("20210116").calc_payroll())
+        print(process_tips("20210416").calc_payroll())
     r = 5
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
