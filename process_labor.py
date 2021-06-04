@@ -71,8 +71,11 @@ class process_labor():
             return np.round(np.multiply(np.divide(labor_cost, sales), 100),2)
 
     def calc_laborrate_df(self, r=3):
+        salary = ''
+        if self.salary:
+            salary = ', Salary'
         return pd.DataFrame(data={
-                    'Tracked Codes': [self.tracked_labor],
+                    'Tracked Codes': [str(self.tracked_labor) + salary],
                     'Day': [self.get_day()],
                     'Rate (%)': [np.round(self.get_labor_rate(),r)],
                     'Total Pay': [np.round(self.get_total_pay(),r)],

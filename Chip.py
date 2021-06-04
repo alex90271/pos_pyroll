@@ -24,7 +24,7 @@ if __name__ == '__main__':
     for file in glob.glob('/reports/.*'):
         os.remove(file)
 
-    app.run(debug=True)  #COMMENT THIS TO RUN WITHOUT LAUNCHING SERVER
+    #app.run(debug=True)  #COMMENT THIS TO RUN WITHOUT LAUNCHING SERVER
     def main():
         
         #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name
