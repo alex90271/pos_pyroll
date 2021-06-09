@@ -208,7 +208,7 @@ if __name__ == '__main__':
     print("loading gen_rpt.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        gen_rpt('20210101','20210115').print_to_excel('labor_rate')
+        gen_rpt('20210416','20210416').print_to_excel('tip_rate')
     r = 5
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

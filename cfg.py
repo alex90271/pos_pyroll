@@ -3,6 +3,8 @@ import json
 import os
 from os import path
 
+from numpy import TooHardError
+
 class cfg():
 
     def __init__(self):
@@ -71,7 +73,7 @@ class cfg():
             
         self.save_json(data)
     
-    def query (self, config, query):
+    def query (self, config, query, return_type='default'):
         '''returns config settings as a string
 
             Ex. usage for single config settings
@@ -80,8 +82,18 @@ class cfg():
             possible options: 
             register, server, tipout_recip, tip_percent,
             tracked_labor, pay_period, debug, database, and salary'''
+
+        q = self.read_json(self.json_name)[config][query]
+
+        #user can specify a return type if necissary. 
+        if return_type == 'int_array':
+            q = [int(x) for x in q.split(',')]
+        elif return_type == 'float':
+            float(q)
+        elif return_type == 'bool':
+            bool(q)
         
-        return self.read_json(self.json_name)[config][query]
+        return q
 
     def return_config(self):
         return self.read_json(self.json_name)

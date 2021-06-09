@@ -24,7 +24,6 @@ if __name__ == '__main__':
     for file in glob.glob('/reports/.*'):
         os.remove(file)
 
-    #app.run(debug=True)  #COMMENT THIS TO RUN WITHOUT LAUNCHING SERVER
     def main():
         
         #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name
@@ -41,8 +40,13 @@ if __name__ == '__main__':
         #if a second day is not selected, make the date range the same days
         [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])]
 
-    r = 1
-    f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
-    print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \ntotal time: " + str(np.round(np.sum(f),2)) + "s")
-
+        
+    #setting reports only to True skips launching the flask server
+    debug_reports_only = True
+    if debug_reports_only:
+        r = 1
+        f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
+        print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \ntotal time: " + str(np.round(np.sum(f),2)) + "s")
+    else:
+        app.run(debug=True)
 
