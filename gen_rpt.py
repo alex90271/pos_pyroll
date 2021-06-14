@@ -98,12 +98,14 @@ class gen_rpt():
                     ): 
         a = [tips(day).calc_payroll() for day in self.days]
         df = pd.concat(a)
-        if sum_only:
+
+        if sum_only: #setting sum_only to true gives a list of total hours, ignoring the job type
             try:
                 index_cols.remove('JOB_NAME')
             except:
                 print('JOB_NAME not specified')
-        _df = query_db(self.days[len(self.days)-1]).process_names(df=df)
+
+        _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
         _df = _df.drop(drop_cols, axis=1)
         _df = pd.pivot_table(_df,
                             index=index_cols,
@@ -187,10 +189,11 @@ class gen_rpt():
 
         df.to_excel(writer, sheet_name=file_name[:-5], float_format="%.2f") #write with the updated data
 
+        #boilerplate stuff to turn the spreadsheet more into a report
         wrksheet.set_column('A:A', 4, f3) #make index column small
         wrksheet.repeat_rows(0) #repeat first row
         wrksheet.set_margins(left=0.5, right=0.5, top=0.7, bottom=0.7)
-        wrksheet.fit_to_pages(1,0)
+        wrksheet.fit_to_pages(1,0) #fits all columns to one page
         wrksheet.set_default_row(20)
         wrksheet.set_header('&LREPORT TYPE: ' + rpt + '&CREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '&RPAGE &P of &N')
         wrksheet.set_footer('DATE PRINTED: &D &T')

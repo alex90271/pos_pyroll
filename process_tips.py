@@ -10,7 +10,6 @@ from query_db import query_db
 class process_tips():
     #'SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'
     def __init__(self, day):
-
         #instantiate a single day to process data
         self.db = query_db(day)
         self.df = self.db.process_db('labor')
@@ -24,15 +23,13 @@ class process_tips():
         self.sales_percent = c.query('SETTINGS','tip_sales_percent', return_type='float')
         self.use_aloha_tipshare = c.query('SETTINGS','use_aloha_tipshare', return_type='bool')
         self.debug = False
-
-        #config testing
     
     def get_day(self, fmt="%a %b %e"):
         day = datetime.datetime.strptime(self.day, "%Y%m%d") #20210101
         return day.strftime(fmt) #Mon Jan 1
 
     def get_percent_sales(self):
-        '''returns tip share from server jobcodes'''
+        '''returns tip share  total from server jobcodes'''
         cur_df = self.calc_servtips()
         total = np.sum(cur_df.loc[:,('TIP_CONT')].values)
         #print('tipshare ' + str(total))
@@ -68,7 +65,7 @@ class process_tips():
         '''returns hourly rate rounded to the nearest cent'''
         tipped_hours = self.get_tipped_hours()
         total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(decl=True, cctip=True))
-        with np.errstate(invalid='ignore'): #some days may return zero and thats okay
+        with np.errstate(invalid='ignore'): #some days may return zero and thats okay (closed days)
             return np.divide(total_pool, tipped_hours)
 
     def calc_tipout(self):
