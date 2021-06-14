@@ -22,14 +22,13 @@ def config():
 
 def employees():
     emp_list = query_db(last_day).employee_list()
-    emp_json = emp_list.to_json(orient='records')
-    return jsonify(emp_json)
+    return jsonify(emp_list)
 
 def jobcodes():
     job_list = query_db(last_day).jobcode_list()
-    job_json = job_list.to_json(orient='records')
-    print(job_list, job_json)
-    return job_json
+    return jsonify(job_list)
+
+
 
 def print_rpt():
     return gen_rpt(first_day, last_day).print_to_excel(type)

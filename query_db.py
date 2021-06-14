@@ -7,7 +7,7 @@ from dbfread import DBF
 #from itertools import izip
 
 class query_db():
-    def __init__(self, day):
+    def __init__(self, day: str):
         self.day = day
 
     def get_day(self):
@@ -42,7 +42,7 @@ class query_db():
             df = df.loc[np.where(df['INVALID'] == 'N')] #get rid of any invalid shifts (deleted or shifts that have been edited)
             df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values) #when the data is pulled in and HOURS includes OVERHRS
             return df
-        elif db_type == 'trans':
+        elif db_type == 'transactions':
             db_type = db_type + self.day
             a = self.dbf_to_list('/GNDTndr.dbf')
             df = pd.DataFrame(a)
@@ -50,6 +50,12 @@ class query_db():
             return df
 
     def process_names(self, df):
+        '''takes in a dataframe, with employee IDs and appends the employee name
+            assumes the employee number columns is named 'ID'
+
+            this function was implemented to decrese processing time by more than half. 
+            Only reads the massive name database and appends right before returning as report
+        '''
         #print('adding names')
         job = self.process_db('jobcodes')
         job = job.rename(columns={'ID': 'JOBCODE'})
