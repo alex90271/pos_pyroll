@@ -2,27 +2,20 @@ import timeit
 import numpy as np
 import sys
 import os
-import flask
+#import flask
 import jsonformatter
-import glob
-import connexion
 
 from gen_rpt import gen_rpt
 from datetime import timedelta, date, datetime
 from cfg import cfg
-from flask import Flask, render_template
-
-app = connexion.App(__name__, specification_dir='./')
-
-# Read the yml file for the endpoints
-app.add_api('chip.yml')
+#from flask import Flask, render_template
 
 if __name__ == '__main__':
     print("\nloading chip.py\n")
 
     print("cleaning reports folder")
-    for file in glob.glob('/reports/.*'):
-        os.remove(file)
+    #remove all the old reports in the output folder
+    [os.remove(os.path.join('reports', f))for f in os.listdir('reports')]
 
     def main():
         
@@ -42,11 +35,11 @@ if __name__ == '__main__':
 
         
     #setting reports only to True skips launching the flask server
-    debug_reports_only = True
-    if debug_reports_only:
+    debug = False
+    if debug:
         r = 1
         f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
         print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \ntotal time: " + str(np.round(np.sum(f),2)) + "s")
     else:
-        app.run(debug=True)
+        main()
 

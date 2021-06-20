@@ -1,10 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+
 block_cipher = None
 
 
 a = Analysis(['chip.py'],
-             pathex=['P:\\Python_Payroll'],
+             pathex=['C:\\Users\\alexa\\vscode\\PythonPayroll'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -74,10 +74,7 @@ class query_db():
                     ):
         df = pd.DataFrame(data=data)
         df.to_csv('salary.csv')
-
-    def get_total_sales(self):
-        df = self.process_db('labor')
-        return np.round(np.sum(df['SALES'].values),2)
+        print('new salary file generated, open salary.csv to add salaried employees')
 
     def jobcode_list(self):
         ''''returns a list of jobcodes from the latest data'''

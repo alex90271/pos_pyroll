@@ -15,8 +15,8 @@ class process_labor():
         self.day = day
         #config options
         c = cfg()
-        self.tracked_labor = c.query('SETTINGS','tracked_labor').split(',')
-        self.pay_period = int(c.query('SETTINGS','pay_period_days'))
+        self.tracked_labor = c.query('SETTINGS','tracked_labor', return_type='int_array')
+        self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
         self.salary = c.query('SETTINGS','count_salary')
         self.debug = True
     
@@ -61,28 +61,32 @@ class process_labor():
         if over:
             total += np.sum(cur_df.loc[:,('OVERHRS')])
         return total
+
+    def get_total_sales(self):
+        df = self.df
+        return np.round(np.sum(df['SALES'].values),2)
     
     def get_labor_rate(self):
         labor_cost = self.get_total_pay()
-        sales = self.db.get_total_sales()
+        sales = self.get_total_sales()
         if sales == 0:
-            return 0
+            return np.nan
         else:
             return np.round(np.multiply(np.divide(labor_cost, sales), 100),2)
 
-    def calc_laborrate_df(self, r=3):
+    def calc_laborrate_df(self):
         salary = ''
         if self.salary:
             salary = ', Salary'
         return pd.DataFrame(data={
                     'Tracked Codes': [str(self.tracked_labor) + salary],
                     'Day': [self.get_day()],
-                    'Rate (%)': [np.round(self.get_labor_rate(),r)],
-                    'Total Pay': [np.round(self.get_total_pay(),r)],
-                    'Total Sales': [np.round(self.db.get_total_sales(),r)],
-                    'Reg Hours': [np.round(self.get_total_hours(reg=True),r)],
-                    'Over Hours': [np.round(self.get_total_hours(over=True),r)],
-                    'Total Hours': [np.round(self.get_total_hours(reg=True, over=True),r)]
+                    'Rate (%)': [self.get_labor_rate()],
+                    'Total Pay': [self.get_total_pay()],
+                    'Total Sales': [self.get_total_sales()],
+                    'Reg Hours': [self.get_total_hours(reg=True)],
+                    'Over Hours': [self.get_total_hours(over=True)],
+                    'Total Hours': [self.get_total_hours(reg=True, over=True)]
             })
 
         
