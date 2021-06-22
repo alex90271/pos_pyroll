@@ -10,7 +10,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "args": ["chip.json", "20210416", "20210430"],
+            "args": ["config\\chip.json", "20210416", "20210430"],
             "console": "integratedTerminal"
         }
     ]

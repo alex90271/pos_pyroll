@@ -1,8 +1,7 @@
 from process_labor import process_labor as labor
 from process_tips import process_tips as tips
 from query_db import query_db as query_db
-from datetime import date
-import xlsxwriter
+#import xlsxwriter
 import numpy as np
 import pandas as pd
 import datetime
@@ -52,8 +51,6 @@ class gen_rpt():
                 totaled_cols: list, 
                 averaged_cols: list,
                 ):
-        tracked_labor = cfg().query('SETTINGS','tracked_labor').split(',')
-        pay_period = int(cfg().query('SETTINGS', 'pay_period_days'))
         a = []
         if rpt == 'Tip':
             a = [tips(day).calc_tiprate_df() for day in self.days]

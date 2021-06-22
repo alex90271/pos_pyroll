@@ -26,9 +26,15 @@ class process_labor():
 
     def calc_salary(self):
         '''returns a dataframe of the salary employees'''
-        if not os.path.exists('salary.csv'):
-            self.db.gen_salary()
-        salary_df = pd.read_csv('salary.csv')
+        salary_df = pd.DataFrame #blank dataframe
+        salary_path = 'config\\salary.csv' 
+        #check if the salary csv already exists
+        if not os.path.exists(salary_path):
+            salary_df = pd.DataFrame(data={'FIRSTNAME':['TEST'], 'LASTNAME':['TEST'], 'RATE':[0], 'HOURS':[0], 'OVERHRS':[0], 'JOB_NAME':['Salary']})
+            salary_df.to_csv(salary_path)
+            print('new salary file generated, open salary.csv to add salaried employees')
+        else:
+            salary_df = pd.read_csv(salary_path)
         salary_df.loc[:,('HOURS')] = np.divide(salary_df.loc[:,('HOURS')], self.pay_period)
         salary_df.loc[:,('OVERHRS')] = np.divide(salary_df.loc[:,('OVERHRS')], self.pay_period)
         return salary_df
@@ -72,7 +78,7 @@ class process_labor():
         if sales == 0:
             return np.nan
         else:
-            return np.round(np.multiply(np.divide(labor_cost, sales), 100),2)
+            return np.multiply(np.divide(labor_cost, sales), 100)
 
     def calc_laborrate_df(self):
         salary = ''

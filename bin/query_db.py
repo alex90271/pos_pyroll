@@ -49,7 +49,7 @@ class query_db():
             df = df.loc[np.where(df['TYPE'] == 1)] #type ID 1 in Aloha Docs are normal transactions
             return df
 
-    def process_names(self, df):
+    def process_names(self, df, rename_columns=True):
         '''takes in a dataframe, with employee IDs and appends the employee name
             assumes the employee number columns is named 'ID'
 
@@ -58,23 +58,19 @@ class query_db():
         '''
         #print('adding names')
         job = self.process_db('jobcodes')
-        job = job.rename(columns={'ID': 'JOBCODE'})
-        job = job.rename(columns={'SHORTNAME': 'JOB_NAME'})
-
         emp = self.process_db('employees')
-        emp = emp.rename(columns={'ID':'EMPLOYEE'})
+
+        if rename_columns:
+            emp = emp.rename(columns={'ID':'EMPLOYEE'})
+            job = job.rename(columns={'ID': 'JOBCODE'})
+            job = job.rename(columns={'SHORTNAME': 'JOB_NAME'})
+        else:
+            print('process_names function: rename columns is set to false')
 
         df = df.merge(job, on='JOBCODE')
         df = df.merge(emp, on='EMPLOYEE')
-        return df
 
-    def gen_salary(
-                    self, 
-                    data={'FIRSTNAME':['TEST'], 'LASTNAME':['TEST'], 'RATE':[0], 'HOURS':[0], 'OVERHRS':[0], 'JOB_NAME':['Salary']}
-                    ):
-        df = pd.DataFrame(data=data)
-        df.to_csv('salary.csv')
-        print('new salary file generated, open salary.csv to add salaried employees')
+        return df
 
     def jobcode_list(self):
         ''''returns a list of jobcodes from the latest data'''

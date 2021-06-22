@@ -2,13 +2,8 @@ import timeit
 import numpy as np
 import sys
 import os
-#import flask
-import jsonformatter
-
 from gen_rpt import gen_rpt
-from datetime import timedelta, date, datetime
-from cfg import cfg
-#from flask import Flask, render_template
+from numba import jit
 
 if __name__ == '__main__':
     print("\nloading chip.py\n")
@@ -25,17 +20,17 @@ if __name__ == '__main__':
         os.environ['json_name'] = str(sys.argv[1])
         day_one = str(sys.argv[2])
         day_two = str(sys.argv[3])
+        rpt_list = list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])
 
         #full command: python chip.py json_name day_one day_two
         #testing: python chip.py chip.json 20210101 20210115
         print('config: ' + os.environ['json_name'] + '\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
 
-        #if a second day is not selected, make the date range the same days
-        [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])]
-
+        #to select same day, pass day_one and day_two as the same
+        [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in rpt_list]
         
     #setting reports only to True skips launching the flask server
-    debug = False
+    debug = True
     if debug:
         r = 1
         f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)

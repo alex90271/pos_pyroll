@@ -8,6 +8,7 @@ from cfg import cfg
 from query_db import query_db
 
 class process_tips():
+    '''functions that start with 'get' return a number, functions that start with 'calc' return a dataframe'''
     #'SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'
     def __init__(self, day):
         #instantiate a single day to process data
@@ -62,7 +63,7 @@ class process_tips():
         return total
 
     def get_tip_rate(self):
-        '''returns hourly rate rounded to the nearest cent'''
+        '''returns hourly rate'''
         tipped_hours = self.get_tipped_hours()
         total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(decl=True, cctip=True))
         with np.errstate(invalid='ignore'): #some days may return zero and thats okay (closed days)
@@ -78,10 +79,9 @@ class process_tips():
 
         return cur_df
 
-    def calc_servtips(self, include_names=False): 
+    def calc_servtips(self): 
         '''calculates server tips and returns a dataframe with added values'''
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_sales_codes)].copy()
-
 
         if self.use_aloha_tipshare:
             cur_df['TIP_CONT'] = cur_df['TIPSHCON'].values
@@ -90,9 +90,6 @@ class process_tips():
 
         cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
 
-        if include_names: #adds employee names, 
-            return self.df.merge(cur_df, on='EMPLOYEE', suffixes=(False, False))
-
         return cur_df
     
     def calc_tiprate_df(self, r=3):
@@ -100,12 +97,12 @@ class process_tips():
         names = cfg().query('RPT_TIP_RATE', 'col_names')
         df = pd.DataFrame(data={
             names[0]: [self.get_day()], #date
-            names[1]: [np.round(self.get_tip_rate(),r)], #Tip Hourly
-            names[2]: [np.round(self.get_percent_tips(decl=True),r)], #Cash Tips
-            names[3]: [np.round(self.get_percent_tips(cctip=True),r)], #Takeout CC Tips
-            names[4]: [np.round(self.get_percent_sales(),r)], # Server Tipshare
-            names[5]: [np.round(np.add(self.get_percent_sales(),self.get_percent_tips(decl=True,cctip=True)), r)], #Total Tip Pool
-            names[6]: [np.round(self.get_tipped_hours(),r)] #Total Tipped Hours
+            names[1]: [self.get_tip_rate()], #Tip Hourly
+            names[2]: [self.get_percent_tips(decl=True)], #Cash Tips
+            names[3]: [self.get_percent_tips(cctip=True)], #Takeout CC Tips
+            names[4]: [self.get_percent_sales()], # Server Tipshare
+            names[5]: [np.add(self.get_percent_sales(),self.get_percent_tips(decl=True,cctip=True))], #Total Tip Pool
+            names[6]: [self.get_tipped_hours()] #Total Tipped Hours
             })
         return df
 
