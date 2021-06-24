@@ -1,12 +1,20 @@
 import './calendar.css';
 import { Calendar } from 'react-modern-calendar-datepicker';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const CalendarComponent = (props) => {
     const [selectedDayRange, setSelectedDayRange] = useState({
         from: null,
         to: null
     });
+
+    useEffect(() => {
+        if (selectedDayRange.from && selectedDayRange.to) {
+            props.setCanPrint(true);
+        } else {
+            props.setCanPrint(false);
+        }
+    })
 
 
     let displayedRange = '';
