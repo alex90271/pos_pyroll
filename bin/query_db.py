@@ -7,18 +7,18 @@ from dbfread import DBF
 #from itertools import izip
 
 class query_db():
-    def __init__(self, day: str):
-        self.day = day
+    def __init__(self, data=''):
+        if data == '':
+            self.data = 'Data'
+        else:
+            self.data = data #data, meaning the date folder
 
     def get_day(self):
-        return self.day
+        return self.data
     
-    def dbf_to_list(self, dbf, newdata=False):
+    def dbf_to_list(self, dbf):
         c = cfg()
-        d = self.day #use a temp variable so we can change it
-        if newdata:
-            d = 'Data' #data points to the temp database with the latest data 
-        a = DBF(c.query('SETTINGS','database') + d + dbf, char_decode_errors='ignore', load=False)
+        a = DBF(c.query('SETTINGS','database') + self.data + dbf, char_decode_errors='ignore', load=False)
         return a
 
     def process_db(self, db_type):
@@ -34,6 +34,8 @@ class query_db():
             df = pd.DataFrame(a, columns=['ID', 'SHORTNAME']).sort_values(by='ID')
             return df
         elif db_type == 'labor':
+            if self.data == 'Data':
+                raise ValueError('ERROR: NO DATE GIVEN FOR LABOR DATA')
             a = self.dbf_to_list('/ADJTIME.DBF')
             db_type = db_type + self.day
             df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
@@ -42,7 +44,9 @@ class query_db():
             df = df.loc[np.where(df['INVALID'] == 'N')] #get rid of any invalid shifts (deleted or shifts that have been edited)
             df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values) #when the data is pulled in and HOURS includes OVERHRS
             return df
-        elif db_type == 'transactions':
+        elif db_type == 'transactions': #this isn't used yet
+            if self.data == 'Data':
+                raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
             db_type = db_type + self.day
             a = self.dbf_to_list('/GNDTndr.dbf')
             df = pd.DataFrame(a)

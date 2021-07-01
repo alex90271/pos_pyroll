@@ -3,7 +3,7 @@ import numpy as np
 import sys
 import os
 from gen_rpt import gen_rpt
-from numba import jit
+
 
 if __name__ == '__main__':
     print("\nloading chip.py\n")

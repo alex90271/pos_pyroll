@@ -1,8 +1,6 @@
 import datetime
 import numpy as np
 import pandas as pd
-import os
-import xlsxwriter
 import timeit
 from cfg import cfg
 from query_db import query_db

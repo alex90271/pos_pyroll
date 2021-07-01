@@ -1,4 +1,3 @@
-import configparser
 import json
 import os
 from os import path
@@ -17,7 +16,7 @@ class cfg():
             self.generate_config()
 
     def save_json(self, data):
-        with open (self.json_name, 'w') as jsonfile:
+        with open(self.json_name, 'w') as jsonfile:
             json.dump(data, jsonfile, indent=4)
     
     def read_json(self, jsn):
@@ -86,7 +85,9 @@ class cfg():
         q = self.read_json(self.json_name)[config][query]
 
         #user can specify a return type if necissary. 
-        if return_type == 'int_array':
+        if return_type == 'default':
+            pass
+        elif return_type == 'int_array':
             q = [int(x) for x in q.split(',')]
         elif return_type == 'float':
             float(q)
@@ -94,9 +95,6 @@ class cfg():
             bool(q)
         
         return q
-
-    def return_config(self):
-        return self.read_json(self.json_name)
 
 if __name__ == '__main__':
     print("loading cfg.py")
