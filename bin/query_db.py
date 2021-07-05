@@ -2,11 +2,11 @@ import datetime
 import numpy as np
 import pandas as pd
 import timeit
-from cfg import cfg
+from chip_config import ChipConfig
 from dbfread import DBF
 #from itertools import izip
 
-class query_db():
+class QueryDB():
     def __init__(self, data=''):
         if data == '':
             self.data = 'Data'
@@ -17,7 +17,7 @@ class query_db():
         return self.data
     
     def dbf_to_list(self, dbf):
-        c = cfg()
+        c = ChipConfig()
         a = DBF(c.query('SETTINGS','database') + self.data + dbf, char_decode_errors='ignore', load=False)
         return a
 
@@ -37,7 +37,7 @@ class query_db():
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR LABOR DATA')
             a = self.dbf_to_list('/ADJTIME.DBF')
-            db_type = db_type + self.day
+            db_type = db_type + self.data
             df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
                                           'CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE',
                                           'RATE', 'TIPSHCON'])
@@ -47,7 +47,7 @@ class query_db():
         elif db_type == 'transactions': #this isn't used yet
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
-            db_type = db_type + self.day
+            db_type = db_type + self.data
             a = self.dbf_to_list('/GNDTndr.dbf')
             df = pd.DataFrame(a)
             df = df.loc[np.where(df['TYPE'] == 1)] #type ID 1 in Aloha Docs are normal transactions
@@ -85,11 +85,11 @@ class query_db():
         return self.process_db('employees')
 
 if __name__ == '__main__':
-    print("loading query_db.py")
+    print("loading QueryDB.py")
 
     def main():
         #print("loading process_tips.py")
-        print(query_db("20210520").process_db('jobcodes'))
+        print(QueryDB("20210520").process_db('jobcodes'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),6)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),3)) + "s")

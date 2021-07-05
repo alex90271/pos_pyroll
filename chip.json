@@ -8,7 +8,7 @@
         "tracked_labor": "8",
         "pay_period_days": "15",
         "count_salary": true,
-        "debug": false,
+        "debug": "true",
         "database": "database\\",
         "use_aloha_tipshare": false
     },

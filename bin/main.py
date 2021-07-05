@@ -2,7 +2,7 @@ import timeit
 import numpy as np
 import sys
 import os
-from gen_rpt import gen_rpt
+from report_writer import ReportWriter
 
 
 if __name__ == '__main__':
@@ -17,17 +17,16 @@ if __name__ == '__main__':
         #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name
         #if no variable is set here, it will use the default, set in cfg.py 'chip.json'
         #os.environ.clear()
-        os.environ['json_name'] = str(sys.argv[1])
-        day_one = str(sys.argv[2])
-        day_two = str(sys.argv[3])
+        day_one = str(sys.argv[1])
+        day_two = str(sys.argv[2])
         rpt_list = list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])
 
         #full command: python chip.py json_name day_one day_two
         #testing: python chip.py chip.json 20210101 20210115
-        print('config: ' + os.environ['json_name'] + '\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
+        print('\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
 
         #to select same day, pass day_one and day_two as the same
-        [gen_rpt(day_one,day_two).print_to_excel(rpt) for rpt in rpt_list]
+        [ReportWriter(day_one,day_two).print_to_excel(rpt) for rpt in rpt_list]
         
     #setting reports only to True skips launching the flask server
     debug = True

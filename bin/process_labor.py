@@ -2,11 +2,11 @@ import datetime
 import numpy as np
 import pandas as pd
 import os
-from cfg import cfg
-from query_db import query_db as db
+from chip_config import ChipConfig
+from query_db import QueryDB as db
 
 
-class process_labor():
+class ProcessLabor():
     #'SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'
 
     def __init__(self, day):
@@ -14,7 +14,7 @@ class process_labor():
         self.df = self.db.process_db('labor')
         self.day = day
         #config options
-        c = cfg()
+        c = ChipConfig()
         self.tracked_labor = c.query('SETTINGS','tracked_labor', return_type='int_array')
         self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
         self.salary = c.query('SETTINGS','count_salary')
@@ -97,5 +97,5 @@ class process_labor():
 
         
 if __name__ == '__main__':
-    print("loading process_labor.py")
-    print(process_labor("20210109").calc_laborrate_df())
+    print("loading ProcessLabor.py")
+    print(ProcessLabor("20210109").calc_laborrate_df())

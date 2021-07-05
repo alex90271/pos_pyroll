@@ -1,26 +1,24 @@
 import json
 import os
-from os import path
 
-from numpy import TooHardError
+class ChipConfig():
 
-class cfg():
-
-    def __init__(self):
-        if os.environ.get('json_name') is None:
-            os.environ['json_name'] = 'chip.json'
-        self.json_name = os.environ.get('json_name')
+    def __init__(self, json_name='chip.json'):
+        self.json_name = json_name
 
         if not os.path.isfile(self.json_name):
             print ('generating new default config')
-            self.generate_config()
+            self.data = self.generate_config()
+            self.save_json(self.data)
+
+        self.data = self.read_json()
 
     def save_json(self, data):
         with open(self.json_name, 'w') as jsonfile:
             json.dump(data, jsonfile, indent=4)
     
-    def read_json(self, jsn):
-        with open(jsn) as jsonfile:
+    def read_json(self):
+        with open(self.json_name) as jsonfile:
             return json.load(jsonfile)
 
     def generate_config (self):
@@ -70,9 +68,9 @@ class cfg():
             'col_width': 12
             }
             
-        self.save_json(data)
+        return data
     
-    def query (self, config, query, return_type='default'):
+    def query (self, config, query, return_type='default', updated_result=None):
         '''returns config settings as a string
 
             Ex. usage for single config settings
@@ -82,20 +80,26 @@ class cfg():
             register, server, tipout_recip, tip_percent,
             tracked_labor, pay_period, debug, database, and salary'''
 
-        q = self.read_json(self.json_name)[config][query]
+        if updated_result:
+            self.data[config][query] = updated_result
+            self.save_json(self.data)
+
+        result = self.data[config][query]
 
         #user can specify a return type if necissary. 
         if return_type == 'default':
             pass
         elif return_type == 'int_array':
-            q = [int(x) for x in q.split(',')]
+            result = [int(x) for x in result.split(',')]
         elif return_type == 'float':
-            float(q)
+            float(result)
         elif return_type == 'bool':
-            bool(q)
+            bool(result)
         
-        return q
+        return result
 
 if __name__ == '__main__':
-    print("loading cfg.py")
-    print(cfg().return_config())
+    print("loading ChipConfig.py")
+    print(ChipConfig().query("SETTINGS","database", updated_result='database\\'))
+
+

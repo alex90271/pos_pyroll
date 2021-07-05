@@ -1,33 +1,42 @@
-this is a readme file
-
-python dependencies (updated 7-1-2021)
-# python -m pip install pandas
-# python -m pip install dbfread
-# python -m pip install xlsxwriter
-# python -m pip install flask
+python dependencies (updated 7-5-2021)
+pip install pandas
+pip install dbfread
+pip install xlsxwriter
+pip install flask
+(for testing purposes) pip install timeit
 
 built on python 3.8.6 64Bit
 
-run chip_api.py to launch
+run server.py to launch
 
-localhost:5000
+date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
 
-functioning endpoints can be viewed after launching Chip.py and visiting the above link
+API:
 
-Currently supports:
+<> = required
+{} = optional
 
+/v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/{bool: print}
+    day_one = first day in the sequence (ex. 20210701)
+    day_two = last day in the sequence (ex. 20210705) -- to submit for just ONE day, pass it for both args
 
-GET:
-/v01/print/<day_one>/<day_two>/<rpt_type>
-    returns True when the report has been submitted
-    options: ['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total']
-/v01/view/<day_one>/<day_two>/<rpt_type>
-    same as the above, except returns raw data
-    same options as above
+    rpt_type = type of data to print or return (ex. labor_main) 
+    options: 
+        labor_main = Returns data containing detailed labor / payroll info (including tip information) 
+        (use this for fetching any labor data such as hours, tips, etc.)
+        tip_rate = Returns data containing tip hourly rates
+        labor_rate = Contains labor percentages based on cost of labor to sales ratio
+        cout_eod = Contains a list of shifts that were auto clocked out (and their clock-out time)
+        labor_total = Same as labor main, though ignores jobcodes and only returns the job total (useful when wanting overall) 
 
-/v01/config/
-    returns the ENTIRE config as a json object
-v/01/config/<query>
+    pass {print = True} to print report
+
+    example query: http://localhost:5000/v01/data/20210416/20210430/labor_main/False
+
+v/01/config/<str: query>/{updated_query_result}
+
     returns a config item. see cfg.py for more details
+
+    pass with an {updated_query_result} to save it
 
 

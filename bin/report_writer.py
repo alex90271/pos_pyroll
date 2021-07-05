@@ -1,15 +1,14 @@
-from process_labor import process_labor as labor
-from process_tips import process_tips as tips
-from query_db import query_db as query_db
-#import xlsxwriter
+from process_labor import ProcessLabor as labor
+from process_tips import ProcessTips as tips
+from query_db import QueryDB as query_db
+from chip_config import ChipConfig
 import numpy as np
 import pandas as pd
 import datetime
 import os
 import timeit
-from cfg import cfg
 
-class gen_rpt():
+class ReportWriter():
 
     def __init__(self, first_day, last_day=None, increment=1):
         self.first_day = first_day
@@ -120,7 +119,7 @@ class gen_rpt():
 
         return _df.reset_index()
 
-    def print_to_excel(self, rpt):
+    def print_to_excel(self, rpt, opt_print=True):
         '''
             currently supports 'tip_rate' 'labor_main' 'labor_rate' 'cout_eod' 'labor_total'
             returns true when the file is printed
@@ -145,7 +144,7 @@ class gen_rpt():
                 rpt='Tip',
                 totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
                 averaged_cols=['Tip Hourly'])
-            wrksheet.set_column('B:H', cfg().query('RPT_TIP_RATE', 'col_width'), f1)
+            wrksheet.set_column('B:H', ChipConfig().query('RPT_TIP_RATE', 'col_width'), f1)
             wrksheet.set_landscape()
         elif rpt == 'labor_main':
             df = self.labor_main(
@@ -154,7 +153,7 @@ class gen_rpt():
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                 addl_cols=['MEALS'], 
                 sum_only=False)
-            wrksheet.set_column('B:D', cfg().query('RPT_LABOR_MAIN', 'col_width'), f1)
+            wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
             wrksheet.set_column('E:F', 12, f1)
             wrksheet.set_column('G:J', 12, f2)
         elif rpt == 'labor_total':
@@ -164,7 +163,7 @@ class gen_rpt():
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                 addl_cols=['MEALS'], 
                 sum_only=True)
-            wrksheet.set_column('B:D', cfg().query('RPT_LABOR_MAIN', 'col_width'), f1)
+            wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
             wrksheet.set_column('E:F', 12, f1)
             wrksheet.set_column('G:J', 12, f2)
         elif rpt == 'labor_rate':
@@ -183,6 +182,9 @@ class gen_rpt():
         else:
             print('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             return False
+
+        if opt_print == 'False':
+            return df 
 
         df.to_excel(writer, sheet_name=file_name[:-5], float_format="%.2f") #write with the updated data
 
@@ -205,10 +207,10 @@ class gen_rpt():
             return False
 
 if __name__ == '__main__':
-    print("loading gen_rpt.py")
+    print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        gen_rpt('20210416','20210416').print_to_excel('tip_rate')
+        print(ReportWriter('20210416','20210416').print_to_excel('tip_rate', print=False))
     r = 5
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

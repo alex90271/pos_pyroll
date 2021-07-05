@@ -2,20 +2,20 @@ import datetime
 import numpy as np
 import pandas as pd
 import timeit
-from cfg import cfg
-from query_db import query_db
+from chip_config import ChipConfig
+from query_db import QueryDB
 
-class process_tips():
+class ProcessTips():
     '''functions that start with 'get' return a number, functions that start with 'calc' return a dataframe'''
     #'SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'
     def __init__(self, day):
         #instantiate a single day to process data
-        self.db = query_db(day)
+        self.db = QueryDB(day)
         self.df = self.db.process_db('labor')
         self.day = day
 
         #config options
-        c = cfg()
+        c = ChipConfig()
         self.percent_tips_codes = c.query('SETTINGS','percent_tip_codes', return_type='int_array') #jobcodes that contribute based on a percentage of tips
         self.percent_sales_codes = c.query('SETTINGS','percent_sale_codes', return_type='int_array') #jobcodes that contribute based on a percentage of sales
         self.tipped_code = c.query('SETTINGS','tipped_codes', return_type='int_array') #jobcodes that receive
@@ -84,7 +84,7 @@ class process_tips():
         if self.use_aloha_tipshare:
             cur_df['TIP_CONT'] = cur_df['TIPSHCON'].values
         else:
-            cur_df['TIP_CONT'] = np.multiply(cur_df['SALES'].values, self.sales_percent)
+            cur_df['TIP_CONT'] = np.multiply(cur_df['SALES'].values, float(self.sales_percent))
 
         cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
 
@@ -92,7 +92,7 @@ class process_tips():
     
     def calc_tiprate_df(self, r=3):
         '''returns a dataframe with a daily summary report, use r to change rounding'''
-        names = cfg().query('RPT_TIP_RATE', 'col_names')
+        names = ChipConfig().query('RPT_TIP_RATE', 'col_names')
         df = pd.DataFrame(data={
             names[0]: [self.get_day()], #date
             names[1]: [self.get_tip_rate()], #Tip Hourly
@@ -118,8 +118,8 @@ class process_tips():
 if __name__ == '__main__':
 
     def main():
-        #print("loading process_tips.py")
-        print(process_tips("20210416").calc_tiprate_df())
+        #print("loading ProcessTips.py")
+        print(ProcessTips("20210416").calc_tiprate_df())
     r = 5
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
