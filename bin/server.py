@@ -34,11 +34,11 @@ def config_item(query):
 
 @app.route('/v01/employee')
 def employee_list():
-    return QueryDB().process_db('employees')
+    return jsonify(QueryDB().process_db('employees').to_json())
 
 @app.route('/v01/jobcodes')
 def jobcode_list():
-    return QueryDB().process_db('jobcodes')
+    return jsonify(QueryDB().process_db('jobcodes').to_json())
 
 #Unfinished Requests
 #@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])

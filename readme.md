@@ -33,10 +33,17 @@ API:
 
     example query: http://localhost:5000/v01/data/20210416/20210430/labor_main/False
 
-v/01/config/<str: query>/{updated_query_result}
+/v01/config/<str: query>
 
     returns a config item. see cfg.py for more details
 
-    pass with an {updated_query_result} to save it
+    pass with an {updated_query_result} to save it (implementation of saving a query with a PUSH almost finished)
 
+/v01/jobcodes
 
+    returns a list of jobcodes, and their IDs (ex. Jobcode 50 is Manager)
+
+/v01/employees
+
+    returns a list of employees and their employee number
+    employees with the TERMINATED: Y flag are, terminated. Their data is pulled for historical reporting

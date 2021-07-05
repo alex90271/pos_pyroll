@@ -8,8 +8,7 @@ class ChipConfig():
 
         if not os.path.isfile(self.json_name):
             print ('generating new default config')
-            self.data = self.generate_config()
-            self.save_json(self.data)
+            self.save_json(self.generate_config())
 
         self.data = self.read_json()
 
