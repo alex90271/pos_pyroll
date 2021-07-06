@@ -25,7 +25,7 @@ def print_rpt(day_one, day_two, rpt_type, opt_print):
 
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
-    return ChipConfig().read_json()
+    return jsonify(ChipConfig().read_json())
 
 @app.route('/v01/config/<query>', methods=["GET"])
 def config_item(query):
