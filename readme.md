@@ -1,14 +1,9 @@
 python dependencies (updated 7-5-2021)
-
-pip install pandas
-
-pip install dbfread
-
-pip install xlsxwriter
-
-pip install flask
-
-(for testing purposes) pip install timeit
+    pip install pandas
+    pip install dbfread
+    pip install xlsxwriter
+    pip install flask
+    pip install timeit - (used only for testing purposes)
 
 built on python 3.8.6 64Bit
 
@@ -24,7 +19,7 @@ API:
 /v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/{bool: print}
 
     day_one = first day in the sequence (ex. 20210701)
-    
+
     day_two = last day in the sequence (ex. 20210705) -- to submit for just ONE day, pass it for both args
 
     rpt_type = type of data to print or return (ex. labor_main) 
