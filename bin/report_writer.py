@@ -97,8 +97,7 @@ class ReportWriter():
                     ): 
         '''this is the main labor r'''
         a = [tips(day).calc_payroll() for day in self.days]
-        df = pd.concat(a)
-        print(df)   
+        df = pd.concat(a)  
 
         #if any filter options are provided, fliter the data now. While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data 
         if selected_employees:

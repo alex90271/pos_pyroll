@@ -26,8 +26,8 @@ if __name__ == '__main__':
         print('\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
 
         #to select same day, pass day_one and day_two as the same
-        #operation uses multithreading
-        ReportWriter(day_one,day_two).print_to_excel(rpt_list)
+        for rpt in rpt_list:
+            ReportWriter(day_one,day_two).print_to_excel(rpt)
         
     #setting reports only to True skips launching the flask server
     debug = True
