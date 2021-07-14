@@ -7,9 +7,22 @@ from dbfread import DBF
 #from itertools import izip
 
 class QueryDB():
+    '''
+        The QueryDB class is used to access data from the Aloha Database
+        Currently supports: Labor, Jobcodes, Employee Names, and Total Sales.
+        WIP: Transaction data. Currently, cannot access live Aloha data, restricted to previous dates of buisness
+
+        set 'Data' to the desired date for processing. Ex. 20210711 = July 11th, 2021
+        leave empty for 'Today'
+    '''
     def __init__(self, data=''):
-        if data == '':
+        if data == datetime.datetime.today().strftime("%Y%m%d"): #if the date is TODAY, use latest data
             self.data = 'Data'
+            print('WARNING: Using data from the Data folder. This data should be considered unoffical and may change')
+        elif data == '': #if the data is left empty, it assumes you want to access the latest data
+            self.data = 'Data'
+        elif data > datetime.datetime.today().strftime("%Y%m%d"): #if someone tries to use a future day, throw an error. 
+            raise ValueError('ERROR: Future data cannot be used. It does not exist')
         else:
             self.data = data #data, meaning the date folder
 
@@ -17,6 +30,7 @@ class QueryDB():
         return self.data
     
     def dbf_to_list(self, dbf):
+        '''takes in a database object and reads it as a list for further processing'''
         c = ChipConfig()
         a = DBF(c.query('SETTINGS','database') + self.data + dbf, char_decode_errors='ignore', load=False)
         return a
@@ -89,7 +103,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        print(QueryDB("20210520").process_db('jobcodes'))
+        print(QueryDB("20210712").process_db('jobcodes'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),6)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),3)) + "s")
