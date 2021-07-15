@@ -4,11 +4,14 @@
 from query_db import QueryDB
 import numpy as np
 import os
+import json
 from flask import Flask, redirect, url_for, request, jsonify
+from flask_cors import CORS
 from report_writer import ReportWriter
 from chip_config import ChipConfig
 
 app = Flask(__name__)
+CORS(app)
 
 #available data: 
 #['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total']
@@ -30,7 +33,6 @@ def full_config():
 @app.route('/v01/config/<query>', methods=["GET"])
 def config_item(query):
     return jsonify(ChipConfig().query('SETTINGS',str(query)))
-
 
 @app.route('/v01/employee')
 def employee_list():

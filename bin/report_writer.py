@@ -1,5 +1,4 @@
 from process_labor import ProcessLabor as labor
-from process_tips import ProcessTips as tips
 from query_db import QueryDB as query_db
 from chip_config import ChipConfig
 import numpy as np
@@ -52,7 +51,7 @@ class ReportWriter():
                 ):
         a = []
         if rpt == 'Tip':
-            a = [tips(day).calc_tiprate_df() for day in self.days]
+            a = [labor(day).calc_tiprate_df() for day in self.days]
         elif rpt == 'Labor':
             a = [labor(day).calc_laborrate_df() for day in self.days]
         else:
@@ -95,16 +94,17 @@ class ReportWriter():
                     selected_jobs=None,
                     sum_only=False
                     ): 
-        '''this is the main labor r'''
-        a = [tips(day).calc_payroll() for day in self.days]
-        df = pd.concat(a)  
-
-        #if any filter options are provided, fliter the data now. While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data 
-        if selected_employees:
-            df = df.loc[df['EMPLOYEE'].isin([1070, 2032, 4024, 4072])] #hardcode the jobcodes for now
-
-        if selected_jobs:
-            df = df.loc[df['JOBCODE'].isin([11, 50])]
+        '''this is the main labor report'''
+        a = [labor(day).calc_payroll() for day in self.days]
+        df = pd.concat(a)
+        #if any filter options are provided, fliter the data now. 
+        #While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data 
+        if selected_employees and selected_jobs:
+            df = df.loc[df['JOBCODE'].isin(selected_jobs) & df['EMPLOYEE'].isin(selected_employees)]
+        elif selected_employees:
+            df = df.loc[df['EMPLOYEE'].isin(selected_employees)]
+        elif selected_jobs:
+            df = df.loc[df['JOBCODE'].isin(selected_jobs)]
 
         if sum_only: #setting sum_only to true gives a list of total hours, ignoring the job type
             try:
@@ -130,12 +130,23 @@ class ReportWriter():
 
         return _df.reset_index()
 
-    def print_to_excel(self, rpt, opt_print=True):
+    def print_to_excel(
+                self, 
+                rpt, 
+                opt_print=False, 
+                sum_only=False, 
+                selected_employees=None,
+                selected_jobs=None
+                ):
         '''
             currently supports 'tip_rate' 'labor_main' 'labor_rate' 'cout_eod' 'labor_total'
             returns true when the file is printed
         
         '''
+        mod = ''
+        rpt_modifier = '_'
+        if sum_only or selected_employees or selected_jobs:
+            mod = '_filtered'
         _error_print_flag = False
         worksheet_name = (rpt + '_' + self.first_day + '_' + self.last_day)
         try:
@@ -143,7 +154,7 @@ class ReportWriter():
         except:
             pass
         df = pd.DataFrame({})
-        writer = pd.ExcelWriter('reports/' + worksheet_name + '.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
+        writer = pd.ExcelWriter('reports/' + worksheet_name + mod + '.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
         df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
         wrkbook = writer.book
         wrksheet = writer.sheets[worksheet_name]
@@ -164,43 +175,18 @@ class ReportWriter():
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
                 index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                addl_cols=['MEALS'], 
-                sum_only=False)
-            wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
-            wrksheet.set_column('E:F', 12, f1)
-            wrksheet.set_column('G:J', 12, f2)
-
-        elif rpt == 'labor_total':
-            df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
-                index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                addl_cols=['MEALS'], 
-                sum_only=True)
-            wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
-            wrksheet.set_column('E:F', 12, f1)
-            wrksheet.set_column('G:J', 12, f2)
-
-        elif rpt == 'labor_emp':
-            df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
-                index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                 addl_cols=['MEALS'],
-                sum_only=False, 
-                selected_employees='4024')
-            wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
-            wrksheet.set_column('E:F', 12, f1)
-            wrksheet.set_column('G:J', 12, f2)
+                sum_only=sum_only, 
+                selected_employees=selected_employees,
+                selected_jobs=selected_jobs)
 
-        elif rpt == 'labor_jobs':
-            df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
-                index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                addl_cols=['MEALS'],
-                sum_only=False, 
-                selected_jobs='11')
+            if sum_only:
+                rpt_modifier += "TOTALS"
+            if selected_employees:
+                rpt_modifier += 'FILTERED ON EMPLOYEE'
+            if selected_jobs:
+                rpt_modifier += 'FILTERED ON JOBCODE'
+
             wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
             wrksheet.set_column('E:F', 12, f1)
             wrksheet.set_column('G:J', 12, f2)
@@ -228,7 +214,8 @@ class ReportWriter():
         if opt_print == False:
             return df 
 
-        df.to_excel(writer, sheet_name=worksheet_name, float_format="%.2f") #write with the updated data
+        if _error_print_flag == False:
+            df.to_excel(writer, sheet_name=worksheet_name, float_format="%.2f") #write with the updated data
 
         #boilerplate stuff to turn the spreadsheet more into a report
         wrksheet.set_column('A:A', 4, f3) #make index column small
@@ -236,7 +223,16 @@ class ReportWriter():
         wrksheet.set_margins(left=0.5, right=0.5, top=0.7, bottom=0.7)
         wrksheet.fit_to_pages(1,0) #fits all columns to one page
         wrksheet.set_default_row(20)
-        wrksheet.set_header('&LREPORT TYPE: ' + rpt + '&CREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '&RPAGE &P of &N')
+        if rpt_modifier != '_':
+            wrksheet.set_header(
+                f'''
+                &LREPORT TYPE: {rpt} 
+                &CREPORT DATES: {self.first_full} --- {self.last_full} 
+                &RPAGE &P of &N
+                &COPTIONS:{rpt_modifier}
+                ''')
+        else:
+            wrksheet.set_header('&LREPORT TYPE: ' + rpt + '&CREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '&RPAGE &P of &N')
         wrksheet.set_footer('DATE PRINTED: &D &T')
 
         if _error_print_flag == False:
@@ -255,7 +251,7 @@ if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        ReportWriter('20210416','20210416').print_to_excel('labor_jobs', opt_print=True)
+        ReportWriter('20210416','20210430').print_to_excel('labor_main')
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

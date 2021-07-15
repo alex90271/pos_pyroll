@@ -14,10 +14,7 @@ date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
 
 API:
 
-<> = required
-{} = optional
-
-/v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/{bool: print}
+/v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/<bool: print>
 
     day_one = first day in the sequence (ex. 20210701)
 
@@ -30,9 +27,8 @@ API:
         tip_rate = Returns data containing tip hourly rates
         labor_rate = Contains labor percentages based on cost of labor to sales ratio
         cout_eod = Contains a list of shifts that were auto clocked out (and their clock-out time)
-        labor_total = Same as labor main, though ignores jobcodes and only returns the job total (useful when wanting overall) 
 
-    pass {print = True} to print report
+    pass 'print = True' to print report
 
     example query: http://localhost:5000/v01/data/20210416/20210430/labor_main/False
 

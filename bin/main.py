@@ -19,15 +19,19 @@ if __name__ == '__main__':
         #os.environ.clear()
         day_one = str(sys.argv[1])
         day_two = str(sys.argv[2])
-        rpt_list = list(['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total'])
 
         #full command: python chip.py json_name day_one day_two
         #testing: python chip.py chip.json 20210101 20210115
         print('\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
+        
+        rpt_list = ['labor_main', 'tip_rate', 'labor_rate', 'cout_eod']
 
         #to select same day, pass day_one and day_two as the same
-        for rpt in rpt_list:
-            ReportWriter(day_one,day_two).print_to_excel(rpt)
+        ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True)
+        ReportWriter(day_one,day_two).print_to_excel('tip_rate', opt_print=True)
+        ReportWriter(day_one,day_two).print_to_excel('labor_rate', opt_print=True)
+        ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
+        ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True, sum_only=True, selected_employees=[4006], selected_jobs=[50])
         
     #setting reports only to True skips launching the flask server
     debug = True
