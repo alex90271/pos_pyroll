@@ -196,6 +196,7 @@ class ReportWriter():
                 rpt='Labor',
                 totaled_cols=['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
                 averaged_cols=['Rate (%)'])
+            wrksheet.set_column('B:B', 20, f3)
             wrksheet.set_column('C:I', 12, f1)
             wrksheet.set_landscape()
 
@@ -216,24 +217,26 @@ class ReportWriter():
 
         if _error_print_flag == False:
             df.to_excel(writer, sheet_name=worksheet_name, float_format="%.2f") #write with the updated data
-
+        
         #boilerplate stuff to turn the spreadsheet more into a report
         wrksheet.set_column('A:A', 4, f3) #make index column small
         wrksheet.repeat_rows(0) #repeat first row
         wrksheet.set_margins(left=0.5, right=0.5, top=0.7, bottom=0.7)
         wrksheet.fit_to_pages(1,0) #fits all columns to one page
         wrksheet.set_default_row(20)
-        if rpt_modifier != '_':
-            wrksheet.set_header(
+
+        #report header and footer
+        wrksheet.set_header(
                 f'''
                 &LREPORT TYPE: {rpt} 
                 &CREPORT DATES: {self.first_full} --- {self.last_full} 
                 &RPAGE &P of &N
                 &COPTIONS:{rpt_modifier}
                 ''')
-        else:
-            wrksheet.set_header('&LREPORT TYPE: ' + rpt + '&CREPORT DATES: ' + self.first_full + ' --- ' + self.last_full + '&RPAGE &P of &N')
-        wrksheet.set_footer('DATE PRINTED: &D &T')
+        wrksheet.set_footer(
+                f'''
+                DATE PRINTED: &D &T
+                ''')
 
         if _error_print_flag == False:
             writer.save()
@@ -251,7 +254,7 @@ if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        ReportWriter('20210416','20210430').print_to_excel('labor_main')
+        ReportWriter('20210416','20210430').print_to_excel('labor_rate')
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

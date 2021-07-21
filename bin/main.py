@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     print("cleaning reports folder")
     #remove all the old reports in the output folder
-    [os.remove(os.path.join('reports', f))for f in os.listdir('reports')]
+    [os.remove(os.path.join('.\\reports', f))for f in os.listdir('reports')]
 
     def main():
         
@@ -23,8 +23,6 @@ if __name__ == '__main__':
         #full command: python chip.py json_name day_one day_two
         #testing: python chip.py chip.json 20210101 20210115
         print('\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
-        
-        rpt_list = ['labor_main', 'tip_rate', 'labor_rate', 'cout_eod']
 
         #to select same day, pass day_one and day_two as the same
         ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True)
@@ -41,4 +39,3 @@ if __name__ == '__main__':
         print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \ntotal time: " + str(np.round(np.sum(f),2)) + "s")
     else:
         main()
-

@@ -90,6 +90,12 @@ class QueryDB():
 
         return df
 
+    def return_jobname(self, job_num):
+        df = self.process_db('jobcodes')
+        df = df.loc[df['ID'].isin(job_num)]
+
+        return df['SHORTNAME'].to_list()
+
     def jobcode_list(self):
         ''''returns a list of jobcodes from the latest data'''
         return self.process_db('jobcodes')
@@ -103,7 +109,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        print(QueryDB("20210712").process_db('jobcodes'))
+        print(QueryDB().return_jobname([50, 11]))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),6)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),3)) + "s")

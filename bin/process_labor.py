@@ -154,8 +154,10 @@ class ProcessLabor():
         salary = ''
         if self.salary:
             salary = ', Salary'
-        return pd.DataFrame(data={
-                    'Tracked Codes': [str(self.tracked_labor) + salary],
+        jobcodes = QueryDB().return_jobname(self.tracked_labor)
+        jobcodes = ', '.join(jobcodes) + salary
+        df = pd.DataFrame(data={
+                    'Tracked Codes': [jobcodes],
                     'Day': [self.get_day()],
                     'Rate (%)': [self.get_labor_rate()],
                     'Total Pay': [self.get_total_pay()],
@@ -164,6 +166,7 @@ class ProcessLabor():
                     'Over Hours': [self.get_total_hours(over=True)],
                     'Total Hours': [self.get_total_hours(reg=True, over=True)]
             })
+        return df
     
     def calc_tiprate_df(self, r=3):
         '''returns a dataframe with a daily summary report, use r to change rounding'''
