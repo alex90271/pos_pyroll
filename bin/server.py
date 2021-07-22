@@ -20,27 +20,32 @@ CORS(app)
 #v01 Routes
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<opt_print>')
 def print_rpt(day_one, day_two, rpt_type, opt_print):
-
     result = ReportWriter(day_one, day_two).print_to_excel(rpt_type, opt_print=opt_print)
     if opt_print == 'False':
-        return result.to_json() #'False' assumes the return type DataFrame
+        return jsonify(result.to_json(orient='records', indent=2)) #'False' assumes the return type DataFrame
     return jsonify(result)
 
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
-    return jsonify(ChipConfig().read_json())
+    return jsonify(ChipConfig()
+    .read_json())
 
 @app.route('/v01/config/<query>', methods=["GET"])
 def config_item(query):
-    return jsonify(ChipConfig().query('SETTINGS',str(query)))
+    return jsonify(ChipConfig()
+    .query('SETTINGS',str(query)))
 
 @app.route('/v01/employee')
 def employee_list():
-    return jsonify(QueryDB().process_db('employees').to_json())
+    return jsonify(QueryDB()
+    .process_db('employees')
+    .to_json(orient='records', indent=2))
 
 @app.route('/v01/jobcodes')
 def jobcode_list():
-    return jsonify(QueryDB().process_db('jobcodes').to_json())
+    return jsonify(QueryDB().
+    process_db('jobcodes').
+    to_json(orient='records', indent=2))
 
 #Unfinished Requests
 #@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])

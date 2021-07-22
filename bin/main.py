@@ -25,11 +25,11 @@ if __name__ == '__main__':
         print('\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
 
         #to select same day, pass day_one and day_two as the same
-        ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True)
-        ReportWriter(day_one,day_two).print_to_excel('tip_rate', opt_print=True)
-        ReportWriter(day_one,day_two).print_to_excel('labor_rate', opt_print=True)
-        ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
-        ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True, sum_only=True, selected_employees=[4006], selected_jobs=[50])
+        print(ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=False, sum_only=True).to_json(orient='records', indent=4))
+        #ReportWriter(day_one,day_two).print_to_excel('tip_rate', opt_print=True)
+       # ReportWriter(day_one,day_two).print_to_excel('labor_rate', opt_print=True)
+       # ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
+       # ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True, sum_only=True, selected_employees=[4006], selected_jobs=[50])
         
     #setting reports only to True skips launching the flask server
     debug = True

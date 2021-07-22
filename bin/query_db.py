@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        print(QueryDB().return_jobname([50, 11]))
+        print(QueryDB().jobcode_list().to_json(orient='records', indent=2))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),6)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),3)) + "s")
