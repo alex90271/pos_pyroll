@@ -33,33 +33,74 @@ API:
     example query: http://localhost:5000/v01/data/20210416/20210430/labor_main/False
 
     returns, for each shift:
-    {
-        "LASTNAME":"A",
-        "FIRSTNAME":"A",
-        "JOB_NAME":"Expo",
-        "HOURS":4.27,
+{
+    "0":{
+        "LASTNAME":"",
+        "FIRSTNAME":"",
+        "HOURS":203.83,
         "OVERHRS":0.0,
         "SRVTIPS":0.0,
         "TIPOUT":40.0002720771,
         "DECTIPS":0.0,
         "MEALS":null
     },
-
-    if TOTALS is true:
-    {
-        "LASTNAME":"A",
-        "FIRSTNAME":"A",
+    "1":{
+        "LASTNAME":"",
+        "FIRSTNAME":"",
         "HOURS":184.27,
         "OVERHRS":0.0,
         "SRVTIPS":3213.4804,
         "TIPOUT":170.6219823755,
         "DECTIPS":0.0,
         "MEALS":null
+    },
+    "2":{
+        "LASTNAME":"",
+        "FIRSTNAME":"",
+        "HOURS":108.25,
+        "OVERHRS":0.0,
+        "SRVTIPS":0.0,
+        "TIPOUT":0.0,
+        "DECTIPS":0.0,
+        "MEALS":null
+    },
+    "3":{
+        "LASTNAME":"",
+        "FIRSTNAME":"",
+        "HOURS":245.99,
+        "OVERHRS":161.19,
+        "SRVTIPS":0.0,
+        "TIPOUT":0.0,
+        "DECTIPS":0.0,
+        "MEALS":null
+    },
+    "4":{
+        "LASTNAME":"",
+        "FIRSTNAME":"",
+        "HOURS":43.59,
+        "OVERHRS":0.0,
+        "SRVTIPS":0.0,
+        "TIPOUT":379.8103894286,
+        "DECTIPS":0.0,
+        "MEALS":null
+    },
+    "5":{
+        "LASTNAME":"TTL",
+        "FIRSTNAME":"",
+        "HOURS":29.36,
+        "OVERHRS":0.0,
+        "SRVTIPS":0.0,
+        "TIPOUT":245.0726951291,
+        "DECTIPS":0.0,
+        "MEALS":null
     }
 
 /v01/data/change/<str: day>/{request_body}
+
     Expected Body-- These are net changes to the orignial data
-    day is formatted YYYYMMDD (see date format above)
+
+    day is formatted YYYYMMDD (see date format above):
+
     {
         "LASTNAME":STRING, #not changeable, please change in POS
         "FIRSTNAME":STRING, #not changeable, please change in POS

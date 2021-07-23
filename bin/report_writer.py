@@ -212,7 +212,9 @@ class ReportWriter():
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             
 
-        if opt_print == 'False' or False:
+        if opt_print == 'False':
+            return df
+        elif opt_print == False:
             return df 
 
         if _error_print_flag == False:

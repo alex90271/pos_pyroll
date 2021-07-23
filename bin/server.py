@@ -22,7 +22,7 @@ CORS(app)
 def print_rpt(day_one, day_two, rpt_type, opt_print):
     result = ReportWriter(day_one, day_two).print_to_excel(rpt_type, opt_print=opt_print)
     if opt_print == 'False':
-        return jsonify(result.to_json(orient='records', indent=2)) #'False' assumes the return type DataFrame
+        return jsonify(result.to_dict(orient='index')) #'False' assumes the return type DataFrame
     return jsonify(result)
 
 @app.route('/v01/config/', methods=["GET"])
@@ -39,13 +39,13 @@ def config_item(query):
 def employee_list():
     return jsonify(QueryDB()
     .process_db('employees')
-    .to_json(orient='records', indent=2))
+    .to_dict(orient='records'))
 
 @app.route('/v01/jobcodes')
 def jobcode_list():
-    return jsonify(QueryDB().
-    process_db('jobcodes').
-    to_json(orient='records', indent=2))
+    return jsonify(QueryDB()
+    .process_db('jobcodes')
+    .to_dict(orient='records'))
 
 #Unfinished Requests
 #@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])
