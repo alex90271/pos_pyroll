@@ -113,17 +113,14 @@ class ReportWriter():
                 print('JOB_NAME not specified')
 
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
-        _df = _df.drop(drop_cols, axis=1)
+        _df = _df.drop(drop_cols, axis=1) #if there any any columns passed in to drop, drop them
         _df = pd.pivot_table(_df,
                             index=index_cols,
                             aggfunc=np.sum, 
                             fill_value=np.NaN)
-        try:
-            _df = _df[totaled_cols]
-            self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[])
-        except:
-            _df[totaled_cols] = np.nan
+        _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[])
 
+        #if any additonal columns are requested, add them        
         if addl_cols is not None:
             for col in addl_cols:
                  _df[col] = np.nan
@@ -147,17 +144,19 @@ class ReportWriter():
         rpt_modifier = '_'
         if sum_only or selected_employees or selected_jobs:
             mod = '_filtered'
-        _error_print_flag = False
         worksheet_name = (rpt + '_' + self.first_day + '_' + self.last_day)
+
         try:
             os.mkdir('reports')
         except:
             pass
+
         df = pd.DataFrame({})
         writer = pd.ExcelWriter('reports/' + worksheet_name + mod + '.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
-        df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
         wrkbook = writer.book
+        df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
         wrksheet = writer.sheets[worksheet_name]
+
         f1 = wrkbook.add_format({'border': 1, 'num_format' : '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'}) #rounds all floats using excel
         f2 = wrkbook.add_format({'border': 1, 'num_format': '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'}) #adds $
         f3 = wrkbook.add_format({'border': 1, 'num_format': '0'}) #no formatting
@@ -208,16 +207,11 @@ class ReportWriter():
             wrksheet.set_column('G:H', 12, f1)
 
         else:
-            _error_print_flag = True
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
-            
 
-        if opt_print == 'False':
+        if str(opt_print) == 'False':
             return df
-        elif opt_print == False:
-            return df 
-
-        if _error_print_flag == False:
+        else:
             df.to_excel(writer, sheet_name=worksheet_name, float_format="%.2f") #write with the updated data
         
         #boilerplate stuff to turn the spreadsheet more into a report
@@ -240,23 +234,21 @@ class ReportWriter():
                 DATE PRINTED: &D &T
                 ''')
 
-        if _error_print_flag == False:
-            writer.save()
-        else: 
-            pass
+        writer.save()
 
         if os.path.isfile('reports/' + worksheet_name + '.xlsx'):
             print('PRINTED: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
             return True
         else:
             print('FAILED: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
+            os.remove(f'reports/{worksheet_name}.xlsx')
             return False
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        ReportWriter('20210416','20210430').print_to_excel('labor_rate')
+        ReportWriter('20210416','20210430').print_to_excel('labor_main', opt_print=False)
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

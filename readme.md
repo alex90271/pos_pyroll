@@ -4,6 +4,7 @@ python dependencies (updated 7-5-2021)
     pip install dbfread
     pip install xlsxwriter
     pip install flask
+    pip install flask_cors
     pip install timeit - (used only for testing purposes)
 
 built on python 3.8.6 64Bit
@@ -32,8 +33,9 @@ API:
 
     example query: http://localhost:5000/v01/data/20210416/20210430/labor_main/False
 
-    returns, for each shift:
-{
+returns, for each shift:
+
+    {
     "0":{
         "LASTNAME":"",
         "FIRSTNAME":"",
