@@ -21,22 +21,20 @@ class FileHash():
         try:
             hash_one = self.hash(hash_one)
         except:
-            print(f'{hash_one} is not a file - assuming it is a hash')
+            print(f'...{hash_one[-20:]} | NOT A FILE TYPE - COMPARING AS HASH')
+
         try:
             hash_two = self.hash(hash_two)
         except:
-            print(f'{hash_two} is not a file - assuming it is a hash')
-
-        print(hash_one, hash_two)
+            print(f'...{hash_two[-20:]} | NOT A FILE TYPE - COMPARING AS HASH')
 
         if hash_one == hash_two:
-            print('Hash Values Match')
+            print('MATCH')
             return True
         else:
-            print('Hashes do not match')
+            print('FAILED MATCH')
             return False
 
 if __name__ == '__main__':
-
-    value = FileHash().compare("8a4751c078d26d89ab5a4fe8647e4fafe46d4bde06eec834fa5949d522d40b31", ".\database\\20210416\ADJTIME.Dbf")
-    print(value)
+    #test
+    value = FileHash().compare('.\database\\20210419\ADJTIME.Dbf', '.\database\\20210420\ADJTIME.Dbf')
