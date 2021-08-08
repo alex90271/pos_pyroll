@@ -5,6 +5,7 @@ import timeit
 import os
 from chip_config import ChipConfig
 from query_db import QueryDB
+from database import DatabaseHandler
 
 class ProcessLabor():
     '''functions that start with 'get' return a number, functions that start with 'calc' return a dataframe'''
@@ -14,6 +15,7 @@ class ProcessLabor():
         self.db = QueryDB(day)
         self.df = self.db.process_db('labor')
         self.day = day
+        self.cached = DatabaseHandler(day).get_data('daily_calc_cache')
 
         #config options
         c = ChipConfig()
@@ -66,6 +68,8 @@ class ProcessLabor():
 
     def get_tip_rate(self):
         '''returns hourly rate'''
+        if self.cached:
+            return self.cached[2]
         tipped_hours = self.get_tipped_hours()
         total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(decl=True, cctip=True))
         with np.errstate(invalid='ignore'): #some days may return zero and thats okay (closed days)
@@ -89,9 +93,15 @@ class ProcessLabor():
 
     def get_total_sales(self):
         df = self.df
-        return np.round(np.sum(df['SALES'].values),2)
+        return np.sum(df['SALES'].values)
+
+    def get_total_tips(self):
+        df = self.df
+        return np.sum(df['CCTIPS'].values)
     
     def get_labor_rate(self):
+        if self.cached:
+            return self.cached[3]
         labor_cost = self.get_total_pay()
         sales = self.get_total_sales()
         if sales == 0:
@@ -156,15 +166,17 @@ class ProcessLabor():
             salary = ', Salary'
         jobcodes = QueryDB().return_jobname(self.tracked_labor)
         jobcodes = ', '.join(jobcodes) + salary
+
+        names = ChipConfig().query('RPT_LABOR_RATE', 'col_names')
         df = pd.DataFrame(data={
-                    'Tracked Codes': [jobcodes],
-                    'Day': [self.get_day()],
-                    'Rate (%)': [self.get_labor_rate()],
-                    'Total Pay': [self.get_total_pay()],
-                    'Total Sales': [self.get_total_sales()],
-                    'Reg Hours': [self.get_total_hours(reg=True)],
-                    'Over Hours': [self.get_total_hours(over=True)],
-                    'Total Hours': [self.get_total_hours(reg=True, over=True)]
+            names[0]: [jobcodes],
+            names[1]: [self.get_day()],
+            names[2]: [self.get_labor_rate()],
+            names[3]: [self.get_total_pay()],
+            names[4]: [self.get_total_sales()],
+            names[5]: [self.get_total_hours(reg=True)],
+            names[6]: [self.get_total_hours(over=True)],
+            names[7]: [self.get_total_hours(reg=True, over=True)]
             })
         return df
     
@@ -183,8 +195,8 @@ class ProcessLabor():
         return df
 
     def calc_payroll(self):
-        s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]]
-        t = self.calc_tipout()[["TIPOUT"]]
+        s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]] #save just those columns from calc_serve_tips
+        t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
         df = self.df
         tdf = df.join([s,t])
         
@@ -197,7 +209,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading ProcessTips.py")
-        print(ProcessLabor("20210416").calc_laborrate_df())
+        print(ProcessLabor("20210416").get_total_tips())
     r = 5
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

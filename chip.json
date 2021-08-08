@@ -45,6 +45,7 @@
     },
     "RPT_LABOR_RATE": {
         "col_names": [
+            "Jobs",
             "Day",
             "Rate (%)",
             "Total Pay",

@@ -18,8 +18,8 @@ if __name__ == '__main__':
         #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name
         #if no variable is set here, it will use the default, set in cfg.py 'chip.json'
         #os.environ.clear()
-        day_one = str(sys.argv[1])
-        day_two = str(sys.argv[2])
+        day_one = '20210726'#str(sys.argv[1])
+        day_two = '20210807'#str(sys.argv[2])
 
         #full command: python chip.py json_name day_one day_two
         #testing: python chip.py chip.json 20210101 20210115
@@ -31,13 +31,14 @@ if __name__ == '__main__':
         .to_json(orient='index', indent=4)
         )
         parsed = json.loads(result)
-        print(json.dumps(parsed, indent=4))
-        #ReportWriter(day_one,day_two).print_to_excel('tip_rate', opt_print=True)
-       # ReportWriter(day_one,day_two).print_to_excel('labor_rate', opt_print=True)
-       # ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
-       # ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True, sum_only=True, selected_employees=[4006], selected_jobs=[50])
-        
-    #setting reports only to True skips launching the flask server
+        #print(json.dumps(parsed, indent=4))
+
+        ReportWriter(day_one,day_two).print_to_excel('labor_nightly', opt_print=True)
+        ReportWriter(day_one,day_two).print_to_excel('tip_rate', opt_print=True)
+        ReportWriter(day_one,day_two).print_to_excel('labor_rate', opt_print=True)
+        #ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
+        ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True, selected_employees=[4024,4125,1070,4072,4134], selected_jobs=[])
+    
     debug = True
     if debug:
         r = 1

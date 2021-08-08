@@ -34,12 +34,18 @@ class ReportWriter():
                     self,
                     df,
                     totaled_cols: list,
-                    averaged_cols: list,                    
+                    averaged_cols: list,
+                    labor_main=False                    
                     ):
         for col in totaled_cols:
-            df.at['TTL', col] = np.sum(df[col])
+            df.loc['TTL', col] = np.sum(df[col])
         for col in averaged_cols:
-            df.at['TTL', col] = np.mean(df[col])
+            df.loc['TTL', col] = np.mean(df[col])
+
+        #the employee column will be turned into the INDEX later
+        if labor_main:
+            df.loc['TTL','EMPLOYEE'] = 'TTL'
+            df.loc['TTL','LASTNAME'] = 'TOTAL'
 
         return df
 
@@ -92,7 +98,8 @@ class ReportWriter():
                     addl_cols: list,
                     selected_employees=None,
                     selected_jobs=None,
-                    sum_only=False
+                    sum_only=False, 
+                    nightly=False
                     ): 
         '''this is the main labor report'''
         a = [labor(day).calc_payroll() for day in self.days]
@@ -113,19 +120,27 @@ class ReportWriter():
                 print('JOB_NAME not specified')
 
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
-        _df = _df.drop(drop_cols, axis=1) #if there any any columns passed in to drop, drop them
+        _df.drop(drop_cols, axis=1, inplace=True) #if there any any columns passed in to drop, drop them
         _df = pd.pivot_table(_df,
                             index=index_cols,
                             aggfunc=np.sum, 
                             fill_value=np.NaN)
-        _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[])
 
         #if any additonal columns are requested, add them        
         if addl_cols is not None:
             for col in addl_cols:
                  _df[col] = np.nan
 
-        return _df.reset_index()
+        #this block of code sets the index to employee numbers, sorts by last name, and adds totals
+        if nightly == True:
+            _df.rename(columns={'SYSDATEIN': 'Date'}, inplace=True)
+        _df.reset_index(inplace=True)
+        _df.sort_values('LASTNAME', inplace=True)
+        _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
+        _df.set_index('EMPLOYEE', inplace=True)
+        _df.index.rename('ID', inplace=True)
+
+        return _df
 
     def print_to_excel(
                 self, 
@@ -151,11 +166,11 @@ class ReportWriter():
         except:
             pass
 
-        df = pd.DataFrame({})
         writer = pd.ExcelWriter('reports/' + worksheet_name + mod + '.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
         wrkbook = writer.book
-        df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
-        wrksheet = writer.sheets[worksheet_name]
+        def get_worksheet(): #turned into a function, so we only instantiate IF the calculations come back okay
+            df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
+            return writer.sheets[worksheet_name] 
 
         f1 = wrkbook.add_format({'border': 1, 'num_format' : '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'}) #rounds all floats using excel
         f2 = wrkbook.add_format({'border': 1, 'num_format': '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'}) #adds $
@@ -165,44 +180,75 @@ class ReportWriter():
             df = self.rate_rpt(
                 rpt='Tip',
                 totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
-                averaged_cols=['Tip Hourly'])
+                averaged_cols=['Tip Hourly']) 
+            wrksheet = get_worksheet()
             wrksheet.set_column('B:H', ChipConfig().query('RPT_TIP_RATE', 'col_width'), f1)
-            wrksheet.set_landscape()
+            #wrksheet.set_landscape()
 
         elif rpt == 'labor_main':
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EMPLOYEE'],
-                index_cols=['LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+                index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                 addl_cols=['MEALS'],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
-                selected_jobs=selected_jobs)
+                selected_jobs=selected_jobs,
+                nightly=False)
+
+            wrksheet = get_worksheet()
 
             if sum_only:
-                rpt_modifier += "TOTALS"
+                rpt_modifier += "TOTALS_"
             if selected_employees:
-                rpt_modifier += 'FILTERED ON EMPLOYEE'
+                rpt_modifier += 'FILTERED ON EMPLOYEE_'
             if selected_jobs:
-                rpt_modifier += 'FILTERED ON JOBCODE'
+                rpt_modifier += 'FILTERED ON JOBCODE_'
 
             wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
-            wrksheet.set_column('E:F', 12, f1)
-            wrksheet.set_column('G:J', 12, f2)
+            wrksheet.set_column('E:G', 12, f1)
+            wrksheet.set_column('H:J', 12, f2)
+
+        elif rpt == 'labor_nightly':
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD'],
+                index_cols=['EMPLOYEE','LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                addl_cols=['MEALS'],
+                sum_only=sum_only, 
+                selected_employees=selected_employees,
+                selected_jobs=selected_jobs, 
+                nightly=True)
+
+            if sum_only:
+                rpt_modifier += "TOTALS_"
+            if selected_employees:
+                rpt_modifier += 'FILTERED ON EMPLOYEE_'
+            if selected_jobs:
+                rpt_modifier += 'FILTERED ON JOBCODE_'
+
+            wrksheet = get_worksheet()
+            wrksheet.set_column('B:E', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
+            wrksheet.set_column('F:H', 12, f1)
+            wrksheet.set_column('I:K', 12, f2)
 
         elif rpt == 'labor_rate':
             df = self.rate_rpt(
                 rpt='Labor',
                 totaled_cols=['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
                 averaged_cols=['Rate (%)'])
+
+            wrksheet = get_worksheet()
             wrksheet.set_column('B:B', 20, f3)
             wrksheet.set_column('C:I', 12, f1)
-            wrksheet.set_landscape()
+            #wrksheet.set_landscape()
 
         elif rpt == 'cout_eod':
             df = self.cout_by_eod(
                 cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
                 cout_col='COUTBYEOD')
+                
+            wrksheet = get_worksheet()
             wrksheet.set_column('B:M', 12, f3)
             wrksheet.set_column('G:H', 12, f1)
 
@@ -236,19 +282,19 @@ class ReportWriter():
 
         writer.save()
 
-        if os.path.isfile('reports/' + worksheet_name + '.xlsx'):
+        if os.path.isfile('reports/' + worksheet_name + mod + '.xlsx'):
             print('PRINTED: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
             return True
         else:
             print('FAILED: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
-            os.remove(f'reports/{worksheet_name}.xlsx')
             return False
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        ReportWriter('20210416','20210430').print_to_excel('labor_main', opt_print=False)
+        a = ReportWriter('20210416','20210430').print_to_excel('labor_main', opt_print=True, sum_only=True)
+        print(a)
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
