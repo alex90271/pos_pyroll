@@ -12,7 +12,7 @@ export default function ConfigArea(props) {
     const [canPrint, setCanPrint] = useState(false);
 
     function handleSettingChange(newSetting) {
-        if (newSetting.displayName && newSetting.outputName && newSetting.dataType && (typeof(newSetting.value) != 'undefined')) {
+        if (newSetting.displayName && newSetting.outputName && newSetting.dataType && (typeof(newSetting.value) !== 'undefined')) {
           setSettings((prevSettings) => ({
             ...prevSettings, [newSetting.outputName]: newSetting
           }));
