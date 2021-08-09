@@ -8,7 +8,7 @@ export default function NumberArraySetting(props) {
         let newArray;
         if (props.setting.value.includes(selectedNumber)) {
             newArray = props.setting.value.filter((item) => {
-                return item != selectedNumber;
+                return item !== selectedNumber;
             });
         } else {
             newArray = props.setting.value;
@@ -20,19 +20,19 @@ export default function NumberArraySetting(props) {
     }
     const availableSettings = props.setting.options.map((option) => {
         return (
-        <div>
+        <div key={props.setting.outputName + option + "div"}>
             <input
             key={props.setting.outputName + option}
             type='checkbox' 
             onChange={handleOnChange}
             checked={props.setting.value.includes(option)}
             value={option}/>
-            <label for={option}>{option}</label>
+            <label htmlFor={option}>{option}</label>
         </div>
         )
     })
 
-    return(
+    return (
         <div className="Setting" id="Number-array-setting">
             <h3>
                 {props.setting.displayName}

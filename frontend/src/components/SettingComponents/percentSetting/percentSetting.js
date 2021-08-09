@@ -17,7 +17,7 @@ export default function PercentSetting(props) {
             id={props.setting.outputName} 
             value={props.setting.value} 
             onChange={handleChange}/>
-            <label for={props.setting.outputName}>%</label>
+            <label htmlFor={props.setting.outputName}>%</label>
         </div>
     );
 };

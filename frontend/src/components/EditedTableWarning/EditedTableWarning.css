@@ -1,0 +1,11 @@
+.table-edited, .table-not-edited {
+    height: 80px;
+}
+
+.table-edited {
+    background-color:lightslategrey;
+}
+
+.table-not-edited {
+
+}
