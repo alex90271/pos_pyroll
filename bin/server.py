@@ -1,5 +1,10 @@
 
 #127.0.0.1:5000/
+#available data: 
+#['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total']
+#date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
+
+#v01 Routes
 
 from query_db import QueryDB
 import numpy as np
@@ -13,11 +18,6 @@ from chip_config import ChipConfig
 app = Flask(__name__)
 CORS(app)
 
-#available data: 
-#['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total']
-#date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
-
-#v01 Routes
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<opt_print>')
 def print_rpt(day_one, day_two, rpt_type, opt_print):
     result = ReportWriter(day_one, day_two).print_to_excel(rpt_type, opt_print=opt_print)

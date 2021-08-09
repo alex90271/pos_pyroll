@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module process_labor</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>process_labor</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Calexa%5Cvscode%5Cpythonpayroll%5Cbin%5Cprocess_labor.py">c:\users\alexa\vscode\pythonpayroll\bin\process_labor.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="pandas.html">pandas</a><br>
+</td><td width="25%" valign=top><a href="timeit.html">timeit</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="process_labor.html#ProcessLabor">ProcessLabor</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ProcessLabor">class <strong>ProcessLabor</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#ProcessLabor">ProcessLabor</a>(day)<br>
+&nbsp;<br>
+functions&nbsp;that&nbsp;start&nbsp;with&nbsp;'get'&nbsp;return&nbsp;a&nbsp;number,&nbsp;functions&nbsp;that&nbsp;start&nbsp;with&nbsp;'calc'&nbsp;return&nbsp;a&nbsp;dataframe<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ProcessLabor-__init__"><strong>__init__</strong></a>(self, day)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-calc_labor_cost"><strong>calc_labor_cost</strong></a>(self)</dt><dd><tt>returns&nbsp;a&nbsp;dataframe&nbsp;with&nbsp;pay&nbsp;based&nbsp;on&nbsp;pay&nbsp;rate&nbsp;and&nbsp;hours&nbsp;on&nbsp;tracked&nbsp;labor<br>
+use&nbsp;salary=False&nbsp;to&nbsp;skip&nbsp;calculating&nbsp;salary</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-calc_laborrate_df"><strong>calc_laborrate_df</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ProcessLabor-calc_payroll"><strong>calc_payroll</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ProcessLabor-calc_salary"><strong>calc_salary</strong></a>(self)</dt><dd><tt>returns&nbsp;a&nbsp;dataframe&nbsp;of&nbsp;the&nbsp;salary&nbsp;employees</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-calc_servtips"><strong>calc_servtips</strong></a>(self)</dt><dd><tt>calculates&nbsp;server&nbsp;tips&nbsp;and&nbsp;returns&nbsp;a&nbsp;dataframe&nbsp;with&nbsp;added&nbsp;values</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-calc_tipout"><strong>calc_tipout</strong></a>(self)</dt><dd><tt>calculates&nbsp;tipouts&nbsp;and&nbsp;returns&nbsp;a&nbsp;dataframe&nbsp;with&nbsp;added&nbsp;tipout&nbsp;values</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-calc_tiprate_df"><strong>calc_tiprate_df</strong></a>(self, r=3)</dt><dd><tt>returns&nbsp;a&nbsp;dataframe&nbsp;with&nbsp;a&nbsp;daily&nbsp;summary&nbsp;report,&nbsp;use&nbsp;r&nbsp;to&nbsp;change&nbsp;rounding</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-get_day"><strong>get_day</strong></a>(self, fmt='%a %b %e')</dt></dl>
+
+<dl><dt><a name="ProcessLabor-get_labor_rate"><strong>get_labor_rate</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ProcessLabor-get_percent_sales"><strong>get_percent_sales</strong></a>(self)</dt><dd><tt>returns&nbsp;tip&nbsp;share&nbsp;&nbsp;total&nbsp;from&nbsp;server&nbsp;jobcodes</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-get_percent_tips"><strong>get_percent_tips</strong></a>(self, decl=False, cctip=False)</dt><dd><tt>returns&nbsp;tip&nbsp;share&nbsp;from&nbsp;register&nbsp;jobcodes<br>
+if&nbsp;decl=True,&nbsp;it&nbsp;will&nbsp;return&nbsp;declared&nbsp;tips.&nbsp;<br>
+if&nbsp;cctip=true,&nbsp;it&nbsp;will&nbsp;return&nbsp;cctips<br>
+if&nbsp;BOTH&nbsp;are&nbsp;true,&nbsp;it&nbsp;will&nbsp;return&nbsp;a&nbsp;total</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-get_tip_rate"><strong>get_tip_rate</strong></a>(self)</dt><dd><tt>returns&nbsp;hourly&nbsp;rate</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-get_tipped_hours"><strong>get_tipped_hours</strong></a>(self)</dt><dd><tt>returns&nbsp;total&nbsp;hours&nbsp;to&nbsp;be&nbsp;tipped</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-get_total_hours"><strong>get_total_hours</strong></a>(self, over=False, reg=False)</dt><dd><tt>returns&nbsp;total&nbsp;hours&nbsp;tracked&nbsp;on&nbsp;the&nbsp;labor&nbsp;tracker</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-get_total_pay"><strong>get_total_pay</strong></a>(self)</dt><dd><tt>returns&nbsp;total&nbsp;cost&nbsp;of&nbsp;labor</tt></dd></dl>
+
+<dl><dt><a name="ProcessLabor-get_total_sales"><strong>get_total_sales</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ProcessLabor-get_total_tips"><strong>get_total_tips</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>

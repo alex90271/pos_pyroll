@@ -6,6 +6,9 @@ import pandas as pd
 import datetime
 import os
 import timeit
+import win32api
+import win32print
+import time
 
 class ReportWriter():
 
@@ -141,12 +144,24 @@ class ReportWriter():
         _df.index.rename('ID', inplace=True)
 
         return _df
+    
+    def pys_print(self, file):
+        '''invokes the windows print API to get the default printer and print the data'''
+        print('PRINTING FILE .. PLEASE WAIT')
+        printer = win32print.GetDefaultPrinter() #win32print.EnumPrinters(2)
+        sleep_time = 3
+        win32api.ShellExecute (0, "print", file, '/d:"%s"' % printer, ".", 0)
+        if printer == 'Microsoft Print to PDF':
+            sleep_time = sleep_time + 3
+        time.sleep(sleep_time)
+        print(f'FINISHED PRINT JOB IN {sleep_time} SECONDS')
 
     def print_to_excel(
                 self, 
                 rpt, 
                 opt_print=False, 
-                sum_only=False, 
+                sum_only=False,
+                pys_print=False, 
                 selected_employees=None,
                 selected_jobs=None
                 ):
@@ -282,19 +297,21 @@ class ReportWriter():
 
         writer.save()
 
-        if os.path.isfile('reports/' + worksheet_name + mod + '.xlsx'):
-            print('PRINTED: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
+        file = 'reports\\' + worksheet_name + mod + '.xlsx'
+        if os.path.isfile(file):
+            print('EXPORT SUCCESS: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
+            if pys_print:
+                self.pys_print(file)
             return True
         else:
-            print('FAILED: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
+            print('FAILED EXPORT: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
             return False
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        a = ReportWriter('20210416','20210430').print_to_excel('labor_main', opt_print=True, sum_only=True)
-        print(a)
+        ReportWriter('20210416','20210430').print_to_excel('labor_main', opt_print=True, sum_only=True, pys_print=True)
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

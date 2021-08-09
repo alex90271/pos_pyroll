@@ -18,26 +18,44 @@ if __name__ == '__main__':
         #you can clear the enviroment and set the json_name to read a different settings file, or simply generate a new one with a different name
         #if no variable is set here, it will use the default, set in cfg.py 'chip.json'
         #os.environ.clear()
-        day_one = '20210726'#str(sys.argv[1])
-        day_two = '20210807'#str(sys.argv[2])
+        day_one = str(sys.argv[1])
+        day_two = str(sys.argv[2])
+        try:
+            selected_employees=sys.argv[4].split(',')
+            for i in range(0, len(selected_employees)):
+                selected_employees[i] = int(selected_employees[i])
+            print(selected_employees)
+        except:
+            selected_employees=[]
+        try:
+            selected_jobs=sys.argv[5].split(',')
+            for i in range(0, len(selected_jobs)):
+                selected_jobs[i] = int(selected_jobs[i])
+            print(selected_jobs)
+        except:
+            selected_jobs=[]
 
         #full command: python chip.py json_name day_one day_two
         #testing: python chip.py chip.json 20210101 20210115
         print('\nday one: ' + day_one + '\nday two: ' + day_two + '\n')
 
-        #to select same day, pass day_one and day_two as the same
-        result = (ReportWriter(day_one,day_two)
-        .print_to_excel('labor_main', opt_print=False, sum_only=True)
-        .to_json(orient='index', indent=4)
-        )
-        parsed = json.loads(result)
+        #result = (ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=False, sum_only=True).to_json(orient='index', indent=4))
+        #parsed = json.loads(result)
         #print(json.dumps(parsed, indent=4))
 
-        ReportWriter(day_one,day_two).print_to_excel('labor_nightly', opt_print=True)
+        #ReportWriter(day_one,day_two).print_to_excel('labor_nightly', opt_print=True)
+
         ReportWriter(day_one,day_two).print_to_excel('tip_rate', opt_print=True)
         ReportWriter(day_one,day_two).print_to_excel('labor_rate', opt_print=True)
-        #ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
-        ReportWriter(day_one,day_two).print_to_excel('labor_main', opt_print=True, selected_employees=[4024,4125,1070,4072,4134], selected_jobs=[])
+        ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
+
+        (ReportWriter(day_one,day_two)
+            .print_to_excel(
+                'labor_main', 
+                opt_print=True, 
+                pys_print=sys.argv[3],
+                selected_employees=selected_employees, 
+                selected_jobs=selected_jobs))
     
     debug = True
     if debug:
