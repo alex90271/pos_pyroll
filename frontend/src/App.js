@@ -36,14 +36,10 @@ function App() {
     API.send();
   }
 
-  const runReport = (dayOne, dayTwo) => {
-    API.report(dayOne, dayTwo);
-  }
-
   return (
     <div className="App">
       <ConfigArea
-      print={runReport}
+      print={print}
       />
       <div className='table-area'>
         <DataTable
