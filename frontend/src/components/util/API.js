@@ -4,7 +4,7 @@ const API = {
         .then(response => response.json())
         .then(data => console.log(data))
     },
-    
+
     getExampleObject() {
         return {
             "0":{
@@ -33,3 +33,4 @@ const API = {
 }
 
 export default API;
+

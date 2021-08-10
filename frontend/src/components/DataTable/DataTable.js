@@ -1,10 +1,10 @@
 import React from 'react';
-import './Table.css';
+import './DataTable.css';
 import 'semantic-ui-css/semantic.min.css';
 import ContentEditable from 'react-contenteditable';
 import { Table } from 'semantic-ui-react';
 
-export default function Table(props) {
+export default function DataTable(props) {
 
     const roundTableItems = (tableObject) => {
         for (const row in tableObject) {

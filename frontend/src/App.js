@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Test from './components/test/test';
 import API from './components/util/API.js';
 import ConfigArea from './components/ConfigArea/ConfigArea';
-import DataView from './components/DataView/DataView';
+import DataTable from './components/DataTable/DataTable';
 import EditedTableWarning from './components/EditedTableWarning/EditedTableWarning';
 
 function App() {
@@ -36,13 +36,17 @@ function App() {
     API.send();
   }
 
+  const runReport = (dayOne, dayTwo) => {
+    API.report(dayOne, dayTwo);
+  }
+
   return (
     <div className="App">
       <ConfigArea
-      print={print}
+      print={runReport}
       />
       <div className='table-area'>
-        <DataView
+        <DataTable
         tableData={editedTableData}
         roundNumbers={true}
         columnsToRound={columnsToRound}
