@@ -1,5 +1,6 @@
-.Custom-calendar {
+.CustomCalendar {
   text-align: center;
+  margin-bottom: 15px;
 }
 .DatePicker {
   position: relative;

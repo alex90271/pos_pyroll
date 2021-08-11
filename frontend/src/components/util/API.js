@@ -5,6 +5,12 @@ const API = {
         .then(data => console.log(data))
     },
 
+    test() {
+      fetch('/v01/data/20210514/20210515/labor_main/False')
+        .then(response => response.json())
+        .then(data => console.log(data));
+    },
+
     getExampleObject() {
         return {
             "0":{

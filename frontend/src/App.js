@@ -12,6 +12,10 @@ function App() {
 
   const [tableEdited, setTableEdited] = useState(false);
   const [editedTableData, setEditedTableData] = useState(exampleObject);
+  const [selectedDayRange, setSelectedDayRange] = useState({
+    from: null,
+    to: null
+  });
 
   const editTable = (row, column, newValue) => {
     setTableEdited(true);
@@ -33,13 +37,15 @@ function App() {
   const columnsToRound = ["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"];
 
   function print() {
-    API.send();
+    API.test();
   }
 
   return (
     <div className="App">
       <ConfigArea
       print={print}
+      selectedDayRange={selectedDayRange}
+      setSelectedDayRange={setSelectedDayRange}
       />
       <div className='table-area'>
         <DataTable
