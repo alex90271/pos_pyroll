@@ -1,17 +1,36 @@
-python dependencies (updated 7-5-2021)
+python dependencies (updated 8-11-2021)
 
-    pip install pandas
-    pip install dbfread
-    pip install xlsxwriter
-    pip install flask
-    pip install flask_cors
-    pip install timeit - (used only for testing purposes)
+    pandas
+    dbfread
+    xlsxwriter
+    flask
+    flask_cors
+    timeit - (used only for testing purposes)
+    sqlite3
+
+    WINDOWS ONLY:
+     win32api
+     win32print
 
 built on python 3.8.6 64Bit
 
-run server.py to launch
+run server.py to launch API
+
+run test.py for viewing data in the console, or printing reports
 
 date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
+
+test.py uses command line args, edit the launch.json line: "args": ["20210416", "20210530", "True"], to change 
+
+    (TRUE at the end will print the file to a printer, if on windows. )
+
+WORK IN PROGRESS:
+
+    database has been built, just needs to be connected to process_labor class
+
+    API needs polishing, and extend data filtering support to the API 
+
+    Employee Numbers included in data (Finished-- though sending the request response gives an error when using employee ID as Index, as the ID might not be unique (ex. multiple shifts))
 
 API:
 
@@ -44,7 +63,7 @@ returns, for each shift:
         "SRVTIPS":0.0,
         "TIPOUT":40.0002720771,
         "DECTIPS":0.0,
-        "MEALS":null
+        "MEALS":0
     },
     "1":{
         "LASTNAME":"",
@@ -54,7 +73,7 @@ returns, for each shift:
         "SRVTIPS":3213.4804,
         "TIPOUT":170.6219823755,
         "DECTIPS":0.0,
-        "MEALS":null
+        "MEALS":0
     },
     "2":{
         "LASTNAME":"",
@@ -64,7 +83,7 @@ returns, for each shift:
         "SRVTIPS":0.0,
         "TIPOUT":0.0,
         "DECTIPS":0.0,
-        "MEALS":null
+        "MEALS":0
     },
     "3":{
         "LASTNAME":"",
@@ -74,7 +93,7 @@ returns, for each shift:
         "SRVTIPS":0.0,
         "TIPOUT":0.0,
         "DECTIPS":0.0,
-        "MEALS":null
+        "MEALS":0
     },
     "4":{
         "LASTNAME":"",
@@ -84,7 +103,7 @@ returns, for each shift:
         "SRVTIPS":0.0,
         "TIPOUT":379.8103894286,
         "DECTIPS":0.0,
-        "MEALS":null
+        "MEALS":0
     },
     "5":{
         "LASTNAME":"TTL",
@@ -94,7 +113,7 @@ returns, for each shift:
         "SRVTIPS":0.0,
         "TIPOUT":245.0726951291,
         "DECTIPS":0.0,
-        "MEALS":null
+        "MEALS":0
     }
 
 /v01/data/change/<str: day>/{request_body}

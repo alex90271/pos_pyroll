@@ -6,9 +6,11 @@ import pandas as pd
 import datetime
 import os
 import timeit
-import win32api
-import win32print
 import time
+
+if os.name == 'nt':
+    import win32api
+    import win32print
 
 class ReportWriter():
 
@@ -49,7 +51,8 @@ class ReportWriter():
         if labor_main:
             df.loc['TTL','EMPLOYEE'] = 'TTL'
             df.loc['TTL','LASTNAME'] = 'TOTAL'
-
+            df.loc['TTL','FIRSTNAME'] = 'TOTAL'
+            df.loc['TTL','JOB_NAME'] = 'TOTAL'
         return df
 
     def rate_rpt(
@@ -152,7 +155,7 @@ class ReportWriter():
         sleep_time = 3
         win32api.ShellExecute (0, "print", file, '/d:"%s"' % printer, ".", 0)
         if printer == 'Microsoft Print to PDF':
-            sleep_time = sleep_time + 3
+            sleep_time = sleep_time + 10
         time.sleep(sleep_time)
         print(f'FINISHED PRINT JOB IN {sleep_time} SECONDS')
 
@@ -300,7 +303,7 @@ class ReportWriter():
         file = 'reports\\' + worksheet_name + mod + '.xlsx'
         if os.path.isfile(file):
             print('EXPORT SUCCESS: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
-            if pys_print:
+            if pys_print and os.name == 'nt':
                 self.pys_print(file)
             return True
         else:

@@ -22,6 +22,10 @@ CORS(app)
 def print_rpt(day_one, day_two, rpt_type, opt_print):
     result = ReportWriter(day_one, day_two).print_to_excel(rpt_type, opt_print=opt_print)
     if opt_print == 'False':
+        result.reset_index(drop=True, inplace=True)
+        def get_zero(num_to_zero):
+            return 0
+        result['MEALS'] = result['MEALS'].apply(get_zero)
         return jsonify(result.to_dict(orient='index')) #'False' assumes the return type DataFrame
     return jsonify(result)
 
