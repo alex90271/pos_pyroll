@@ -7,7 +7,7 @@ class DatabaseHandler():
     def __init__(self, date) -> None:
         #print(f'connecting to: {date}')
         self.date = date
-        self.connection = sqlite3.connect('data.db')
+        self.connection = sqlite3.connect('data/data.db')
         self.cursor = self.create_schema()
 
     def save(self):

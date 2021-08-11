@@ -135,7 +135,7 @@ class ProcessLabor():
     def calc_salary(self):
         '''returns a dataframe of the salary employees'''
         salary_df = pd.DataFrame #blank dataframe
-        salary_path = 'salary.csv' 
+        salary_path = 'data/salary.csv' 
         #check if the salary csv already exists
         if not os.path.exists(salary_path):
             salary_df = pd.DataFrame(data={'FIRSTNAME':['NEW'], 'LASTNAME':['NEW'], 'RATE':[0], 'HOURS':[0], 'OVERHRS':[0], 'JOB_NAME':['Salary']})

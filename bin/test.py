@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     print("cleaning reports folder")
     #remove all the old reports in the output folder
-    [os.remove(os.path.join('.\\reports', f))for f in os.listdir('reports')]
+    [os.remove(os.path.join('data\\reports\\', f))for f in os.listdir('data\\reports\\')]
 
     def main():
         

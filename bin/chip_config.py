@@ -4,7 +4,7 @@ import os
 class ChipConfig():
 
     def __init__(self, json_name='chip.json'):
-        self.json_name = json_name
+        self.json_name = 'data/'+json_name
 
         if not os.path.isfile(self.json_name):
             print ('generating new default config')
@@ -48,7 +48,7 @@ class ChipConfig():
             'col_width': 12
             }
         data['RPT_LABOR_RATE'] = {
-            'col_names': ['Day', 'Rate (%)','Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'],
+            'col_names': ['Jobs', 'Day', 'Rate (%)','Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'],
             'totaled_cols':['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
             'averaged_cols':['Rate (%)'], 
             'col_width': 12

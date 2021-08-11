@@ -11,7 +11,7 @@ import numpy as np
 import os
 import json
 from flask import Flask, redirect, url_for, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from report_writer import ReportWriter
 from chip_config import ChipConfig
 
