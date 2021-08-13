@@ -2,10 +2,12 @@ import hashlib
 import re
 
 class FileHash():
-    def __init__(self):
-        pass
-
+    '''
+    The FileHash class takes in a file, and hashes it using SHA256 hash algorithm
+    
+    '''
     def hash(self, file):
+        '''Hashes a file, and returns the SHA256 hash value'''
         BLOCK_SIZE = 65536
         file_hash = hashlib.sha256()
         with open(file, 'rb') as f: 
@@ -17,7 +19,13 @@ class FileHash():
         return file_hash.hexdigest()
 
     def compare(self, hash_one, hash_two):
-
+        '''
+        compares two hashes
+        hash_one and hash_two can either be a file path
+        or a SHA256 hash
+        returns True if a match
+        
+        '''
         try:
             hash_one = self.hash(hash_one)
         except:

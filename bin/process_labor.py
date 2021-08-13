@@ -8,7 +8,12 @@ from query_db import QueryDB
 from database import DatabaseHandler
 
 class ProcessLabor():
-    '''functions that start with 'get' return a number, functions that start with 'calc' return a dataframe'''
+    '''
+    The process labor class handles all of the data calculations and database connections
+    gets instantiated with one day, and the calculations are pulled via class functions
+    functions that start with 'get' return a number, functions that start with 'calc' return a dataframe
+    
+    '''
     #'SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE', 'SALES'
     def __init__(self, day):
         #instantiate a single day to process data
@@ -30,6 +35,7 @@ class ProcessLabor():
         self.debug = False
     
     def get_day(self, fmt="%a %b %e"):
+        '''returns the current day for the process labor object'''
         day = datetime.datetime.strptime(self.day, "%Y%m%d") #20210101
         return day.strftime(fmt) #Mon Jan 1
 
@@ -92,13 +98,32 @@ class ProcessLabor():
         return total
 
     def get_total_sales(self):
+        '''returns total sales, includes ALL sales reguardless of job or employee'''
         df = self.df
         return np.sum(df['SALES'].values)
 
-    def get_total_tips(self):
+    def get_total_tips(self, include_declared=False):
+        '''returns total tips, includes ALL tips reguardless of job or employee
+            pass include declared = TRUE to include declared tips in the total, by default does not
+        '''
         df = self.df
-        return np.sum(df['CCTIPS'].values)
+        cc = np.sum(df['CCTIPS'].values)
+        if include_declared:
+            decl = np.sum(df['DECTIPS'].values)
+            return cc + decl
+        return cc
     
+    def get_unallocated_tips(self):
+        '''
+        returns any tips not allocated in the tip pool, or paid out to a server
+        '''
+        total = self.get_total_tips(include_declared=True)
+        used = np.sum(self.calc_servtips()[["SRVTIPS"]].values) + np.sum(self.calc_tipout()[["TIPOUT"]].values)
+        print(total,used)
+        
+         #save just the tipout from calc_tipout
+        return total - used
+
     def get_labor_rate(self):
         if self.cached:
             return self.cached[3]
@@ -161,6 +186,7 @@ class ProcessLabor():
         return cur_df
 
     def calc_laborrate_df(self):
+        '''returns a dataframe with the daily calculations for labor rate percentages'''
         salary = ''
         if self.salary:
             salary = ', Salary'
@@ -180,8 +206,8 @@ class ProcessLabor():
             })
         return df
     
-    def calc_tiprate_df(self, r=3):
-        '''returns a dataframe with a daily summary report, use r to change rounding'''
+    def calc_tiprate_df(self):
+        '''returns a dataframe with a daily summary report'''
         names = ChipConfig().query('RPT_TIP_RATE', 'col_names')
         df = pd.DataFrame(data={
             names[0]: [self.get_day()], #date
@@ -195,13 +221,13 @@ class ProcessLabor():
         return df
 
     def calc_payroll(self):
+        '''appends serving tips and tipout to the main dataframe, and returns the resulting dataframe'''
         s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]] #save just those columns from calc_serve_tips
         t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
         df = self.df
         tdf = df.join([s,t])
-        
-        #remove tips from tipcodes for payroll
-        a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS']
+        print(tdf)
+        a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
         return tdf
 
@@ -209,7 +235,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading ProcessTips.py")
-        print(ProcessLabor("20210416").get_total_tips())
-    r = 5
+        print(ProcessLabor("20210417").get_unallocated_tips())
+    r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

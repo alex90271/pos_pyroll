@@ -18,6 +18,7 @@ class ReportWriter():
         self.first_day = first_day
         self.last_day = last_day
         self.days = []
+        self.FILEPATH = 'data/'
 
         if self.last_day == None:
             self.last_day = self.first_day
@@ -180,11 +181,11 @@ class ReportWriter():
         worksheet_name = (rpt + '_' + self.first_day + '_' + self.last_day)
 
         try:
-            os.mkdir('data/reports/')
+            os.mkdir(self.FILEPATH)
         except:
             pass
 
-        writer = pd.ExcelWriter('data/reports/' + worksheet_name + mod + '.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
+        writer = pd.ExcelWriter(self.FILEPATH + worksheet_name + mod + '.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
         wrkbook = writer.book
         def get_worksheet(): #turned into a function, so we only instantiate IF the calculations come back okay
             df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
@@ -300,7 +301,7 @@ class ReportWriter():
 
         writer.save()
 
-        file = 'data\\reports\\' + worksheet_name + mod + '.xlsx'
+        file = self.FILEPATH + worksheet_name + mod + '.xlsx'
         if os.path.isfile(file):
             print('EXPORT SUCCESS: ' + rpt + ' - ' + self.first_full + ' - ' + self.last_full + '')
             if pys_print and os.name == 'nt':
