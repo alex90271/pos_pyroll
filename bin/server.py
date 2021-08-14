@@ -16,12 +16,18 @@ from report_writer import ReportWriter
 from chip_config import ChipConfig
 
 app = Flask(__name__)
-CORS(app)
+cors = CORS(app)
 
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<opt_print>')
 def print_rpt(day_one, day_two, rpt_type, opt_print):
+    if opt_print == 'false' or 'False':
+        opt_print = False
+    elif opt_print == 'True' or 'true':
+        opt_print = True
+    else:
+        raise ValueError('Print argument not passed a bool type')
     result = ReportWriter(day_one, day_two).print_to_excel(rpt_type, opt_print=opt_print)
-    if opt_print == 'False':
+    if opt_print == False:
         result.reset_index(drop=True, inplace=True)
         def get_zero(num_to_zero):
             return 0

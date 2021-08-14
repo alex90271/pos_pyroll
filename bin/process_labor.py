@@ -226,7 +226,7 @@ class ProcessLabor():
         t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
         df = self.df
         tdf = df.join([s,t])
-        print(tdf)
+        #print('process labor :' + tdf)
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
         return tdf
