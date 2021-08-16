@@ -18,29 +18,32 @@ from chip_config import ChipConfig
 app = Flask(__name__)
 cors = CORS(app)
 
+class UtilFunc():
+    def get_zero(zero):
+        '''this does exactly what you think it does. it gets zero. its kinda useful'''
+        return 0
+
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<opt_print>')
 def print_rpt(day_one, day_two, rpt_type, opt_print):
-    if opt_print == 'false' or 'False':
-        opt_print = False
-    elif opt_print == 'True' or 'true':
-        opt_print = True
+    print(str(opt_print))
+    if str(opt_print).lower() == 'true':
+        result = ReportWriter(day_one, day_two).print_to_excel(rpt_type)
+        return jsonify(result)
+    if str(opt_print).lower() == 'false':
+        result = ReportWriter(day_one, day_two).print_to_json(rpt_type)
+        result.reset_index(drop=True, inplace=True)
+        result['MEALS'] = result['MEALS'].apply((UtilFunc.get_zero))
+        print('block one')
+        return jsonify(result.to_dict(orient='index')) #'False' assumes the return type DataFrame
     else:
         raise ValueError('Print argument not passed a bool type')
-    result = ReportWriter(day_one, day_two).print_to_excel(rpt_type, opt_print=opt_print)
-    if opt_print == False:
-        result.reset_index(drop=True, inplace=True)
-        def get_zero(num_to_zero):
-            return 0
-        result['MEALS'] = result['MEALS'].apply(get_zero)
-        return jsonify(result.to_dict(orient='index')) #'False' assumes the return type DataFrame
-    return jsonify(result)
 
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
     return jsonify(ChipConfig()
     .read_json())
 
-@app.route('/v01/config/<query>', methods=["GET"])
+@app.route('/v01/config/<query>/save', methods=["GET"])
 def config_item(query):
     return jsonify(ChipConfig()
     .query('SETTINGS',str(query)))

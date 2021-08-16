@@ -160,10 +160,60 @@ class ReportWriter():
         time.sleep(sleep_time)
         print(f'FINISHED PRINT JOB IN {sleep_time} SECONDS')
 
+    def print_to_json(
+                self, 
+                rpt, 
+                sum_only=False,
+                selected_employees=None,
+                selected_jobs=None
+                ):
+        #TODO include something so the frontend can know if the report is filtered or not ()
+        if rpt == 'tip_rate':
+            df = self.rate_rpt(
+                rpt='Tip',
+                totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
+                averaged_cols=['Tip Hourly']) 
+
+        elif rpt == 'labor_main':
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+                index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                addl_cols=['MEALS'],
+                sum_only=sum_only, 
+                selected_employees=selected_employees,
+                selected_jobs=selected_jobs,
+                nightly=False)
+
+        elif rpt == 'labor_nightly':
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD'],
+                index_cols=['EMPLOYEE','LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                addl_cols=['MEALS'],
+                sum_only=sum_only, 
+                selected_employees=selected_employees,
+                selected_jobs=selected_jobs, 
+                nightly=True)
+
+        elif rpt == 'labor_rate':
+            df = self.rate_rpt(
+                rpt='Labor',
+                totaled_cols=['Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'], 
+                averaged_cols=['Rate (%)'])
+
+        elif rpt == 'cout_eod':
+            df = self.cout_by_eod(
+                cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
+                cout_col='COUTBYEOD')
+        else:
+            raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
+
+        return df
+
     def print_to_excel(
                 self, 
                 rpt, 
-                opt_print=False, 
                 sum_only=False,
                 pys_print=False, 
                 selected_employees=None,
@@ -187,13 +237,13 @@ class ReportWriter():
 
         writer = pd.ExcelWriter(self.FILEPATH + worksheet_name + mod + '.xlsx', engine='xlsxwriter') # pylint: disable=abstract-class-instantiated
         wrkbook = writer.book
-        def get_worksheet(): #turned into a function, so we only instantiate IF the calculations come back okay
-            df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
-            return writer.sheets[worksheet_name] 
-
         f1 = wrkbook.add_format({'border': 1, 'num_format' : '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'}) #rounds all floats using excel
         f2 = wrkbook.add_format({'border': 1, 'num_format': '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'}) #adds $
         f3 = wrkbook.add_format({'border': 1, 'num_format': '0'}) #no formatting
+
+        def get_worksheet(): #turned into a function, so we only instantiate IF the calculations come back okay
+            df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
+            return writer.sheets[worksheet_name] 
         
         if rpt == 'tip_rate':
             df = self.rate_rpt(
@@ -215,8 +265,6 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=False)
 
-            wrksheet = get_worksheet()
-
             if sum_only:
                 rpt_modifier += "TOTALS_"
             if selected_employees:
@@ -224,6 +272,7 @@ class ReportWriter():
             if selected_jobs:
                 rpt_modifier += 'FILTERED ON JOBCODE_'
 
+            wrksheet = get_worksheet()
             wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
             wrksheet.set_column('E:G', 12, f1)
             wrksheet.set_column('H:J', 12, f2)
@@ -274,10 +323,7 @@ class ReportWriter():
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
 
-        if str(opt_print) == 'False':
-            return df
-        else:
-            df.to_excel(writer, sheet_name=worksheet_name, float_format="%.2f") #write with the updated data
+        df.to_excel(writer, sheet_name=worksheet_name, float_format="%.2f") #write with the updated data
         
         #boilerplate stuff to turn the spreadsheet more into a report
         wrksheet.set_column('A:A', 4, f3) #make index column small
@@ -315,7 +361,7 @@ if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        ReportWriter('20210416','20210430').print_to_excel('labor_main', opt_print=True, sum_only=True, pys_print=True)
+        print(ReportWriter('20210416','20210430').print_to_json('labor_main', sum_only=True))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
