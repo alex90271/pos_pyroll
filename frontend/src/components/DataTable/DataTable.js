@@ -76,10 +76,10 @@ export default function DataTable(props) {
         <div className="DataTable">
             <Table celled>
                 <Table.Header>
-                    {tableHeaderItems(props.tableData)}
+                    {props.tableData ? tableHeaderItems(props.tableData) : <div></div>}
                 </Table.Header>
                 <Table.Body>
-                    {tableBodyItems(props.tableData)}
+                    {props.tableData ? tableBodyItems(props.tableData) : <div></div>}
                 </Table.Body>
             </Table>
         </div>

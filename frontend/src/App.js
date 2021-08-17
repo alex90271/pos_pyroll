@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Test from './components/test/test';
 import API from './components/util/API.js';
 import ConfigArea from './components/ConfigArea/ConfigArea';
@@ -11,11 +11,16 @@ function App() {
   const exampleObject = API.getExampleObject();
 
   const [tableEdited, setTableEdited] = useState(false);
-  const [editedTableData, setEditedTableData] = useState(exampleObject);
+  const [editedTableData, setEditedTableData] = useState();
   const [selectedDayRange, setSelectedDayRange] = useState({
     from: null,
     to: null
   });
+
+  //converts the selectedDayRange(.from or .to) object into yyyymmdd format for use with the API.
+  const formatDate = (range) => {
+    return new Date(range.year, range.month - 1, range.day).toISOString().slice(0, 10).replace(/-/g, "");
+  }
 
   const editTable = (row, column, newValue) => {
     setTableEdited(true);
@@ -37,7 +42,12 @@ function App() {
   const columnsToRound = ["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"];
 
   function print() {
-    API.test();
+    const range = selectedDayRange;
+    console.log(formatDate(selectedDayRange.from))
+    API.test(formatDate(selectedDayRange.from), formatDate(selectedDayRange.to))
+      // .then(data => {
+      //   setEditedTableData(data);
+      // })
   }
 
   return (
@@ -49,11 +59,11 @@ function App() {
       />
       <div className='table-area'>
         <DataTable
-        tableData={editedTableData}
-        roundNumbers={true}
-        columnsToRound={columnsToRound}
-        editTable={editTable}
-        canEditTable={false}
+          tableData={editedTableData}
+          roundNumbers={true}
+          columnsToRound={columnsToRound}
+          editTable={editTable}
+          canEditTable={false}
         />
         <EditedTableWarning
           tableEdited={tableEdited}
@@ -65,3 +75,4 @@ function App() {
 }
 
 export default App;
+
