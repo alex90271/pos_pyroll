@@ -6,6 +6,12 @@ import { Table } from 'semantic-ui-react';
 
 export default function DataTable(props) {
 
+    const handleChange = (e) => {
+        const {row, column} = e.currentTarget.dataset;
+        const newValue = e.target.value;
+        props.editTable(row, column, newValue);
+    }
+
     const roundTableItems = (tableObject) => {
         for (const row in tableObject) {
             for (const column in tableObject[row]) {
@@ -16,8 +22,21 @@ export default function DataTable(props) {
         }
         return tableObject;
     }
-
+    
+    const canEditCell = (column) => {
+        if (!props.canEditTable) {
+            return false;
+        } else if (props.editableColumns.includes(column)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     const tableHeaderItems = (tableObject) => {
+        if (!props.tableData) {
+            return;
+        }
         return (
             <Table.Row>
                 {Object.keys(tableObject[0]).map((column) => {
@@ -35,6 +54,9 @@ export default function DataTable(props) {
     }
 
     const tableBodyItems = (tableObject) => {
+        if (!props.tableData) {
+            return;
+        }
         if (props.roundNumbers) {
             tableObject = roundTableItems(tableObject);
         }
@@ -56,7 +78,7 @@ export default function DataTable(props) {
                             key={row + column + "ContentEditable"}
                             data-row={row}
                             data-column={column}
-                            disabled={!props.canEditTable}
+                            disabled={!canEditCell(column)}
                         />
                     </Table.Cell>
                 )
@@ -66,20 +88,14 @@ export default function DataTable(props) {
         return output;
     }
 
-    const handleChange = (e) => {
-        const {row, column} = e.currentTarget.dataset;
-        const newValue = e.target.value;
-        props.editTable(row, column, newValue);
-    }
-
     return (
         <div className="DataTable">
             <Table celled>
                 <Table.Header>
-                    {props.tableData ? tableHeaderItems(props.tableData) : <div></div>}
+                    {tableHeaderItems(props.tableData)}
                 </Table.Header>
                 <Table.Body>
-                    {props.tableData ? tableBodyItems(props.tableData) : <div></div>}
+                    {tableBodyItems(props.tableData)}
                 </Table.Body>
             </Table>
         </div>

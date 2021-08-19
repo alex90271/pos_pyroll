@@ -17,7 +17,7 @@ from chip_config import ChipConfig
 
 app = Flask(__name__)
 cors = CORS(app)
-
+@cross_origin
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<opt_print>')
 def print_rpt(day_one, day_two, rpt_type, opt_print):
     if opt_print == 'false' or 'False':
