@@ -7,6 +7,8 @@ import NumberArraySetting from '../SettingComponents/NumberArraySetting/NumberAr
 import PathSetting from '../SettingComponents/PathSetting/PathSetting';
 
 export default function SettingsList(props) {
+    // This call to .map will trigger a warning in the console stating
+    // that .map expects a value to be returned...not sure why.
     let addedSettings = Object.keys(props.settings).map((key) => {
         let setting = props.settings[key];
         switch (setting.dataType) {

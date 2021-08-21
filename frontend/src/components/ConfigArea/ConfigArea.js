@@ -28,7 +28,7 @@ export default function ConfigArea(props) {
           } else {
               setCanPrint(false);
           }
-      })
+      }, [props.selectedDayRange]);
 
       let displayedRange = '';
       if (props.selectedDayRange.from && props.selectedDayRange.to) {

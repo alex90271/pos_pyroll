@@ -17,12 +17,7 @@ from chip_config import ChipConfig
 
 app = Flask(__name__)
 cors = CORS(app)
-
-class UtilFunc():
-    def get_zero(zero):
-        '''this does exactly what you think it does. it gets zero. its kinda useful'''
-        return 0
-
+@cross_origin
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<opt_print>')
 def print_rpt(day_one, day_two, rpt_type, opt_print):
     print(str(opt_print))
