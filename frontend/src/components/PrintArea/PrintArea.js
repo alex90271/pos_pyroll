@@ -7,12 +7,12 @@ export default function PrintArea(props) {
         if (props.canPrint) {
             return (
                 <button onClick={props.print}>
-                    Print
+                    Process
                 </button>
             )
         } else {
             return (
-                <div style={{paddingBottom: '21px'}}>
+                <div>
 
                 </div>
             )
@@ -21,6 +21,9 @@ export default function PrintArea(props) {
 
     return (
         <div className='PrintArea'>
+            <h3>
+                {props.displayedRange}
+            </h3>
             {availableOptions()}
         </div>
     );

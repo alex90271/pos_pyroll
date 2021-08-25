@@ -3,7 +3,7 @@ import './calendar.css';
 import React, { useState, useEffect } from 'react';
 import { Calendar } from 'react-modern-calendar-datepicker';
 import PrintArea from '../PrintArea/PrintArea.js';
-import SettingsList from '../settingsList/settingsList';
+import Settings from '../Settings/Settings.js';
 import { defaultSettingsObject } from '../../defaultSettingsObject';
 
 
@@ -52,20 +52,16 @@ export default function ConfigArea(props) {
                 inputPlaceholder='Select a day'
                 shouldHighlightWeekends
                 />
-                <h3>
-                    {displayedRange}
-                </h3>
             </div>
             <PrintArea
             canPrint={canPrint}
             print={props.print}
+            displayedRange={displayedRange}
             />
-            <div className="SettingsList">
-                <SettingsList
-                settings={settings}
-                handleSettingChange={handleSettingChange}
-                />
-            </div>
+            <Settings
+            settings={settings}
+            handleSettingChange={handleSettingChange}
+            />
             
         </div>
     );

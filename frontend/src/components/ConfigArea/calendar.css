@@ -439,7 +439,7 @@
 
 .Calendar__monthSelectorItem.-active .Calendar__monthSelectorItemText,
 .Calendar__yearSelectorItem.-active .Calendar__yearSelectorText {
-  background-color: var(--cl-color-primary);
+  background-color: lightslategrey;
   color: #fff;
 }
 
@@ -556,7 +556,7 @@
 .Calendar__day.-selected,
 .Calendar__day.-selectedStart,
 .Calendar__day.-selectedEnd {
-  background: var(--cl-color-primary);
+  background: lightslategrey;
   color: #fff;
 }
 
@@ -573,8 +573,8 @@
 }
 
 .Calendar__day.-selectedBetween {
-  background: var(--cl-color-primary-light);
-  color: var(--cl-color-primary);
+  background: #c2d0d4;
+  color: lightslategrey;
   border-radius: 0;
 }
 
@@ -589,11 +589,11 @@
 }
 
 .Calendar__day.-weekend:not(.-selected):not(.-blank):not(.-selectedStart):not(.-selectedEnd):not(.-selectedBetween) {
-  color: var(--cl-color-error);
+  color: black;
 }
 
 .Calendar__day.-weekend.-today:not(.-selectedStart):not(.-selectedEnd):not(.-selectedBetween)::after {
-  background: var(--cl-color-error);
+  background: black;
 }
 
 .Calendar__day.-disabled {

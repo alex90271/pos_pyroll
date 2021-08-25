@@ -1,24 +1,8 @@
 .SettingsList {
-    text-align: center;
-    border: 1px solid;
-    width: 80%;
-    margin: auto;
-    margin-bottom: 20px;
-    margin-top: 20px;
-    text-decoration: underline;
 }
 
 .Setting {
-    display: inline-block;
-    margin-right: 20px;
-    margin-left: 20px;
+    margin-right: 60px;
+    margin-left: 60px;
     border: 1px solid;
-    border-radius: 16px;
-    padding: 5px;
-    padding: 20px;
-}
-
-.Setting h3 {
-    margin-top: 0;
-    margin-bottom: 5px;
 }
