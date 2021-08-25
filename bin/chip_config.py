@@ -86,9 +86,7 @@ class ChipConfig():
         result = self.data[config][query]
 
         #user can specify a return type if necissary. 
-        if return_type == 'default':
-            pass
-        elif return_type == 'int_array':
+        if return_type == 'int_array':
             result = [int(x) for x in result.split(',')]
         elif return_type == 'float':
             float(result)

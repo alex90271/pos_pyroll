@@ -51,10 +51,15 @@ def full_config():
     return jsonify(ChipConfig()
     .read_json())
 
-@app.route('/v01/config/<query>/save', methods=["GET"])
+@app.route('/v01/config/<query>', methods=["GET"])
 def config_item(query):
     return jsonify(ChipConfig()
     .query('SETTINGS',str(query)))
+
+@app.route('/v01/config/<query_item>/<updated_val>', methods=["GET"])
+def config_item_update(query_item, updated_val):
+    return jsonify(ChipConfig()
+    .query('SETTINGS',str(query_item),updated_result=updated_val))
 
 @app.route('/v01/employee')
 def employee_list():
