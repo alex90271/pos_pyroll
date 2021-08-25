@@ -32,7 +32,7 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
     else:
         select_jobs = [int(item) for item in select_jobs.split(',')]
     opt_print = str(opt_print).lower()
-    print(select_jobs, select_emps)
+    #print(select_jobs, select_emps)
     if opt_print == 'true':
         result = ExcelPrinter(day_one, day_two).print_to_excel(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
         return jsonify(result)
