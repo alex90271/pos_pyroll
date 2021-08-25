@@ -6,7 +6,7 @@ const API = {
     },
 
     test(firstDay, lastDay) {
-      return fetch(`http://localhost:5000/v01/data/${firstDay}/${lastDay}/labor_main/False`)
+      return fetch(`http://localhost:5000/v01/data/${firstDay}/${lastDay}/labor_main/0/0/True`)
         .then(response => response.json());
     },
 }

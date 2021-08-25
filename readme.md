@@ -28,13 +28,11 @@ WORK IN PROGRESS:
 
     database has been built, just needs to be connected to process_labor class
 
-    API needs polishing, and extend data filtering support to the API 
-
     Employee Numbers included in data (Finished-- though sending the request response gives an error when using employee ID as Index, as the ID might not be unique (ex. multiple shifts))
 
 API:
 
-/v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/<bool: print>
+/v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/<int: jobcode_filter>/<int: employee_filter>/<bool: print>
 
     day_one = first day in the sequence (ex. 20210701)
 
@@ -47,10 +45,32 @@ API:
         tip_rate = Returns data containing tip hourly rates
         labor_rate = Contains labor percentages based on cost of labor to sales ratio
         cout_eod = Contains a list of shifts that were auto clocked out (and their clock-out time)
+    
+    jobcode_filter
+        takes an integer to filter the report based on the jobcode number
+        api /jobcodes (see below) can proivde a list
+        for more than one, separate with a comma
+        ex. 50,1,4 would filter on jobcode 50, 1, and 4
+
+        pass 0 to not filter data
+
+    employee_filter
+        takes an integer to filter the report based on the employee number
+        api /employees (see below) can proivde a list
+        for more than one, separate with a comma
+        ex. 4006,3089 would filter on employee 4006 and 3089
+        
+        pass 0 to not filter data
 
     pass 'print = True' to print report
+        changes to invoke the report printer function
+        when print 'True' is passed, the result will either be 'True' or 'False' depending on if it printed or not
 
-    example query: http://localhost:5000/v01/data/20210416/20210430/labor_main/False
+    example query, no filter: 
+        http://localhost:5000/v01/data/20210416/20210430/labor_main/0/0/False
+
+    example query, with filter (jobcode 50, employees 4006 and 3089): 
+        http://localhost:5000/v01/data/20210416/20210430/labor_main/50/4006,3089/False
 
 returns, for each shift:
 

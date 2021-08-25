@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import os
 import json
+from excel_writer import ExcelPrinter
 from report_writer import ReportWriter
 
 
@@ -11,7 +12,7 @@ if __name__ == '__main__':
 
     print("cleaning reports folder")
     #remove all the old reports in the output folder
-    [os.remove(os.path.join('data\\reports\\', f))for f in os.listdir('data\\reports\\')]
+    #[os.remove(os.path.join('data/.xlsx', f))for f in os.listdir('data/.xlsx')]
 
     def main():
         
@@ -43,19 +44,17 @@ if __name__ == '__main__':
         #parsed = json.loads(result)
         #print(json.dumps(parsed, indent=4))
 
-        #ReportWriter(day_one,day_two).print_to_excel('labor_nightly', opt_print=True)
+        ExcelPrinter(day_one,day_two).print_to_excel('labor_nightly') #PRINTS TO A FILE, pass Pys_print=True to print to a printer
 
-        ReportWriter(day_one,day_two).print_to_excel('tip_rate', opt_print=True)
-        ReportWriter(day_one,day_two).print_to_excel('labor_rate', opt_print=True)
-        ReportWriter(day_one,day_two).print_to_excel('cout_eod', opt_print=True)
+        print(ReportWriter(day_one,day_two).print_to_json('tip_rate'))
+        print(ReportWriter(day_one,day_two).print_to_json('labor_rate'))
+        print(ReportWriter(day_one,day_two).print_to_json('cout_eod'))
 
-        (ReportWriter(day_one,day_two)
-            .print_to_excel(
-                'labor_main', 
-                opt_print=True, 
-                pys_print=sys.argv[3],
+        print((ReportWriter(day_one,day_two)
+            .print_to_json(
+                'labor_main',
                 selected_employees=selected_employees, 
-                selected_jobs=selected_jobs))
+                selected_jobs=selected_jobs)))
     
     debug = True
     if debug:

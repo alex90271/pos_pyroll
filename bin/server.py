@@ -6,6 +6,7 @@
 
 #v01 Routes
 
+from excel_writer import ExcelPrinter
 from query_db import QueryDB
 import numpy as np
 import os
@@ -17,18 +18,30 @@ from chip_config import ChipConfig
 
 app = Flask(__name__)
 cors = CORS(app)
+app.config['JSON_SORT_KEYS'] = False
+
 @cross_origin
-@app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<opt_print>')
-def print_rpt(day_one, day_two, rpt_type, opt_print):
-    print(str(opt_print))
-    if str(opt_print).lower() == 'true':
-        result = ReportWriter(day_one, day_two).print_to_excel(rpt_type)
+@app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>/<opt_print>')
+def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
+    if select_emps == '0':
+         select_emps = None
+    else:
+        select_emps = [int(item) for item in select_emps.split(',')]
+    if select_jobs == '0':
+        select_jobs = None
+    else:
+        select_jobs = [int(item) for item in select_jobs.split(',')]
+    opt_print = str(opt_print).lower()
+    print(select_jobs, select_emps)
+    if opt_print == 'true':
+        result = ExcelPrinter(day_one, day_two).print_to_excel(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
         return jsonify(result)
-    if str(opt_print).lower() == 'false':
-        result = ReportWriter(day_one, day_two).print_to_json(rpt_type)
+    if opt_print == 'false':
+        result = ReportWriter(day_one, day_two).print_to_json(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
         result.reset_index(drop=True, inplace=True)
-        result['MEALS'] = result['MEALS'].apply((UtilFunc.get_zero))
-        print('block one')
+        def zero(x):
+            return 0
+        result['MEALS'] = result['MEALS'].apply((zero))
         return jsonify(result.to_dict(orient='index')) #'False' assumes the return type DataFrame
     else:
         raise ValueError('Print argument not passed a bool type')
