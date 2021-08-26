@@ -154,11 +154,15 @@ returns, for each shift:
         "MEALS":FLOAT,
     }
 
-/v01/config/<str: query>
+/v01/config/<str: config>/<str: query>/{updated_query_result}
+
+    config selects a settings section within chip.json (see chip_config.py OR chip.json for data)
 
     returns a config item. see cfg.py for more details
 
-    pass with an {updated_query_result} to save it (implementation of saving a query with a PUSH almost finished)
+    pass with an {updated_query_result} to save it
+
+    delete the .json file to generate a new one
 
 /v01/jobcodes
 

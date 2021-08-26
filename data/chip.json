@@ -1,6 +1,6 @@
 {
     "SETTINGS": {
-        "tip_sales_percent": "86",
+        "tip_sales_percent": "0.03",
         "tip_amt_percent": "1",
         "percent_sale_codes": "1",
         "percent_tip_codes": "11",
@@ -9,7 +9,7 @@
         "pay_period_days": "15",
         "count_salary": true,
         "debug": false,
-        "database": "database/",
+        "database": "D:\\Bootdrv\\Aloha\\",
         "use_aloha_tipshare": false
     },
     "RPT_GENERAL": {
@@ -115,5 +115,23 @@
         "cout_col": "COUTBYEOD",
         "cout_var": "Y",
         "col_width": 12
+    },
+    "FRONTEND_SETTINGS": {
+        "columnsToRound": [
+            "HOURS",
+            "OVERHRS",
+            "SRVTIPS",
+            "TIPOUT",
+            "DECTIPS",
+            "MEALS"
+        ],
+        "editableColumns": [
+            "HOURS",
+            "OVERHRS",
+            "SRVTIPS",
+            "TIPOUT",
+            "DECTIPS",
+            "MEALS"
+        ]
     }
 }

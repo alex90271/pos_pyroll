@@ -66,6 +66,10 @@ class ChipConfig():
             'cout_var':'Y', 
             'col_width': 12
             }
+        data['FRONTEND_SETTINGS'] = {
+            'columnsToRound':["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"],
+            'editableColumns':["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"]
+        }
             
         return data
     

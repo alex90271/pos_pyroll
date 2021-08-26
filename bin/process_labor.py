@@ -19,6 +19,7 @@ class ProcessLabor():
         #instantiate a single day to process data
         self.db = QueryDB(day)
         self.df = self.db.process_db('labor')
+        #print(self.df)
         self.day = day
         self.cached = DatabaseHandler(day).get_data('daily_calc_cache')
 
@@ -117,12 +118,11 @@ class ProcessLabor():
         '''
         returns any tips not allocated in the tip pool, or paid out to a server
         '''
-        total = self.get_total_tips(include_declared=True)
-        used = np.sum(self.calc_servtips()[["SRVTIPS"]].values) + np.sum(self.calc_tipout()[["TIPOUT"]].values)
-        print(total,used)
+        total = np.round(self.get_total_tips(include_declared=False) + self.get_percent_tips(decl=True),2)
+        used = np.round(np.sum(self.calc_servtips()[["SRVTIPS"]].values) + np.sum(self.calc_tipout()[["TIPOUT"]].values),2)
         
          #save just the tipout from calc_tipout
-        return total - used
+        return np.subtract(total,used)
 
     def get_labor_rate(self):
         if self.cached:
@@ -222,6 +222,7 @@ class ProcessLabor():
 
     def calc_payroll(self):
         '''appends serving tips and tipout to the main dataframe, and returns the resulting dataframe'''
+        #print(self.calc_tiprate_df())
         s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]] #save just those columns from calc_serve_tips
         t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
         df = self.df
@@ -235,6 +236,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading ProcessTips.py")
+        print(ProcessLabor("20210417").calc_tiprate_df())
         print(ProcessLabor("20210417").get_unallocated_tips())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
