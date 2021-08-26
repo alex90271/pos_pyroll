@@ -3,6 +3,7 @@ import './DataTable.css';
 import 'semantic-ui-css/semantic.min.css';
 import ContentEditable from 'react-contenteditable';
 import { Table } from 'semantic-ui-react';
+import EditedTableWarning from '../EditedTableWarning/EditedTableWarning';
 
 export default function DataTable(props) {
 
@@ -98,6 +99,10 @@ export default function DataTable(props) {
                     {tableBodyItems(props.tableData)}
                 </Table.Body>
             </Table>
+            <EditedTableWarning 
+            tableEdited={props.tableEdited}
+            //revertBackToOriginal={props.revertBackToOriginal}
+            />
         </div>
         
     )
