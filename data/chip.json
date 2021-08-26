@@ -9,7 +9,7 @@
         "pay_period_days": "15",
         "count_salary": true,
         "debug": false,
-        "database": "D:\\Bootdrv\\Aloha\\",
+        "database": "database//",
         "use_aloha_tipshare": false
     },
     "RPT_GENERAL": {
