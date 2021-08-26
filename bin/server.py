@@ -42,7 +42,7 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
         def zero(x):
             return 0
         result['MEALS'] = result['MEALS'].apply((zero))
-        return jsonify(result.to_dict(orient='index')) #'False' assumes the return type DataFrame
+        return result.to_dict(orient='index') #'False' assumes the return type DataFrame
     else:
         raise ValueError('Print argument not passed a bool type')
 
