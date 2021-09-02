@@ -1,40 +1,44 @@
 import React, { useRef } from 'react';
+import SelectionWindow from '../SelectionWindow/SelectionWindow';
 import SettingsList from '../settingsList/settingsList';
+import Modal from '../Modal/Modal.js';
 import './Settings.css';
 
 export default function Settings(props) {
 
-    const openModal = () => {
-        settingsModal.current.classList.add('active');
-        overlay.current.classList.add('active');
+    const getJobcodeName = (object) => {
+        return object.SHORTNAME;
     }
 
-    const closeModal = () => {
-        settingsModal.current.classList.remove('active');
-        overlay.current.classList.remove('active');
+    const getEmployeeName = (object) => {
+        return `${object.FIRSTNAME} ${object.LASTNAME}`;
     }
-
-    const overlay = useRef(null);
-    const settingsModal = useRef(null);
 
     return (
         <div className='Settings'>
-            <button onClick={openModal}>
-                Settings
-            </button>
-            <div ref={settingsModal} className='settings-modal'>
-                <div className='settings-header'>
-                    <h3>
-                        Settings
-                    </h3>
-                    <button className='close-button' onClick={closeModal}>&times;</button>
-                </div>
-                <SettingsList 
-                settings={props.settings}
-                handleSettingChange={props.handleSettingChange}
-                />
-            </div>
-            <div ref={overlay} onClick={closeModal} className='overlay'></div>
+            <Modal 
+                openButtonLabel={'Settings'}
+                className={'settings-modal'}
+                headerText={'Settings'}
+                innerHTML={
+                    <SettingsList 
+                        settings={props.settings}
+                        handleSettingChange={props.handleSettingChange}
+                    />
+                }
+            />
+            <SelectionWindow 
+                title={"Jobcodes"}
+                parsingFunction={getJobcodeName}
+                options={props.jobcodes}
+                toggle={props.toggleJobcode}
+            />
+            <SelectionWindow
+                title={"Employees"}
+                parsingFunction={getEmployeeName}
+                options={props.employees}
+                toggle={props.toggleEmployee}
+            />
         </div>
     );
-};
+}

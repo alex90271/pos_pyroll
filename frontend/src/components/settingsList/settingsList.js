@@ -7,8 +7,6 @@ import NumberArraySetting from '../SettingComponents/NumberArraySetting/NumberAr
 import PathSetting from '../SettingComponents/PathSetting/PathSetting';
 
 export default function SettingsList(props) {
-    // The below call to .map will trigger a warning in the console stating
-    // that .map expects a value to be returned...not sure why.
     let addedSettings = Object.keys(props.settings).map((key) => {
         let setting = props.settings[key];
         switch (setting.dataType) {
@@ -24,6 +22,7 @@ export default function SettingsList(props) {
                 return <PathSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
             default:
                 console.log("Unrecognized dataType is causing a setting to not display");
+                return null;
         };
     });
 
