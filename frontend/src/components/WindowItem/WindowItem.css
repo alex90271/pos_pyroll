@@ -1,0 +1,7 @@
+.WindowItem {
+    background-color: white;
+}
+
+.WindowItem.active {
+    background-color: lightskyblue;
+}

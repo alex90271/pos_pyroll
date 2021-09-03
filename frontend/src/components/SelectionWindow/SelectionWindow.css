@@ -1,0 +1,13 @@
+
+.selection-window {
+    width: 45%;
+    display: inline-block;
+}
+.box {
+    border: 1px solid black;
+    overflow-y: scroll;
+    height: 250px;
+}
+
+h1 {
+}

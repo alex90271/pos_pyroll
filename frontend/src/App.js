@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import API from './components/util/API.js';
 import ConfigArea from './components/ConfigArea/ConfigArea';
 import DataTable from './components/DataTable/DataTable';
+import { defaultSettingsObject } from './defaultSettingsObject';
 
 function App() {
 
+  const [settings, setSettings] = useState(defaultSettingsObject);
   const [tableEdited, setTableEdited] = useState(false);
   const [editedTableData, setEditedTableData] = useState();
   const [selectedDayRange, setSelectedDayRange] = useState({
@@ -28,7 +30,17 @@ function App() {
         ...prevState,
         [row]: currentRow
       }
-    })
+    });
+  }
+
+  function handleSettingChange(newSetting) {
+    if (newSetting.displayName && newSetting.outputName && newSetting.dataType && (typeof(newSetting.value) !== 'undefined')) {
+      setSettings((prevSettings) => ({
+        ...prevSettings, [newSetting.outputName]: newSetting
+      }));
+    } else {
+      throw Error("Something went wrong. (the newSetting object is not complete)");
+    }
   }
 
   // const revertBackToOriginal = () => {
@@ -50,9 +62,11 @@ function App() {
   return (
     <div className="App">
       <ConfigArea
-      print={print}
-      selectedDayRange={selectedDayRange}
-      setSelectedDayRange={setSelectedDayRange}
+        print={print}
+        selectedDayRange={selectedDayRange}
+        setSelectedDayRange={setSelectedDayRange}
+        settings={settings}
+        handleSettingChange={handleSettingChange}
       />
       <DataTable
         tableData={editedTableData}
