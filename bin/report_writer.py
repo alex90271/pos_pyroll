@@ -91,6 +91,11 @@ class ReportWriter():
 
         return _df
 
+    def labor_hourly(self):
+        #hrly = [ for day in self.days]
+        #df = pd.concat(hrly).reset_index(drop=True)
+        return None
+
     #concatenates all the data into a proper report ready for a spreadsheet
     def labor_main(
                     self,
@@ -121,6 +126,8 @@ class ReportWriter():
                 index_cols.remove('JOB_NAME')
             except:
                 print('JOB_NAME not specified')
+
+        df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")        
 
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
         _df.drop(drop_cols, axis=1, inplace=True) #if there any any columns passed in to drop, drop them
@@ -175,7 +182,7 @@ class ReportWriter():
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD'],
                 index_cols=['EMPLOYEE','LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                addl_cols=['MEALS'],
+                addl_cols=[],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs, 
@@ -200,9 +207,9 @@ if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        a = ReportWriter('20210416','20210430').print_to_json('labor_main')
-        a = a.loc[a['LASTNAME'] == 'Alder']
-        print(a)
+        a = ReportWriter('20210416','20210430').labor_hourly()
+        a = a.loc[a['JOBID'] == 8]
+        a.to_csv('out.csv')
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

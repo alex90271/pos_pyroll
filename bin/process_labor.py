@@ -185,6 +185,21 @@ class ProcessLabor():
         cur_df.loc[:,('TOTAL_PAY')] = np.add(reg,over)
         return cur_df
 
+    def calc_hourly_labor(self, interval=60, jobcodes=[7,8]):
+        _df = self.db.process_db('labor_hourly')
+        cur_df = _df.loc[_df.loc[:, ('JOBID')].isin(jobcodes)].copy()
+        cur_df.drop(columns=['JOBID','STOREID','REGIONID','OCCASIONID'], axis=1, inplace=True)
+        cur_df = cur_df.pivot_table(index=['DOB','STARTHOUR','STARTMIN','STOPHOUR','STOPMIN'], aggfunc=np.sum)
+        cur_df.reset_index(inplace=True)
+        cur_df['AMOUNT'] = cur_df['AMOUNT'].divide(len(jobcodes)) #pivot table will multiply sales for each jobcode selected, so we undo that here
+        cur_df['PERCENT'] = np.multiply(np.divide(cur_df.loc[:,('COST')],cur_df.loc[:,('AMOUNT')]),100) #COST div AMOUNT, multiply by 100 for percent
+        cur_df['STARTHOUR'] = pd.to_datetime(cur_df['STARTHOUR'], format='%H')
+        cur_df['STARTMIN'] = pd.to_datetime(cur_df['STARTMIN'], format='%M')
+        cur_df['STARTHOUR'] = cur_df['STARTHOUR'].dt.strftime('%I%p')
+        cur_df['STARTMIN'] = cur_df['STARTMIN'].dt.strftime('%M')
+  
+        return cur_df
+
     def calc_laborrate_df(self):
         '''returns a dataframe with the daily calculations for labor rate percentages'''
         salary = ''
@@ -236,8 +251,9 @@ if __name__ == '__main__':
 
     def main():
         #print("loading ProcessTips.py")
-        print(ProcessLabor("20210417").calc_tiprate_df())
-        print(ProcessLabor("20210417").get_unallocated_tips())
+        print(ProcessLabor("20210807").calc_tiprate_df())
+        print(ProcessLabor("20210807").get_unallocated_tips())
+        print(ProcessLabor("20210807").calc_hourly_labor().to_csv('out.csv'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

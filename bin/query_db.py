@@ -61,10 +61,24 @@ class QueryDB():
         elif db_type == 'transactions': #this isn't used yet
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
-            db_type = db_type + self.data
             a = self.dbf_to_list('/GNDTndr.dbf')
             df = pd.DataFrame(a)
             df = df.loc[np.where(df['TYPE'] == 1)] #type ID 1 in Aloha Docs are normal transactions
+            return df
+        elif db_type == 'labor_hourly':
+            shared_cols = ['DOB','STARTHOUR','STARTMIN','STOPHOUR','STOPMIN', 'STOREID', 'REGIONID', 'OCCASIONID']
+            if self.data == 'Data':
+                raise ValueError('ERROR: NO DATE GIVEN FOR LABOR DATA')
+            a_df = pd.DataFrame(self.dbf_to_list('/GNDLBSUM.DBF')) #15 minute intervals of sales
+            b_df = pd.DataFrame(self.dbf_to_list('/GNDSLSUM.DBF')) #15 minute invervales of labor cost
+            try:
+                b_df = b_df.loc[np.where(b_df['KEYVOLUME'] == 1)]
+                b_df = b_df.loc[np.where(b_df['CATID'] == 10)]
+                b_df.drop(columns=['REVID', 'CATID', 'KEYVOLUME'], axis=1, inplace=True)
+            except:
+                print(self.data +' was empty')
+                return pd.DataFrame([])
+            df = a_df.merge(b_df, on=shared_cols, how='left') #merge them on their shared columns and return the result
             return df
 
     def process_names(self, df, rename_columns=True):
@@ -109,7 +123,8 @@ if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        print(QueryDB().jobcode_list().to_json(orient='records', indent=2))
+        result = QueryDB("20210416").process_db('labor_hourly')
+        print(result)
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),6)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),3)) + "s")

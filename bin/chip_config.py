@@ -70,6 +70,10 @@ class ChipConfig():
             'columnsToRound':["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"],
             'editableColumns':["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"]
         }
+        data['REPORT_OPTIONS'] = {
+            'labor_main':'the main labor report, returns hours, tips, etc. for payroll',
+            'tip_rate':'the report showing hourly tip out for each employee'
+        }
             
         return data
     

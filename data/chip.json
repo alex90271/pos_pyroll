@@ -9,7 +9,7 @@
         "pay_period_days": "15",
         "count_salary": true,
         "debug": false,
-        "database": "D:\\Bootdrv\\Aloha\\",
+        "database": "database//",
         "use_aloha_tipshare": false
     },
     "RPT_GENERAL": {
@@ -133,5 +133,9 @@
             "DECTIPS",
             "MEALS"
         ]
+    },
+    "REPORT_OPTIONS": {
+        "labor_main": "the main labor report, returns hours, tips, etc. for payroll",
+        "tip_rate": "the report showing hourly tip out for each employee"
     }
 }

@@ -73,6 +73,10 @@ def jobcode_list():
     .process_db('jobcodes')
     .to_dict(orient='records'))
 
+@app.route('/v01/report_list')
+def report_list():
+    return 'report_list'
+
 #Unfinished Requests
 #@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])
 def update_data(employee_id,data):
