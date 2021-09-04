@@ -144,11 +144,12 @@ class ReportWriter():
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         if nightly == True:
             _df.rename(columns={'SYSDATEIN': 'Date'}, inplace=True)
-        _df.reset_index(inplace=True)
-        _df.sort_values('LASTNAME', inplace=True)
-        _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
-        _df.set_index('EMPLOYEE', inplace=True)
-        _df.index.rename('ID', inplace=True)
+        if not df.empty:
+            _df.reset_index(inplace=True)
+            _df.sort_values('LASTNAME', inplace=True)
+            _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
+            _df.set_index('EMPLOYEE', inplace=True)
+            _df.index.rename('ID', inplace=True)
 
         return _df
 
@@ -201,6 +202,8 @@ class ReportWriter():
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
 
+        if df.empty:
+            return 'empty'
         return df
 
 if __name__ == '__main__':

@@ -24,13 +24,9 @@ test.py uses command line args, edit the launch.json line: "args": ["20210416", 
 
     (TRUE at the end will print the file to a printer, if on windows. )
 
-WORK IN PROGRESS:
-
-    database has been built, just needs to be connected to process_labor class
-
-    Employee Numbers included in data (Finished-- though sending the request response gives an error when using employee ID as Index, as the ID might not be unique (ex. multiple shifts))
-
 API:
+
+IF NO DATA IS AVAILABLE TO BE RETURNED, API WILL RETURN 'empty'
 
 /v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/<int: jobcode_filter>/<int: employee_filter>/<bool: print>
 

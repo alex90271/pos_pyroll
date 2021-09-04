@@ -35,13 +35,15 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
     #print(select_jobs, select_emps)
     if opt_print == 'true':
         result = ExcelPrinter(day_one, day_two).print_to_excel(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
+        if type(result) == str:
+            return jsonify('empty')
         return jsonify(result)
     if opt_print == 'false':
         result = ReportWriter(day_one, day_two).print_to_json(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
+        if type(result) == str:
+            return jsonify('empty')
         result.reset_index(drop=True, inplace=True)
-        def zero(x):
-            return 0
-        result['MEALS'] = result['MEALS'].apply((zero))
+        result = result.fillna(0) #turn any NaN data to Zero for json compatability
         return result.to_dict(orient='index') #'False' assumes the return type DataFrame
     else:
         raise ValueError('Print argument not passed a bool type')
