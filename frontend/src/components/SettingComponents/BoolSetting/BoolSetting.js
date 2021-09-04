@@ -8,8 +8,8 @@ export default function BoolSetting(props) {
         props.handleSettingChange(newSetting);
     }
     return(
-        <div className="Setting" id="Bool-setting">
-            <h3>
+        <div className="Setting" id="Bool-setting" class='ui label column'>
+            <h3 class='ui header'>
                 {props.setting.displayName}
             </h3>
             <label>

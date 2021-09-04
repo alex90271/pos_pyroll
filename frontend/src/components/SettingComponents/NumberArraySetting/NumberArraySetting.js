@@ -20,10 +20,11 @@ export default function NumberArraySetting(props) {
     }
     const availableSettings = props.setting.options.map((option) => {
         return (
-        <div key={props.setting.outputName + option + "div"}>
+        <div key={props.setting.outputName + option + "div"} class='ui label'>
             <input
             key={props.setting.outputName + option}
             type='checkbox' 
+            class='ui checkbox'
             onChange={handleOnChange}
             checked={props.setting.value.includes(option)}
             value={option}/>
@@ -33,11 +34,13 @@ export default function NumberArraySetting(props) {
     })
 
     return (
-        <div className="Setting" id="Number-array-setting">
-            <h3>
+        <div className="Setting" id="Number-array-setting" class='ui label column'>
+            <h3 class='ui header'>
                 {props.setting.displayName}
             </h3>
-            {availableSettings}
+            <div>
+                {availableSettings}
+            </div>
         </div>
     );
 };

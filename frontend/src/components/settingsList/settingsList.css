@@ -1,8 +1,6 @@
-.SettingsList {
-}
-
-.Setting {
-    margin-right: 60px;
-    margin-left: 60px;
-    border: 1px solid;
+.ui.grid {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
 }

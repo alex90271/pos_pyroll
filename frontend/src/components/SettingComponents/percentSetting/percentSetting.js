@@ -9,15 +9,19 @@ export default function PercentSetting(props) {
 
     };
     return (
-        <div className="Setting" id='Percent-setting'>
-            <h3>
+        <div className="Setting" id='Percent-setting' class='ui label input column'>
+            <h3 class='ui header'>
                 {props.setting.displayName}
             </h3>
             <input type='number' 
+            class='ui label input'
             id={props.setting.outputName} 
             value={props.setting.value} 
-            onChange={handleChange}/>
-            <label htmlFor={props.setting.outputName}>%</label>
+            onChange={handleChange}
+            step='0.01'/>
+            <label htmlFor={props.setting.outputName}>
+                <i class="percent icon"></i>
+            </label>
         </div>
     );
 };

@@ -3,7 +3,7 @@ import './PathSetting.css';
 
 export default function PathSetting(props) {
     return(
-        <div className="Setting" id='Path-setting'>
+        <div className="Setting" id='Path-setting' class='ui label column'>
             <h3>
                 {props.setting.displayName}
             </h3>

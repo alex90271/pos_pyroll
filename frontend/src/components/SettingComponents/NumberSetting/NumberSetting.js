@@ -9,8 +9,8 @@ export default function NumberSetting(props) {
     }
 
     return (
-        <div className='Setting' id="Number-setting">
-            <h3>
+        <div className='Setting' id="Number-setting" class='ui label input column'>
+            <h3 class='ui header'>
                 {props.setting.displayName}
             </h3>
             <input type='number' 

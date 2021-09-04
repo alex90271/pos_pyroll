@@ -27,7 +27,7 @@ export default function SettingsList(props) {
     });
 
     return (
-        <div className='SettingsList'>
+        <div className='SettingsList' class='ui three column equal width centered grid'>
             {addedSettings}
         </div>
         
