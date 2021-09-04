@@ -144,7 +144,7 @@ class ReportWriter():
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         if nightly == True:
             _df.rename(columns={'SYSDATEIN': 'Date'}, inplace=True)
-        if not df.empty:
+        if _df.empty == False:
             _df.reset_index(inplace=True)
             _df.sort_values('LASTNAME', inplace=True)
             _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
