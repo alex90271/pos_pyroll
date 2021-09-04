@@ -156,13 +156,27 @@ returns, for each shift:
 
 /v01/config/<str: config>/<str: query>/{updated_query_result}
 
-    config selects a settings section within chip.json (see chip_config.py OR chip.json for data)
+    config selects a settings section within chip.json
 
-    returns a config item. see cfg.py for more details
+    returns a config item. see chip_config.py line 23, for more config sections
 
     pass with an {updated_query_result} to save it
 
-    delete the .json file to generate a new one
+    delete the .json file to generate a new one (necessary when config changes are made)
+
+    If query is NONE, it will return the entire config section (i.e. /v01/config/FRONTEND_SETTINGS) will return just the frontend section
+
+/v01/config/FRONTEND_SETTINGS
+
+    returns frontend settings options
+
+/v01/config/REPORT_OPTIONS
+
+    returns a list of available report options
+
+    line 0 will always be the descrition of the report
+
+    following lines are the available columns
 
 /v01/jobcodes
 

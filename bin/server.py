@@ -51,8 +51,13 @@ def full_config():
     return jsonify(ChipConfig()
     .read_json())
 
+@app.route('/v01/config/<cfg>', methods=["GET"])
+def config_item(cfg):
+    return jsonify(ChipConfig()
+    .query(cfg))
+
 @app.route('/v01/config/<cfg>/<query>', methods=["GET"])
-def config_item(cfg, query):
+def config_list_item(cfg, query):
     return jsonify(ChipConfig()
     .query(cfg,str(query)))
 
@@ -72,10 +77,6 @@ def jobcode_list():
     return jsonify(QueryDB()
     .process_db('jobcodes')
     .to_dict(orient='records'))
-
-@app.route('/v01/report_list')
-def report_list():
-    return 'report_list'
 
 #Unfinished Requests
 #@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])

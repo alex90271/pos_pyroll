@@ -23,7 +23,7 @@ class ChipConfig():
     def generate_config (self):
         '''generates the default config file, with default settings. To reset config file, just delete it'''
         data = {}
-
+        data['ver'] = {'ver':1}
         data['SETTINGS'] = {
             'tip_sales_percent': '0.03', #float, 0 - 1 (decimal percent)
             'tip_amt_percent': '1', #float, 0 - 1 (decimal percent)
@@ -71,13 +71,29 @@ class ChipConfig():
             'editableColumns':["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"]
         }
         data['REPORT_OPTIONS'] = {
-            'labor_main':'the main labor report, returns hours, tips, etc. for payroll',
-            'tip_rate':'the report showing hourly tip out for each employee'
+            'labor_main':
+                ['the main labor report, returns hours, tips, etc. for payroll',
+                'LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'DECTIPS', 'HOURS','OVERHRS', 'SRVTIPS', 'TIPOUT'],
+            'labor_total': 
+                ['totaled main labor report, returns hours, tips, etc. for payroll *WITHOUT* jobcodes',
+                'LASTNAME', 'FIRSTNAME', 'DECTIPS', 'HOURS','OVERHRS', 'SRVTIPS', 'TIPOUT'], 
+            'labor_nightly':
+                ['the main nightly labor report, returns hours, tips, etc. for payroll *WITH* shift dates, gives each shift',
+                'LASTNAME', 'FIRSTNAME', 'JOB_NAME','SYSDATEIN', 'DECTIPS', 'HOURS','OVERHRS', 'SRVTIPS', 'TIPOUT'],
+            'tip_rate':
+                ['the report showing hourly tip out daily',
+                'Date','Tip Hourly','Cash Tips','Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', "Total Tip'd Hours"],
+            'labor_rate':
+                ['the report showing labor rates daily',
+                'Jobs','Day','Rate (%)','Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'],
+            'cout_eod':
+                ['shows any clock outs forced by end of day (EOD)',
+                'SYSDATEIN', 'EMPLOYEE', 'FIRSTNAME', 'LASTNAME', 'JOB_NAME', 'HOURS','OVERHRS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD']
         }
             
         return data
     
-    def query (self, config, query, return_type='default', updated_result=None):
+    def query (self, config, query=None, return_type='default', updated_result=None):
         '''returns config settings as a string
 
             Ex. usage for single config settings
@@ -91,7 +107,10 @@ class ChipConfig():
             self.data[config][query] = updated_result
             self.save_json(self.data)
 
-        result = self.data[config][query]
+        if query == None:
+            result = self.data[config]
+        else:
+            result = self.data[config][query]
 
         #user can specify a return type if necissary. 
         if return_type == 'int_array':
