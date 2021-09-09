@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import SelectionWindow from '../SelectionWindow/SelectionWindow';
 import SettingsList from '../settingsList/settingsList';
 import Modal from '../Modal/Modal.js';

@@ -17,115 +17,109 @@ export default function ConfigArea(props) {
         from: null,
         to: null
     });
-    let displayedRange = '';
-
-    const toggleJobcode = (id) => {
-        setJobcodes((prevState) => {
-            let output = prevState;
-            let index = prevState.findIndex((element) => element.ID == id);
-            output[index].SELECTED = !output[index].SELECTED;
-            return output;
-        });
-    }
 
     useEffect(() => {
-        if (jobcodes.length === 0) {
-            API.jobcodes()
-                .then(response => {
-                    response.map((jobcode) => {
-                        jobcode['SELECTED'] = false;
-                    });
-                    setJobcodes(response);
-                })
-        }
+        API.jobcodes()
+            .then(response => {
+                response.map((jobcode) => {
+                    return jobcode['SELECTED'] = false;
+                });
+                setJobcodes(response);
+            });
     }, []);
 
-    const toggleEmployee = (id) => {
-        setEmployees((prevState) => {
-            let output = prevState;
-            let index = prevState.findIndex((element) => element.ID == id);
-            output[index].SELECTED = !output[index].SELECTED;
-            return output;
-        });
-    }
-
     useEffect(() => {
-        if (employees.length === 0) {
-            API.employees()
-                .then(response => {
-                    response.map((employee) => {
-                        employee['SELECTED'] = false;
-                    });
-                    setEmployees(response);
+        API.employees()
+            .then(response => {
+                response
+                    .map((employee) => {
+                        return employee['SELECTED'] = false;
                 })
-        }
+                    .filter((employee) => {
+                        return employee.TERMINATED === "N";
+                    })
+                    console.log(response);
+                setEmployees(response);
+            });
     }, []);
 
     useEffect(() => {
         if (selectedDayRange.from && selectedDayRange.to) {
             setCanPrint(true);
-            if (selectedDayRange.from.day === selectedDayRange.to.day) {
-                displayedRange = `Date selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year}`
-            } else {
-                displayedRange = `Dates selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year} - ${selectedDayRange.to.month}/${selectedDayRange.to.day}/${selectedDayRange.to.year}`;
-            }
         } else {
             setCanPrint(false);
-            displayedRange = 'Select first and last day. If calculating a single day, click it twice.';
         }
     }, [selectedDayRange]);
 
-
-
-
-
-
-
-
-
-
-  
-
-  //converts the selectedDayRange(.from or .to) object into yyyymmdd format for use with the API.
-  //1 is subtracted from range.month as the Date constructor uses a month index starting at 0 for January.
-  const formatDate = (range) => {
-    return new Date(range.year, range.month - 1, range.day).toISOString().slice(0, 10).replace(/-/g, "");
-  }
-
-  const selectedToCSV = (inputArray) => {
-      let output = [];
-      inputArray.forEach((item) => {
-          if (item.SELECTED === true) {
-              output.push(item.ID);
-          }
-      });
-      if (output.length === 0) {
-          return "0";
-      } else {
-          return output.join();
-      }
-  }
-
-  
-
-  function handleSettingChange(newSetting) {
-    if (newSetting.displayName && newSetting.outputName && newSetting.dataType && (typeof(newSetting.value) !== 'undefined')) {
-      setSettings((prevSettings) => ({
-        ...prevSettings, [newSetting.outputName]: newSetting
-      }));
-    } else {
-      throw Error("Something went wrong. (the newSetting object is not complete)");
+    const toggleJobcode = (id, newValue) => {
+        setJobcodes((prevState) => {
+            let output = [...prevState];
+            let index = prevState.findIndex((element) => element.ID === id);
+            output[index].SELECTED = newValue;
+            return output;
+        });
     }
-  }
 
-  function print() {
-    const range = selectedDayRange;
-    API.test(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
-      .then(data => {
-        //console.log(data);
-        props.setEditedTableData(data);
-      })
-  }
+    
+    const toggleEmployee = (id, newValue) => {
+        setEmployees((prevState) => {
+            let output = [...prevState]
+            let index = prevState.findIndex((element) => element.ID === id);
+            output[index].SELECTED = newValue;
+            return output;
+        });
+    }
+
+    function handleSettingChange(newSetting) {
+        if (newSetting.displayName && newSetting.outputName && newSetting.dataType && (typeof(newSetting.value) !== 'undefined')) {
+          setSettings((prevSettings) => ({
+            ...prevSettings, [newSetting.outputName]: newSetting
+          }));
+        } else {
+          throw Error("Something went wrong. (the newSetting object is not complete)");
+        }
+    }
+
+    const displayedRange = () => {
+        if (selectedDayRange.from && selectedDayRange.to) {
+            if (selectedDayRange.from.day === selectedDayRange.to.day) {
+                return `Date selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year}`
+            } else {
+                return `Dates selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year} - ${selectedDayRange.to.month}/${selectedDayRange.to.day}/${selectedDayRange.to.year}`;
+            }
+        } else {
+            return 'Select first and last day. If calculating a single day, click it twice.';
+        }
+    }
+
+    //converts the selectedDayRange(.from or .to) object into yyyymmdd format for use with the API.
+    //1 is subtracted from range.month as the Date constructor uses a month index starting at 0 for January.
+    const formatDate = (range) => {
+    return new Date(range.year, range.month - 1, range.day).toISOString().slice(0, 10).replace(/-/g, "");
+    }
+
+    const selectedToCSV = (inputArray) => {
+        let output = [];
+        inputArray.forEach((item) => {
+            if (item.SELECTED === true) {
+                output.push(item.ID);
+            }
+        });
+        if (output.length === 0) {
+            return "0";
+        } else {
+            return output.join();
+        }
+    }
+
+    function print() {
+        const range = selectedDayRange;
+        API.test(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
+            .then(data => {
+            //console.log(data);
+            props.setEditedTableData(data);
+            });
+    }
 
     return (
         <div className="ConfigArea">
@@ -140,7 +134,7 @@ export default function ConfigArea(props) {
             <PrintArea
                 canPrint={canPrint}
                 print={print}
-                displayedRange={displayedRange}
+                displayedRange={displayedRange()}
             />
             <Settings
                 settings={settings}

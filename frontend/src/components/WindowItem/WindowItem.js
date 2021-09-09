@@ -6,9 +6,16 @@ export default function WindowItem(props) {
     const item = useRef(null);
 
     const toggleItem = () => {
-       props.toggle(props.id);
-        item.current.classList.toggle('active');
+       props.toggle(props.id, !props.selected);
     }
+
+    useEffect(() => {
+        if (props.selected) {
+            item.current.classList.add("active");
+        } else {
+            item.current.classList.remove("active");
+        }
+    }, [props.selected]);
     
     return (
         <div onClick={toggleItem} ref={item} className='WindowItem'>
