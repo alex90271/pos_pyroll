@@ -24,9 +24,9 @@ export default function SelectionWindow(props) {
     }
 
     return (
-        <div className='selection-window'>
-            <h1>{props.title}</h1>
-            <div className='box'>
+        <div className={'selection-window ui raised segment'}>
+            <h3>{props.title}</h3>
+            <div className={'box'}>
                 {options(props.options)}
             </div>
         </div>

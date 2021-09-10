@@ -35,13 +35,15 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
     #print(select_jobs, select_emps)
     if opt_print == 'true':
         result = ExcelPrinter(day_one, day_two).print_to_excel(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
+        if type(result) == str:
+            return jsonify('empty')
         return jsonify(result)
     if opt_print == 'false':
         result = ReportWriter(day_one, day_two).print_to_json(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
+        if type(result) == str:
+            return jsonify('empty')
         result.reset_index(drop=True, inplace=True)
-        def zero(x):
-            return 0
-        result['MEALS'] = result['MEALS'].apply((zero))
+        result = result.fillna(0) #turn any NaN data to Zero for json compatability
         return result.to_dict(orient='index') #'False' assumes the return type DataFrame
     else:
         raise ValueError('Print argument not passed a bool type')
@@ -51,8 +53,13 @@ def full_config():
     return jsonify(ChipConfig()
     .read_json())
 
+@app.route('/v01/config/<cfg>', methods=["GET"])
+def config_item(cfg):
+    return jsonify(ChipConfig()
+    .query(cfg))
+
 @app.route('/v01/config/<cfg>/<query>', methods=["GET"])
-def config_item(cfg, query):
+def config_list_item(cfg, query):
     return jsonify(ChipConfig()
     .query(cfg,str(query)))
 
@@ -72,10 +79,6 @@ def jobcode_list():
     return jsonify(QueryDB()
     .process_db('jobcodes')
     .to_dict(orient='records'))
-
-@app.route('/v01/report_list')
-def report_list():
-    return 'report_list'
 
 #Unfinished Requests
 #@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])

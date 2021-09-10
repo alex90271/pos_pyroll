@@ -32,12 +32,15 @@ class QueryDB():
     def dbf_to_list(self, dbf):
         '''takes in a database object and reads it as a list for further processing'''
         c = ChipConfig()
-        a = DBF(c.query('SETTINGS','database') + self.data + dbf, char_decode_errors='ignore', load=False)
+        a = pd.DataFrame([])
+        try:
+            a = DBF(c.query('SETTINGS','database') + self.data + dbf, char_decode_errors='ignore', load=False)
+        except:
+            print(c.query('SETTINGS','database') + self.data + dbf + ' was not found')
         return a
 
     def process_db(self, db_type):
         '''possible options: employees, jobcodes, labor'''
-        _dbf = ''
         #print("processing_db")
         if db_type == 'employees':
             a = self.dbf_to_list('/EMP.Dbf')
@@ -58,6 +61,7 @@ class QueryDB():
             df = df.loc[np.where(df['INVALID'] == 'N')] #get rid of any invalid shifts (deleted or shifts that have been edited)
             df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values) #when the data is pulled in and HOURS includes OVERHRS
             return df
+
         elif db_type == 'transactions': #this isn't used yet
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')

@@ -47,9 +47,9 @@ if __name__ == '__main__':
 
         #ExcelPrinter(day_one,day_two).print_to_excel('labor_nightly') #PRINTS TO A FILE, pass Pys_print=True to print to a printer
 
-        #print(ReportWriter(day_one,day_two).print_to_json('tip_rate'))
-        #print(ReportWriter(day_one,day_two).print_to_json('labor_rate'))
-        #print(ReportWriter(day_one,day_two).print_to_json('cout_eod'))
+        print(ReportWriter(day_one,day_two).print_to_json('tip_rate'))
+        print(ReportWriter(day_one,day_two).print_to_json('labor_rate'))
+        print(ReportWriter(day_one,day_two).print_to_json('cout_eod'))
         day_list = [["20190701", "20190706"], 
                     ["20190708", "20190713"], 
                     ["20190715", "20190720"], 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
                     ["20190812", "20190817"],
                     ["20190819", "20190824"]]
 
-        day_list = [["20210820", "20210829"]]
+        #day_list = [["20210820", "20210829"]]
 
         for days in day_list:
             print((ExcelPrinter(days[0], days[1])

@@ -91,7 +91,7 @@ export default function DataTable(props) {
 
     return (
         <div className="DataTable">
-            <Table celled>
+            <Table striped>
                 <Table.Header>
                     {tableHeaderItems(props.tableData)}
                 </Table.Header>

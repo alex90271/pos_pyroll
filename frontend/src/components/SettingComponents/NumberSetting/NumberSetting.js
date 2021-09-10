@@ -9,10 +9,10 @@ export default function NumberSetting(props) {
     }
 
     return (
-        <div className='Setting' id="Number-setting" class='ui label input column'>
-            <h3 class='ui header'>
+        <div className={'Setting ui segment input padded column'} id="Number-setting">
+            <h5 className={'ui header'}>
                 {props.setting.displayName}
-            </h3>
+            </h5>
             <input type='number' 
             id={props.setting.outputName} 
             value={props.setting.value} 

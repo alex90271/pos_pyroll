@@ -5,8 +5,8 @@ const API = {
         .then(data => console.log(data))
     },
 
-    test(firstDay, lastDay) {
-      return fetch(`http://localhost:5000/v01/data/${firstDay}/${lastDay}/labor_main/0/0/False`)
+    test(firstDay, lastDay, jobcodes = 0, employees = 0) {
+      return fetch(`http://localhost:5000/v01/data/${firstDay}/${lastDay}/labor_main/${jobcodes}/${employees}/False`)
         .then(response => response.json());
     },
 

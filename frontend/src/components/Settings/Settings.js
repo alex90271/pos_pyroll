@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import SelectionWindow from '../SelectionWindow/SelectionWindow';
 import SettingsList from '../settingsList/settingsList';
 import Modal from '../Modal/Modal.js';
@@ -17,7 +17,7 @@ export default function Settings(props) {
     return (
         <div className='Settings'>
             <Modal 
-                openButtonLabel={<i class='cog icon'></i>}
+                openButtonLabel={'Settings'}
                 className={'settings-modal'}
                 headerText={'Settings'}
                 innerHTML={

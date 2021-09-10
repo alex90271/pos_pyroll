@@ -22,7 +22,7 @@
 }
 
 .DatePicker__input::placeholder {
-  color: #979797;
+  color: #767676;
 }
 
 .DatePicker__calendarContainer.-top + .DatePicker__calendarArrow {
@@ -556,7 +556,7 @@
 .Calendar__day.-selected,
 .Calendar__day.-selectedStart,
 .Calendar__day.-selectedEnd {
-  background: lightslategrey;
+  background: #767676;
   color: #fff;
 }
 
@@ -574,7 +574,7 @@
 
 .Calendar__day.-selectedBetween {
   background: #c2d0d4;
-  color: lightslategrey;
+  color: #767676;
   border-radius: 0;
 }
 
