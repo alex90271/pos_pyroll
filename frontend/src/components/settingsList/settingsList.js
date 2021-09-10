@@ -11,7 +11,7 @@ export default function SettingsList(props) {
         let setting = props.settings[key];
         switch (setting.dataType) {
             case 'percent':
-                return <PercentSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
+                return <PercentSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange} step={setting.step}/>;
             case 'number':
                 return <NumberSetting setting={setting} key={setting.outputName} handleSettingChange={props.handleSettingChange}/>;
             case 'bool':
@@ -27,7 +27,7 @@ export default function SettingsList(props) {
     });
 
     return (
-        <div className='SettingsList' class='ui three column equal width centered grid'>
+        <div className={'SettingsList ui two column equal width padded grid'}>
             {addedSettings}
         </div>
         

@@ -6,7 +6,7 @@ export default function PrintArea(props) {
     const availableOptions = () => {
         if (props.canPrint) {
             return (
-                <button onClick={props.print}>
+                <button onClick={props.print} className='ui light blue button'>
                     Process
                 </button>
             )

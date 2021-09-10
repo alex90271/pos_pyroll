@@ -17,7 +17,7 @@ export default function Settings(props) {
     return (
         <div className='Settings'>
             <Modal 
-                openButtonLabel={<i class='cog icon'></i>}
+                openButtonLabel={'Settings'}
                 className={'settings-modal'}
                 headerText={'Settings'}
                 innerHTML={

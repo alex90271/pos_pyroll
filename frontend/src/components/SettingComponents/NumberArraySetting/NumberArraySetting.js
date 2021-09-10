@@ -20,24 +20,28 @@ export default function NumberArraySetting(props) {
     }
     const availableSettings = props.setting.options.map((option) => {
         return (
-        <div key={props.setting.outputName + option + "div"} class='ui label'>
-            <input
-            key={props.setting.outputName + option}
-            type='checkbox' 
-            class='ui checkbox'
-            onChange={handleOnChange}
-            checked={props.setting.value.includes(option)}
-            value={option}/>
-            <label htmlFor={option}>{option}</label>
+        <div className="ui middle aligned animated list">
+                <div className="item">    
+                    <div key={props.setting.outputName + option + "div"} className={'ui toggle checkbox'}>
+                        <input
+                        key={props.setting.outputName + option}
+                        type='checkbox' 
+                        className={'ui toggle'}
+                        onChange={handleOnChange}
+                        checked={props.setting.value.includes(option)}
+                        value={option}/>
+                        <label htmlFor={option}>{option}</label>
+                    </div>
+            </div>
         </div>
         )
     })
 
     return (
-        <div className="Setting" id="Number-array-setting" class='ui label column'>
-            <h3 class='ui header'>
+        <div className={'Setting ui segment column '} id="Number-array-setting">
+            <h5 class='ui header'>
                 {props.setting.displayName}
-            </h3>
+            </h5>
             <div>
                 {availableSettings}
             </div>

@@ -7,8 +7,9 @@ export const defaultSettingsObject = {
     'tip_sales_percent': {
         displayName: "Tip Sales Percent",
         outputName: "tip_sales_percent",
+        step: 0.01,
         dataType: 'percent',
-        value: 0.03
+        value: 0.03,
     },
     'tip_amt_percent': {
         displayName: "Tip Amount Percent",

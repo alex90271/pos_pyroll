@@ -28,17 +28,17 @@ export default function Modal(props) {
 
     return (
         <div>
-            <button class='ui label button' onClick={openModal} className={props.className + '-open-button'}>
+            <button className={props.className + '-open-button ui compact button'} onClick={openModal}>
                 {props.openButtonLabel}
             </button>
             <div ref={modal} className={props.className}>
+            <button className={props.className + '-close-button ui mini right floated red icon button'} onClick={closeModal}>
+                <i className={'icon x icon'}></i>
+            </button>
                 <div className={props.className + '-header'}>
-                    <h3 class='ui header'>
+                    <h3 className={'ui header'}>
                         {props.headerText}
                     </h3>
-                    <button class='ui mini right floated red icon button' className={props.className + '-close-button'} onClick={closeModal}>
-                        <i class='icon x icon'></i>
-                    </button>
                 </div>
                 {props.innerHTML}
             </div>
