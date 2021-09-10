@@ -1,5 +1,4 @@
 database/*
 data/*
-bin/__pycache__/*
 *.xlsx
 *.csv

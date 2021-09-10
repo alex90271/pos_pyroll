@@ -21,29 +21,29 @@ export const defaultSettingsObject = {
         displayName: "Percent Sales Codes",
         outputName: "percent_sale_codes",
         dataType: 'numberArray',
-        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
-        value: [1]
+        options: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front'],
+        value: ['Register']
     },
     'percent_tip_codes': {
         displayName: "Percent Tip Codes",
         outputName: "percent_tip_codes",
         dataType: 'numberArray',
-        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
-        value: [11]
+        options: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front'],
+        value: ['Register']
     },
     'tipped_codes': {
         displayName: "Tipped Codes",
         outputName: "tipped_codes",
         dataType: 'numberArray',
-        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
-        value: [2, 3, 5, 10, 11, 12, 13, 14]
+        options: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front'],
+        value: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front']
     },
     'tracked_labor': {
         displayName: "Tracked Labor",
         outputName: "tracked_labor",
         dataType: 'numberArray',
-        options: [1, 2, 3, 5, 8, 10, 11, 12, 13, 14],
-        value: [8]
+        options: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front'],
+        value: ['Dish']
     },
     'pay_period_days': {
         displayName: "Pay Period Days",
