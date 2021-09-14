@@ -5,7 +5,7 @@ export default function WindowItem(props) {
 
     const item = useRef(null);
 
-    const toggleItem = () => {
+    const handleClick = () => {
        props.toggle(props.id, !props.selected);
     }
 
@@ -18,7 +18,7 @@ export default function WindowItem(props) {
     }, [props.selected]);
     
     return (
-        <div onClick={toggleItem} ref={item} className='WindowItem'>
+        <div onClick={handleClick} ref={item} className='WindowItem'>
             {props.innerText}
         </div>
     );

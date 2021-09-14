@@ -4,6 +4,8 @@ import SettingsList from '../settingsList/settingsList';
 import Modal from '../Modal/Modal.js';
 import './Settings.css';
 
+import Checkbox from '../SettingComponents/Checkbox/Checkbox.js';
+
 export default function Settings(props) {
 
     const getJobcodeName = (object) => {
@@ -12,6 +14,22 @@ export default function Settings(props) {
 
     const getEmployeeName = (object) => {
         return `${object.FIRSTNAME} ${object.LASTNAME}`;
+    }
+
+    const getEmployeeFilters = (filters) => {
+        if (!filters) {
+            return;
+        }
+        return filters.map((currentFilter) => {
+            return (
+                <Checkbox
+                    displayName={currentFilter.displayName}
+                    id={currentFilter.id}
+                    selected = {currentFilter.SELECTED}
+                    toggle={props.toggleEmployeeFilter}
+                />
+            );
+        });
     }
 
     return (
@@ -39,6 +57,7 @@ export default function Settings(props) {
                 options={props.employees}
                 toggle={props.toggleEmployee}
             />
+            {getEmployeeFilters(props.employeeFilters)}
         </div>
     );
 }

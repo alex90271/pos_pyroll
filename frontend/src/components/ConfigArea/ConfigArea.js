@@ -11,7 +11,27 @@ export default function ConfigArea(props) {
 
     const [canPrint, setCanPrint] = useState(false);
     const [jobcodes, setJobcodes] = useState([]);
+    const [jobcodeFilters, setJobcodeFilters] = useState({});
     const [employees, setEmployees] = useState([]);
+    const [employeeFilters, setEmployeeFilters] = useState([
+        {
+            id: 1,
+            displayName: "Show Terminated Employees",
+            SELECTED: false,
+            filter(employees) {
+                if (!this.SELECTED) {
+                    employees.map((employee) => {
+                        if (employee.TERMINATED === "Y") {
+                            employee.DISPLAY = false;
+                        }
+                    });
+                    return employees;
+                } else {
+                    return employees;
+                }
+            },
+        }
+    ]);
     const [settings, setSettings] = useState(defaultSettingsObject);
     const [selectedDayRange, setSelectedDayRange] = useState({
         from: null,
@@ -22,7 +42,9 @@ export default function ConfigArea(props) {
         API.jobcodes()
             .then(response => {
                 response.map((jobcode) => {
-                    return jobcode['SELECTED'] = false;
+                    jobcode['SELECTED'] = false;
+                    jobcode['DISPLAY'] = true;
+                    return jobcode;
                 });
                 setJobcodes(response);
             });
@@ -31,15 +53,12 @@ export default function ConfigArea(props) {
     useEffect(() => {
         API.employees()
             .then(response => {
-                response
-                    .map((employee) => {
-                        return employee['SELECTED'] = false;
-                })
-                    .filter((employee) => {
-                        return employee.TERMINATED === "N";
-                    })
-                    console.log(response);
-                setEmployees(response);
+                response.map((employee) => {
+                    employee['SELECTED'] = false;
+                    employee['DISPLAY'] = true;
+                    return employee;
+                });
+                setEmployees(applyEmployeeFilters(response));
             });
     }, []);
 
@@ -50,6 +69,12 @@ export default function ConfigArea(props) {
             setCanPrint(false);
         }
     }, [selectedDayRange]);
+
+    // useEffect(() => {
+    //     setEmployees((prevState) => {
+    //         return applyEmployeeFilters(prevState);
+    //     });
+    // }, [employeeFilters, employees]);
 
     const toggleJobcode = (id, newValue) => {
         setJobcodes((prevState) => {
@@ -68,6 +93,36 @@ export default function ConfigArea(props) {
             output[index].SELECTED = newValue;
             return output;
         });
+    }
+
+    const toggleEmployeeFilter = (id, newValue) => {
+        setEmployeeFilters((prevState) => {
+            let output = [...prevState];
+            let index = prevState.findIndex((element) => element.id === id);
+            output[index].SELECTED = newValue;
+            return output;
+        });
+        setEmployees((prevState) => {
+            return applyEmployeeFilters(prevState);
+        });
+    }
+
+    const showAllEmployees = (employees) => {
+        employees.map((employee) => {
+            employee.DISPLAY = true;
+        })
+        return employees;
+    }
+
+    const applyEmployeeFilters = (employees) => {
+        if (!employees) {
+            return;
+        }
+        employees = showAllEmployees(employees);
+        employeeFilters.forEach((currentFilter) => {
+            employees = currentFilter.filter(employees);
+        });
+        return employees;
     }
 
     function handleSettingChange(newSetting) {
@@ -141,8 +196,11 @@ export default function ConfigArea(props) {
                 handleSettingChange={handleSettingChange}
                 jobcodes={jobcodes}
                 toggleJobcode={toggleJobcode}
+                jobcodeFilters={jobcodeFilters}
                 employees={employees}
                 toggleEmployee={toggleEmployee}
+                employeeFilters={employeeFilters}
+                toggleEmployeeFilter={toggleEmployeeFilter}
             />
             
         </div>

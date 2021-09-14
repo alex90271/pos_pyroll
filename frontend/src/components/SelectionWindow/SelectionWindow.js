@@ -8,18 +8,21 @@ export default function SelectionWindow(props) {
         if (!array) {
             return;
         }
-        let output = [];
+        const output = [];
         array.forEach((item) => {
+            if (!item.DISPLAY) {
+                return;
+            }
             output.push(
                 <WindowItem
                     innerText={props.parsingFunction(item)}
-                    key={item.ID}
+                    key={props.title + item.ID}
                     id={item.ID}
                     toggle={props.toggle}
                     selected={item.SELECTED}
                 />
             );
-        })
+        });
         return output;
     }
 
