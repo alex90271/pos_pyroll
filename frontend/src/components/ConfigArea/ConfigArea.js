@@ -122,6 +122,16 @@ export default function ConfigArea(props) {
         employeeFilters.forEach((currentFilter) => {
             employees = currentFilter.filter(employees);
         });
+        employees = unSelectAllNotDisplayedEmployees(employees);
+        return employees;
+    }
+
+    const unSelectAllNotDisplayedEmployees = (employees) => {
+        employees.map((employee) => {
+            if (!employee.DISPLAY) {
+                employee.SELECTED = false;
+            }
+        });
         return employees;
     }
 
