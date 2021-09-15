@@ -8,7 +8,7 @@ export default function Checkbox(props) {
     }
 
     return (
-        <div className="Checkbox" className={'ui toggle checkbox'}>
+        <div className="Checkbox ui toggle checkbox">
               <input 
                 type="checkbox"
                 onChange={handleOnChange}
