@@ -2,14 +2,14 @@ import './ConfigArea.css';
 import './calendar.css';
 import React, { useState, useEffect } from 'react';
 import { Calendar } from 'react-modern-calendar-datepicker';
-import PrintArea from '../PrintArea/PrintArea.js';
+import ProcessArea from '../ProcessArea/ProcessArea.js';
 import Settings from '../Settings/Settings.js';
 import API from '../util/API.js';
 import { defaultSettingsObject } from '../../defaultSettingsObject';
 
 export default function ConfigArea(props) {
 
-    const [canPrint, setCanPrint] = useState(false);
+    const [canProcess, setCanProcess] = useState(false);
     const [jobcodes, setJobcodes] = useState([]);
     const [jobcodeFilters, setJobcodeFilters] = useState({});
     const [employees, setEmployees] = useState([]);
@@ -65,9 +65,9 @@ export default function ConfigArea(props) {
 
     useEffect(() => {
         if (selectedDayRange.from && selectedDayRange.to) {
-            setCanPrint(true);
+            setCanProcess(true);
         } else {
-            setCanPrint(false);
+            setCanProcess(false);
         }
     }, [selectedDayRange]);
 
@@ -180,7 +180,7 @@ export default function ConfigArea(props) {
         }
     }
 
-    function print() {
+    function process() {
         const range = selectedDayRange;
         API.test(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
             .then(data => {
@@ -199,9 +199,9 @@ export default function ConfigArea(props) {
                     shouldHighlightWeekends
                 />
             </div>
-            <PrintArea
-                canPrint={canPrint}
-                print={print}
+            <ProcessArea
+                canProcess={canProcess}
+                process={process}
                 displayedRange={displayedRange()}
             />
             <Settings

@@ -1,12 +1,12 @@
 import React from 'react';
-import './PrintArea.css';
+import './ProcessArea.css';
 
-export default function PrintArea(props) {
+export default function ProcessArea(props) {
 
     const availableOptions = () => {
-        if (props.canPrint) {
+        if (props.canProcess) {
             return (
-                <button onClick={props.print} className='ui light blue button'>
+                <button onClick={props.process} className='ui light blue button'>
                     Process
                 </button>
             )
@@ -20,7 +20,7 @@ export default function PrintArea(props) {
     }
 
     return (
-        <div className='PrintArea'>
+        <div className='ProcessArea'>
             <h3>
                 {props.displayedRange}
             </h3>
