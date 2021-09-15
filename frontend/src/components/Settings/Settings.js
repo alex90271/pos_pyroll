@@ -24,6 +24,7 @@ export default function Settings(props) {
             return (
                 <Checkbox
                     displayName={currentFilter.displayName}
+                    key={"Checkbox-" + currentFilter.displayName}
                     id={currentFilter.id}
                     selected = {currentFilter.SELECTED}
                     toggle={props.toggleEmployeeFilter}

@@ -24,6 +24,7 @@ export default function ConfigArea(props) {
                         if (employee.TERMINATED === "Y") {
                             employee.DISPLAY = false;
                         }
+                        return employee;
                     });
                     return employees;
                 } else {
@@ -110,7 +111,8 @@ export default function ConfigArea(props) {
     const showAllEmployees = (employees) => {
         employees.map((employee) => {
             employee.DISPLAY = true;
-        })
+            return employee;
+        });
         return employees;
     }
 
@@ -131,6 +133,7 @@ export default function ConfigArea(props) {
             if (!employee.DISPLAY) {
                 employee.SELECTED = false;
             }
+            return employee;
         });
         return employees;
     }
