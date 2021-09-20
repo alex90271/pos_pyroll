@@ -38,6 +38,13 @@ export default function ConfigArea(props) {
         from: null,
         to: null
     });
+    const today = new Date();
+    const maxDate = {
+        year: today.getFullYear(),
+        month: today.getMonth() + 1, //date returns month number 0-11, calendar needs 1-12, so add one
+        day: today.getDate()-1 //cannot process same day at this time, so select yesterday as max date
+      };
+
 
     useEffect(() => {
         API.jobcodes()
@@ -197,6 +204,7 @@ export default function ConfigArea(props) {
                     onChange={setSelectedDayRange}
                     inputPlaceholder='Select a day'
                     shouldHighlightWeekends
+                    maximumDate={maxDate}
                 />
             </div>
             <ProcessArea
