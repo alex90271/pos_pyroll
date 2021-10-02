@@ -246,14 +246,13 @@ class ProcessLabor():
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
         return tdf
+    def calc_emps_in_day(self):
+        return self.df['EMPLOYEE']
 
 if __name__ == '__main__':
 
     def main():
         #print("loading ProcessTips.py")
-        print(ProcessLabor("20210807").calc_tiprate_df())
-        print(ProcessLabor("20210807").get_unallocated_tips())
-        print(ProcessLabor("20210807").calc_hourly_labor().to_csv('out.csv'))
-    r = 1
-    f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
+        print(ProcessLabor("20210807").calc_emps_in_day())
+    f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=1)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

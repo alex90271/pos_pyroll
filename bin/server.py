@@ -48,6 +48,13 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
     else:
         raise ValueError('Print argument not passed a bool type')
 
+@app.route('/v01/employees/in_period/<day_one>/<day_two>')
+def employees_in_period(day_one, day_two):
+    result = ReportWriter(day_one,day_two).employees_in_dates()
+    print(result)
+    return jsonify(result.to_dict(orient='index'))
+
+
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
     return jsonify(ChipConfig()

@@ -2,8 +2,12 @@ import datetime
 import numpy as np
 import pandas as pd
 import timeit
+import os
+from debug import Debugger
 from chip_config import ChipConfig
 from dbfread import DBF
+
+from debug import Debugger
 #from itertools import izip
 
 class QueryDB():
@@ -26,41 +30,71 @@ class QueryDB():
         else:
             self.data = data #data, meaning the date folder
 
+        if ChipConfig().query('SETTINGS','debug'):
+            try:
+                count = os.environ['debug_db_warning_count_var']
+            except:
+                print('RUNNING DEBUG DATABASE [query_db.py)]')
+            os.environ['debug_db_warning_count_var'] = 'True'
+
     def get_day(self):
         return self.data
     
     def dbf_to_list(self, dbf):
         '''takes in a database object and reads it as a list for further processing'''
-        c = ChipConfig()
-        a = pd.DataFrame([])
+        path = ChipConfig().query('SETTINGS','database')
+        dbf_list = pd.DataFrame([])
+        if ChipConfig().query('SETTINGS','debug'):
+            if dbf == '/ADJTIME.DBF':
+                return Debugger().generate_debug_db(self.data)
+
+            elif dbf == '/EMP.Dbf':
+                a = Debugger().gen_data_dbfs('EMP')
+                return a
+
+            elif dbf == '/JOB.Dbf':
+                a = Debugger().gen_data_dbfs('JOBCODES')
+                return a
+            
         try:
-            a = DBF(c.query('SETTINGS','database') + self.data + dbf, char_decode_errors='ignore', load=False)
+            dbf_list = DBF(path + self.data + dbf, char_decode_errors='ignore', load=False)
         except:
-            print(c.query('SETTINGS','database') + self.data + dbf + ' was not found')
-        return a
+            print(path + self.data + dbf + ' could not be accessed or does not exist')
+    
+        return dbf_list
 
     def process_db(self, db_type):
         '''possible options: employees, jobcodes, labor'''
         #print("processing_db")
         if db_type == 'employees':
             a = self.dbf_to_list('/EMP.Dbf')
-            df = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']).sort_values(by='ID')
-            return df
+            if ChipConfig().query('SETTINGS','debug'):
+                d = pd.DataFrame(a)
+            else:
+                d = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']).sort_values(by='ID')
+            return d
         elif db_type == 'jobcodes':
             a = self.dbf_to_list('/JOB.Dbf')
-            df = pd.DataFrame(a, columns=['ID', 'SHORTNAME']).sort_values(by='ID')
-            return df
+            if ChipConfig().query('SETTINGS','debug'):
+                d = pd.DataFrame(a)
+            else:
+                d = pd.DataFrame(a, columns=['ID', 'SHORTNAME']).sort_values(by='ID')
+            return d
         elif db_type == 'labor':
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR LABOR DATA')
             a = self.dbf_to_list('/ADJTIME.DBF')
-            db_type = db_type + self.data
-            df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
-                                          'CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE',
-                                          'RATE', 'TIPSHCON'])
-            df = df.loc[np.where(df['INVALID'] == 'N')] #get rid of any invalid shifts (deleted or shifts that have been edited)
-            df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values) #when the data is pulled in and HOURS includes OVERHRS
-            return df
+            if ChipConfig().query('SETTINGS','debug'):
+                data = pd.DataFrame(pd.DataFrame(data=a[1], columns=a[0]))
+                return data
+            else:
+                db_type = db_type + self.data
+                df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
+                                            'CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE',
+                                            'RATE', 'TIPSHCON'])
+                df = df.loc[np.where(df['INVALID'] == 'N')] #get rid of any invalid shifts (deleted or shifts that have been edited)
+                df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values) #when the data is pulled in and HOURS includes OVERHRS
+                return df
 
         elif db_type == 'transactions': #this isn't used yet
             if self.data == 'Data':
@@ -85,7 +119,7 @@ class QueryDB():
             df = a_df.merge(b_df, on=shared_cols, how='left') #merge them on their shared columns and return the result
             return df
 
-    def process_names(self, df, rename_columns=True):
+    def process_names(self, df, rename_columns=True, emp_bool=True, job_bool=True):
         '''takes in a dataframe, with employee IDs and appends the employee name
             assumes the employee number columns is named 'ID'
 
@@ -93,18 +127,25 @@ class QueryDB():
             Only reads the massive name database and appends right before returning as report
         '''
         #print('adding names')
-        job = self.process_db('jobcodes')
-        emp = self.process_db('employees')
+        if job_bool:
+            job = self.process_db('jobcodes')
+        if emp_bool:
+            emp = self.process_db('employees')
+        #print(job,emp)
 
         if rename_columns:
-            emp = emp.rename(columns={'ID':'EMPLOYEE'})
-            job = job.rename(columns={'ID': 'JOBCODE'})
-            job = job.rename(columns={'SHORTNAME': 'JOB_NAME'})
+            if emp_bool:
+                emp = emp.rename(columns={'ID':'EMPLOYEE'})
+            if job_bool:
+                job = job.rename(columns={'ID': 'JOBCODE'})
+                job = job.rename(columns={'SHORTNAME': 'JOB_NAME'})
         else:
             print('process_names function: rename columns is set to false')
 
-        df = df.merge(job, on='JOBCODE')
-        df = df.merge(emp, on='EMPLOYEE')
+        if job_bool:
+            df = df.merge(job, on='JOBCODE')
+        if emp_bool:
+            df = df.merge(emp, on='EMPLOYEE')
 
         return df
 
@@ -127,7 +168,7 @@ if __name__ == '__main__':
 
     def main():
         #print("loading process_tips.py")
-        result = QueryDB("20210416").process_db('labor_hourly')
+        result = QueryDB("20210803").process_db('labor')
         print(result)
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)

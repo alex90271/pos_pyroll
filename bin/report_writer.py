@@ -38,10 +38,13 @@ class ReportWriter():
                     averaged_cols: list,
                     labor_main=False                    
                     ):
-        for col in totaled_cols:
-            df.loc['TTL', col] = np.sum(df[col])
-        for col in averaged_cols:
-            df.loc['TTL', col] = np.mean(df[col])
+        try:
+            for col in totaled_cols:
+                df.loc['TTL', col] = np.sum(df[col])
+            for col in averaged_cols:
+                df.loc['TTL', col] = np.mean(df[col])
+        except:
+            pass
 
         #the employee column will be turned into the INDEX later
         if labor_main:
@@ -113,7 +116,6 @@ class ReportWriter():
         df = pd.concat(a)
         #if any filter options are provided, fliter the data now. 
         #While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data 
-       # print(selected_employees,selected_jobs)
         if selected_employees and selected_jobs:
             df = df.loc[df['JOBCODE'].isin(selected_jobs) & df['EMPLOYEE'].isin(selected_employees)]
         elif selected_employees:
@@ -129,21 +131,17 @@ class ReportWriter():
                 index_cols.remove('JOB_NAME')
             except:
                 print('JOB_NAME not specified')
-
         df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")        
-
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
         _df.drop(drop_cols, axis=1, inplace=True) #if there any any columns passed in to drop, drop them
         _df = pd.pivot_table(_df,
                             index=index_cols,
                             aggfunc=np.sum, 
                             fill_value=np.NaN)
-
         #if any additonal columns are requested, add them        
         if addl_cols is not None:
             for col in addl_cols:
                  _df[col] = np.nan
-
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         _df.reset_index(inplace=True)
         if nightly == True:
@@ -153,6 +151,14 @@ class ReportWriter():
         _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
         _df.set_index('EMPLOYEE', inplace=True)
         _df.index.rename('ID', inplace=True)
+        return _df
+
+    def employees_in_dates(self):
+        a = [labor(day).calc_emps_in_day() for day in self.days]
+        df = pd.DataFrame(pd.concat(a))
+        print(df)
+        df.drop_duplicates(inplace=True)
+        _df = query_db(self.days[len(self.days)-1]).process_names(df=df,job_bool=False)
         return _df
 
     def print_to_json(
@@ -210,9 +216,7 @@ if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        a = ReportWriter('20210416','20210430').labor_hourly()
-        a = a.loc[a['JOBID'] == 8]
-        a.to_csv('out.csv')
+        print(ReportWriter('20210601','20210630').employees_in_dates())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

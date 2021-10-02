@@ -56,15 +56,15 @@ if __name__ == '__main__':
         day_list = [["20190624", "20190824"]]
 
         for days in day_list:
-            print((ExcelPrinter(days[0], days[1])
+            (ExcelPrinter(days[0], days[1])
                 .print_to_excel(
                     'labor_nightly',
                     selected_employees=select_emps, 
-                    selected_jobs=select_jobs)))
+                    selected_jobs=select_jobs))
 
         for days in day_list:
-            print((ExcelPrinter(days[0], days[1])
-                .print_to_excel('labor_rate')))
+            (ExcelPrinter(days[0], days[1])
+                .print_to_excel('labor_rate'))
                 
     
     debug = True

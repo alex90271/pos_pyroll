@@ -132,6 +132,7 @@ returns, for each shift:
         "MEALS":0
     }
 
+
 /v01/data/change/<str: day>/{request_body}
 
     Expected Body-- These are net changes to the orignial data
@@ -182,3 +183,7 @@ returns, for each shift:
 
     returns a list of employees and their employee number
     employees with the TERMINATED: Y flag are, terminated. Their data is pulled for historical reporting
+
+/v01/employees/in_period/<str: day_one>/<str: day_two>
+    
+    returns a dataframe of employees and their names that are available during the specified period
