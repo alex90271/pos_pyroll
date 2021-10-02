@@ -44,16 +44,7 @@ if __name__ == '__main__':
         #print(ReportWriter(day_one,day_two).print_to_json('tip_rate'))
         #print(ReportWriter(day_one,day_two).print_to_json('labor_rate'))
         #print(ReportWriter(day_one,day_two).print_to_json('cout_eod'))
-        day_list = [["20210621", "20210626"],
-                    ["20210628", "20210703"], 
-                    ["20210705", "20210710"], 
-                    ["20210712", "20210717"], 
-                    ["20210719", "20210724"], 
-                    ["20210726", "20210731"],
-                    ["20210802", "20210807"],
-                    ["20210816", "20210821"],
-                    ["20210823", "20210828"]]
-        day_list = [["20190624", "20190824"]]
+        day_list = [["20210601", "20210630"]]
 
         for days in day_list:
             (ExcelPrinter(days[0], days[1])
