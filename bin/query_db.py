@@ -131,14 +131,15 @@ class QueryDB():
             job = self.process_db('jobcodes')
         if emp_bool:
             emp = self.process_db('employees')
-        #print(job,emp)
 
         if rename_columns:
             if emp_bool:
-                emp = emp.rename(columns={'ID':'EMPLOYEE'})
+                emp.rename(columns={'ID':'EMPLOYEE'}, inplace=True)
+                print(emp)
             if job_bool:
-                job = job.rename(columns={'ID': 'JOBCODE'})
-                job = job.rename(columns={'SHORTNAME': 'JOB_NAME'})
+                job.rename(columns={'ID': 'JOBCODE'}, inplace=True)
+                job.rename(columns={'SHORTNAME': 'JOB_NAME'},inplace=True)
+                print(job)
         else:
             print('process_names function: rename columns is set to false')
 

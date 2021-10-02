@@ -11,6 +11,7 @@ class Debugger():
         return random.randint(top, bottom)
     
     def gen_data_dbfs(self, db_type):
+        data = []
         if db_type == 'EMP': #needs 10 employees
             names = [
                     ('Alex','Alder'),('Colby','Baker'),
@@ -19,16 +20,19 @@ class Debugger():
                     ('Zoe','Ball'),('Charlie','Duncan'),
                     ('David','Davidson'),('Harrison','Baahls')
                     ]
-            data = [['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']]
+            data_header = ['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']
             for i in range(1001,1011):
                 data.append([i,names[i-1001][0],names[i-1001][1],'N'])
 
         elif db_type == 'JOBCODES': #needs 5 jobcodes
             names=['Server','Host','Kitchen','Dish','Takeout'] #1,2,3,4,5
-            data = [['ID', 'SHORTNAME']]
-            for i in range(1,6):
-                data.append([i, names[i-1]])
-        return pd.DataFrame(data)
+            data_header = ['ID', 'SHORTNAME']
+            for i in range(0,5):
+                data.append([i+1,names[i]])
+
+        print(data)
+        return pd.DataFrame(data, columns=data_header)
+
 
     def generate_debug_db(self, datestr):
         '''generates the default config file, with default settings. To reset config file, just delete it'''

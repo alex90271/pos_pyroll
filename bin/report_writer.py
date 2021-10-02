@@ -156,7 +156,6 @@ class ReportWriter():
     def employees_in_dates(self):
         a = [labor(day).calc_emps_in_day() for day in self.days]
         df = pd.DataFrame(pd.concat(a))
-        print(df)
         df.drop_duplicates(inplace=True)
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df,job_bool=False)
         return _df
