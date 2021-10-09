@@ -38,13 +38,6 @@ export const defaultSettingsObject = {
         options: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front'],
         value: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front']
     },
-    'tracked_labor': {
-        displayName: "Tracked Labor",
-        outputName: "tracked_labor",
-        dataType: 'numberArray',
-        options: ['Server', 'Assist', 'Expo', 'B/D', 'Dish', 'Kitchen', 'Register', 'Bag', 'Seat', 'Front'],
-        value: ['Dish']
-    },
     'pay_period_days': {
         displayName: "Pay Period Days",
         outputName: "pay_period_days",

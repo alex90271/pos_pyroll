@@ -1,0 +1,15 @@
+.EditedSettingsBox {
+    height: 40;
+    background-color: white;
+    border-top: black 1px solid;
+    z-index: 100;
+}
+
+#EditedSettingsBox-revert{
+    margin-right: 60px;
+}
+
+#EditedSettingsBox-save{
+    pointer-events: none;
+    opacity: 40%;
+}

@@ -7,6 +7,9 @@ import NumberArraySetting from '../SettingComponents/NumberArraySetting/NumberAr
 import PathSetting from '../SettingComponents/PathSetting/PathSetting';
 
 export default function SettingsList(props) {
+    if (!props.settings) {
+        return null;
+    }
     let addedSettings = Object.keys(props.settings).map((key) => {
         let setting = props.settings[key];
         switch (setting.dataType) {

@@ -1,0 +1,50 @@
+// function Filters () {
+//     let filters = [
+//         {
+//             id: 1,
+//             displayName: "Show Terminated Employees",
+//             SELECTED: false,
+//             AVAILABLE: true,
+//             filter(employees) {
+//                 if (!this.SELECTED) {
+//                     employees.map((employee) => {
+//                         if (employee.TERMINATED === "Y") {
+//                             employee.DISPLAY = false;
+//                         }
+//                         return employee;
+//                     });
+//                     return employees;
+//                 } else {
+//                     return employees;
+//                 }
+//             },
+//         }, 
+//         {
+//             id: 2,
+//             displayName: "Only show employees active during the selected time frame",
+//             SELECTED: false,
+//             AVAILABLE: false,
+//             filter(employees) {
+//                 if (this.SELECTED) {
+//                     if (!canProcess || !preflightReportData) {
+//                         throw Error("Active employee filter was fired with poor context (canProcess or preflightReportData)");
+//                     }
+//                     employees.map((employee) => {
+//                         let employeeInPreflight = false;
+//                         Object.keys(preflightReportData).forEach((key) => {
+//                             if (preflightReportData[key].FIRSTNAME === employee.FIRSTNAME && preflightReportData[key].LASTNAME === employee.LASTNAME) {
+//                                 employeeInPreflight = true;
+//                             }
+//                         });
+//                         if (!employeeInPreflight) {
+//                             employee.DISPLAY = false;
+//                         }
+//                         return employee;
+//                     });
+//                 } else {
+//                     return employees;
+//                 }
+//             }
+//         }
+//     ]
+// }

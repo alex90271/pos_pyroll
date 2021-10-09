@@ -10,7 +10,7 @@
     width: 50%;
     margin: 20px;
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
     transition: 175ms ease-in-out;
@@ -18,7 +18,6 @@
     border-radius: 10px;
     background-color: white;
     z-index: 100;
-    overflow-y: scroll;
     height: 75%;
 }
 

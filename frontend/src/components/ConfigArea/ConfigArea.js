@@ -6,6 +6,7 @@ import ProcessArea from '../ProcessArea/ProcessArea.js';
 import Settings from '../Settings/Settings.js';
 import API from '../util/API.js';
 import { defaultSettingsObject } from '../../defaultSettingsObject';
+import Lodash from 'lodash';
 
 export default function ConfigArea(props) {
 
@@ -18,6 +19,7 @@ export default function ConfigArea(props) {
             id: 1,
             displayName: "Show Terminated Employees",
             SELECTED: false,
+            AVAILABLE: true,
             filter(employees) {
                 if (!this.SELECTED) {
                     employees.map((employee) => {
@@ -31,9 +33,38 @@ export default function ConfigArea(props) {
                     return employees;
                 }
             },
+        }, 
+        {
+            id: 2,
+            displayName: "Only show employees active during the selected time frame",
+            SELECTED: false,
+            AVAILABLE: false,
+            filter(employees) {
+                if (this.SELECTED) {
+                    if (!canProcess || !preflightReportData) {
+                        throw Error("Active employee filter was fired with poor context (canProcess or preflightReportData)");
+                    }
+                    employees.map((employee) => {
+                        let employeeInPreflight = false;
+                        Object.keys(preflightReportData).forEach((key) => {
+                            if (preflightReportData[key].FIRSTNAME === employee.FIRSTNAME && preflightReportData[key].LASTNAME === employee.LASTNAME) {
+                                employeeInPreflight = true;
+                            }
+                        });
+                        if (!employeeInPreflight) {
+                            employee.DISPLAY = false;
+                        }
+                        return employee;
+                    });
+                } else {
+                    return employees;
+                }
+            }
         }
     ]);
-    const [settings, setSettings] = useState(defaultSettingsObject);
+    const [settingsFromBackend, setSettingsFromBackend] = useState();
+    const [settings, setSettings] = useState();
+    const [settingsChanged, setSettingsChanged] = useState(false);
     const [selectedDayRange, setSelectedDayRange] = useState({
         from: null,
         to: null
@@ -45,7 +76,11 @@ export default function ConfigArea(props) {
         day: today.getDate()-1 //cannot process same day at this time, so select yesterday as max date
       };
 
+    const [preflightReportData, setPreflightReportData] = useState();
 
+    //On startup this useEffect will use the API to get jobcodes and settings from the backend.
+    //The jobcodes stored in the settings object are stored using their code-number only.
+    //We use the jobcode objects from the previous get query in order to map and display their names.
     useEffect(() => {
         API.jobcodes()
             .then(response => {
@@ -55,7 +90,17 @@ export default function ConfigArea(props) {
                     return jobcode;
                 });
                 setJobcodes(response);
-            });
+                return response;
+            })
+            .then(jobcodes => {
+                API.settings()
+                    .then(data => {
+                        //formatSettings is called twice in order to prevent reference issues.
+                        //the objects passed into setState need to be separate.
+                        setSettingsFromBackend(formatSettings(data, defaultSettingsObject, jobcodes));
+                        setSettings(formatSettings(data, defaultSettingsObject, jobcodes));
+                    });
+            })
     }, []);
 
     useEffect(() => {
@@ -73,10 +118,75 @@ export default function ConfigArea(props) {
     useEffect(() => {
         if (selectedDayRange.from && selectedDayRange.to) {
             setCanProcess(true);
+            const range = selectedDayRange;
+            API.test(formatDate(range.from), formatDate(range.to))
+                .then((data) => {
+                    setPreflightReportData(data);
+                });
         } else {
             setCanProcess(false);
+            //setPreflightReportData();
         }
     }, [selectedDayRange]);
+
+    useEffect(() => {
+        //props.setEditedTableData();
+        if (canProcess) {
+            process();
+        }
+    }, [settings, jobcodes, employees])
+
+    //Checks to see if settings have been changed by user
+    //in order to display the save and revert options.
+    useEffect(() => {
+        console.log(settings);
+        // console.log(settingsFromBackend);
+        let haveChanged = false;
+        for (const currentSetting in settings) {
+            if (settings[currentSetting].dataType != 'numberArray') {
+                if (settings[currentSetting].value != settingsFromBackend[currentSetting].value) {
+                    haveChanged = true;
+                }
+            } else {
+                const valueArray = settings[currentSetting].value;
+                const backendValueArray = settingsFromBackend[currentSetting].value;
+
+                if (valueArray.length != backendValueArray.length) {
+                    haveChanged = true;
+                }
+                valueArray.forEach(currentValue => {
+                    const index = backendValueArray.findIndex(currentBackendValue => {
+                        if (currentValue.value === currentBackendValue.value) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+                    if (index === -1) {
+                        haveChanged = true;
+                    }
+                });
+            }
+        }
+        setSettingsChanged(haveChanged);
+    }, [settings])
+
+    // useEffect(() => {
+    //     if (canProcess && preflightReportData) {
+    //         setEmployeeFilters((prevState) => {
+    //             let output = [...prevState];
+    //             console.log(output)
+    //             let index = output.findIndex((element) => element.ID === 2);
+    //             output[index].AVAILABLE = true;
+    //         });
+    //     } else if (employeeFilters[1].AVAILABLE) {
+    //         setEmployeeFilters((prevState) => {
+    //             let output = [...prevState];
+    //             let index = prevState.findIndex((element) => element.ID === 2);
+    //             output[index].AVAILABLE = false;
+    //         });
+    //     }
+    // }, [canProcess, preflightReportData]);
 
     // useEffect(() => {
     //     setEmployees((prevState) => {
@@ -116,9 +226,8 @@ export default function ConfigArea(props) {
     }
 
     const showAllEmployees = (employees) => {
-        employees.map((employee) => {
+        employees.forEach((employee) => {
             employee.DISPLAY = true;
-            return employee;
         });
         return employees;
     }
@@ -187,11 +296,66 @@ export default function ConfigArea(props) {
         }
     }
 
-    function process() {
+    const formatSettings = (backendSettingsArray, defaultSettings, backendJobcodes) => {
+        let output = {};
+        Object.keys(defaultSettings).forEach(currentSetting => {
+            if (currentSetting in backendSettingsArray) {
+                output[currentSetting] = Object.assign({}, defaultSettings[currentSetting]);
+                if (defaultSettings[currentSetting].dataType === 'numberArray') {
+                    let valueArray = backendSettingsArray[currentSetting].split(',');
+                    valueArray = addDisplayNamesToValues(backendJobcodes, valueArray);
+                    output[currentSetting].value = valueArray;
+                    let optionsArray = getOptionsArray(backendJobcodes);
+                    output[currentSetting].options = optionsArray;
+                } else {
+                    output[currentSetting].value = backendSettingsArray[currentSetting];
+                }
+            } else {
+                console.log(`Could not find setting from backend: ${currentSetting}`);
+            }
+        });
+        return output;
+    }
+
+    const addDisplayNamesToValues = (backendJobcodes, backendSettingsArray) => {
+        if (!backendJobcodes) {
+            return backendSettingsArray;
+        }
+        const output = [];
+        backendSettingsArray.forEach(setting => {
+            backendJobcodes.forEach(jobcode => {
+                if (jobcode.ID == setting) {
+                    output.push({
+                        value: setting,
+                        displayName: jobcode.SHORTNAME
+                    });
+                }
+            });
+        });
+        return output;
+    }
+
+    const getOptionsArray = (backendJobcodes) => {
+        return backendJobcodes.map((jobcode) => {
+            return ({
+                value: String(jobcode.ID),
+                displayName: jobcode.SHORTNAME
+            });
+        });
+    }
+
+    const saveSettings = () => {
+        API.saveSettings(settings);
+    }
+
+    const revertSettings = () => {
+        setSettings(Lodash.cloneDeep(settingsFromBackend));
+    }
+
+    const process = () => {
         const range = selectedDayRange;
-        API.test(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
+        API.process(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
             .then(data => {
-            //console.log(data);
             props.setEditedTableData(data);
             });
     }
@@ -222,6 +386,9 @@ export default function ConfigArea(props) {
                 toggleEmployee={toggleEmployee}
                 employeeFilters={employeeFilters}
                 toggleEmployeeFilter={toggleEmployeeFilter}
+                saveSettings={saveSettings}
+                revertSettings={revertSettings}
+                settingsChanged={settingsChanged}
             />
             
         </div>

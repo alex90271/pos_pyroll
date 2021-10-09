@@ -2,3 +2,13 @@
     width: 1000px;
     overflow: scroll;
 }
+
+.empty-data-table {
+    width: 1000px;
+}
+
+.TableHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}

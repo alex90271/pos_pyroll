@@ -2,40 +2,64 @@ import React from 'react';
 import './NumberArraySetting.css';
 
 export default function NumberArraySetting(props) {
-
+    
     const handleOnChange = (e) => {
-        const selectedNumber = Number(e.target.value);
-        let newArray;
-        if (props.setting.value.includes(selectedNumber)) {
-            newArray = props.setting.value.filter((item) => {
-                return item !== selectedNumber;
+        let scopedSetting = Object.assign({}, props.setting);
+        const selectedOption = scopedSetting.options.find(currentOption => {
+            return currentOption.value === e.target.value;
+        });
+
+        let isInValueArray = scopedSetting.value.findIndex(value => {
+            if (value.value === e.target.value) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        isInValueArray === -1 ? isInValueArray = false : isInValueArray = true;
+        
+        let newArray = [];
+        if (isInValueArray) {
+            newArray = scopedSetting.value.filter((item) => {
+                return item.value !== selectedOption.value;
             });
         } else {
-            newArray = props.setting.value;
-            newArray.push(selectedNumber);
+            newArray = scopedSetting.value;
+            newArray.push(selectedOption);
         }
-        let newSetting = props.setting;
-        newSetting.value = newArray;
-        props.handleSettingChange(newSetting);
+        scopedSetting.value = newArray;
+        props.handleSettingChange(scopedSetting);
     }
-    const availableSettings = props.setting.options.map((option) => {
-        return (
-        <div className="ui middle aligned animated list" key={props.setting.outputName + option + "div"}>
-                <div className="item">    
-                    <div className={'ui toggle checkbox'}>
-                        <input
-                        key={props.setting.outputName + option}
-                        type='checkbox' 
-                        className={'ui toggle'}
-                        onChange={handleOnChange}
-                        checked={props.setting.value.includes(option)}
-                        value={option}/>
-                        <label htmlFor={option}>{option}</label>
-                    </div>
+
+    const getAvailableSettings = (setting) => {
+        if (!setting.options) {
+            return;
+        }
+        const output = setting.options.map((option) => {
+
+            const isChecked = setting.value.some(currentValue => {
+                return currentValue.value == option.value
+            });
+
+            return (
+            <div className="ui middle aligned animated list" key={`${setting.outputName} ${option.displayName} div`}>
+                    <div className="item">    
+                        <div className={'ui toggle checkbox'}>
+                            <input
+                            key={setting.outputName + option.displayName}
+                            type='checkbox' 
+                            className={'ui toggle'}
+                            onChange={handleOnChange}
+                            checked={isChecked}
+                            value={option.value}/>
+                            <label htmlFor={option.displayName}>{option.displayName}</label>
+                        </div>
+                </div>
             </div>
-        </div>
-        )
-    })
+            )
+        })
+        return output;
+    }
 
     return (
         <div className={'Setting ui segment column '} id="Number-array-setting">
@@ -43,7 +67,7 @@ export default function NumberArraySetting(props) {
                 {props.setting.displayName}
             </h5>
             <div>
-                {availableSettings}
+                {getAvailableSettings(props.setting)}
             </div>
         </div>
     );

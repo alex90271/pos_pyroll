@@ -10,7 +10,8 @@ export default function EditedTableWarning (props) {
                         Table above has unsaved changes, would you like to revert back to original?
                     </h2>
                     <button
-                        onClick={props.revertBackToOriginal}>
+                        onClick={props.revertBackToOriginal}
+                        >
                         Revert
                     </button>
                 </div>
@@ -26,7 +27,7 @@ export default function EditedTableWarning (props) {
     }
 
     return (
-        <div className={props.tableEdited ? 'table-edited' : 'table-not-edited'}>
+        <div className={`EditedTableWarning ${props.tableEdited ? 'table-edited' : 'table-not-edited'}`}>
             {content()}
         </div>
     )

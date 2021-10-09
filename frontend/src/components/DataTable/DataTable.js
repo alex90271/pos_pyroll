@@ -39,7 +39,7 @@ export default function DataTable(props) {
             return;
         }
         return (
-            <Table.Row>
+            <Table.Row className={"TableHeader"}>
                 {Object.keys(tableObject[0]).map((column) => {
                     return (
                         <Table.HeaderCell
@@ -89,13 +89,25 @@ export default function DataTable(props) {
         return output;
     }
 
+
+
+    if (props.tableData === "empty") {
+        return (
+            <div className="empty-data-table">
+                <h1>
+                    No data for selected date/s
+                </h1>
+            </div>
+        )
+    }
+
     return (
         <div className="DataTable">
             <Table striped>
-                <Table.Header>
+                <Table.Header className={"TableHeader"} >
                     {tableHeaderItems(props.tableData)}
                 </Table.Header>
-                <Table.Body>
+                <Table.Body className={"TableBody"}>
                     {tableBodyItems(props.tableData)}
                 </Table.Body>
             </Table>

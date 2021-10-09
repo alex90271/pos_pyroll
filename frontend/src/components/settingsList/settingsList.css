@@ -1,0 +1,5 @@
+.SettingsList {
+    overflow-y: scroll;
+    height: 100%;
+    background-color: white;
+}
