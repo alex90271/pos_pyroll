@@ -119,7 +119,7 @@ export default function ConfigArea(props) {
         if (selectedDayRange.from && selectedDayRange.to) {
             setCanProcess(true);
             const range = selectedDayRange;
-            API.test(formatDate(range.from), formatDate(range.to))
+            API.process(formatDate(range.from), formatDate(range.to))
                 .then((data) => {
                     setPreflightReportData(data);
                 });
