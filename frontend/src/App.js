@@ -34,7 +34,7 @@ function App() {
       />
       <DataTable
         tableData={editedTableData}
-        roundNumbers={true}
+        roundNumbers={false}
         columnsToRound={columnsToRound}
         // editableColumns={editableColumns}
         // editTable={editTable}
