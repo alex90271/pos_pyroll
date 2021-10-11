@@ -23,6 +23,7 @@ class Debugger():
             data_header = ['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']
             for i in range(1001,1011):
                 data.append([i,names[i-1001][0],names[i-1001][1],'N'])
+            data.append([2001,'Harold','Terminated','Y'])
 
         elif db_type == 'JOBCODES': #needs 5 jobcodes
             names=['Server','Host','Kitchen','Dish','Takeout'] #1,2,3,4,5
