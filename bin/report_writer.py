@@ -209,7 +209,7 @@ class ReportWriter():
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             
-        return df
+        return df.round(2)
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
