@@ -129,12 +129,12 @@ export default function ConfigArea(props) {
         }
     }, [selectedDayRange]);
 
-    useEffect(() => {
-        //props.setEditedTableData();
-        if (canProcess) {
-            process();
-        }
-    }, [settings, jobcodes, employees])
+    // useEffect(() => {
+    //     //props.setEditedTableData();
+    //     if (canProcess) {
+    //         process();
+    //     }
+    // }, [settings, jobcodes, employees])
 
     //Checks to see if settings have been changed by user
     //in order to display the save and revert options.
