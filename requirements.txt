@@ -1,5 +1,7 @@
 Flask==2.0.1
 Flask-Cors==3.0.10
 dbfread==2.0.7
-pandas=1.3.2
-numpy=1.17.4
+pandas
+numpy==1.17.4
+
+gunicorn

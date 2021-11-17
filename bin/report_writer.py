@@ -8,7 +8,6 @@ import os
 import timeit
 import time
 
-
 class ReportWriter():
 
     def __init__(self, first_day, last_day=None, increment=1):
@@ -109,7 +108,7 @@ class ReportWriter():
                     selected_employees=None,
                     selected_jobs=None,
                     sum_only=False, 
-                    nightly=False
+                    nightly=False,
                     ): 
         '''this is the main labor report'''
         a = [labor(day).calc_payroll() for day in self.days]
@@ -211,11 +210,43 @@ class ReportWriter():
             
         return df.round(2)
 
+class WeeklyWriter(ReportWriter):
+
+    def __init__(self, first_day, last_day):
+        self.first_day = first_day
+        self.last_day = last_day
+
+    def getDateRangeFromWeek(self,p_year,p_week):
+        #returns a date range from a week number, useful for weekly_labor function
+        firstdayofweek = datetime.datetime.strptime(f'{p_year}-W{int(p_week )- 1}-1', "%Y-W%W-%w").date()
+        lastdayofweek = firstdayofweek + datetime.timedelta(days=6.9)
+        return firstdayofweek, lastdayofweek
+    
+    def weekly_labor(self):
+        #0 = year, 1 = week, 2 = day
+        week_start = datetime.datetime.strptime(self.first_day, "%Y%m%d").isocalendar()
+        week_end = datetime.datetime.strptime(self.last_day, "%Y%m%d").isocalendar() 
+        week_nums = []
+        date_ranges = []
+
+        for week_num in range(week_start[1],week_end[1]+1):
+            week_nums.append(week_num)
+            date_ranges.append((self.getDateRangeFromWeek(week_start[0],week_num)))
+
+        for x in date_ranges:
+            super().__init__(first_day=datetime.datetime.strftime(x[0], "%Y%m%d"), last_day=datetime.datetime.strftime(x[1], "%Y%m%d"), increment=1)
+            print(self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+                index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                addl_cols=['MEALS'],))
+
+        print(date_ranges)
+
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        print(ReportWriter('20210601','20210630').employees_in_dates())
+        print(WeeklyWriter('20211001','20211115').weekly_labor())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

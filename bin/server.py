@@ -70,10 +70,9 @@ def config_list_item(cfg, query):
     return jsonify(ChipConfig()
     .query(cfg,str(query)))
 
-@app.route('/v01/config/<cfg>/<query_item>/<updated_val>', methods=["GET"])
-def config_item_update(cfg, query_item, updated_val):
-    return jsonify(ChipConfig()
-    .query(cfg,str(query_item),updated_result=updated_val))
+@app.route('/v01/config/<cfg>/<updated_cfg>')
+def config_item_update(cfg,updated_cfg):
+    print(updated_cfg)
 
 @app.route('/v01/employees')
 def employee_list():
