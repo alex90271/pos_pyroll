@@ -6,7 +6,7 @@ import timeit
 import datetime
 import numpy as np
 from chip_config import ChipConfig
-from report_writer import ReportWriter
+from report_writer import ReportWriter, WeeklyWriter
 
 class ExcelPrinter():
 
@@ -25,7 +25,8 @@ class ExcelPrinter():
                 sum_only=False,
                 pys_print=False, 
                 selected_employees=None,
-                selected_jobs=None
+                selected_jobs=None,
+                weekly_fmt=False
                 ):
         '''
             currently supports 'tip_rate' 'labor_main' 'labor_rate' 'cout_eod' 'labor_total'
@@ -49,7 +50,10 @@ class ExcelPrinter():
         f2 = wrkbook.add_format({'border': 1, 'num_format': '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'}) #adds $
         f3 = wrkbook.add_format({'border': 1, 'num_format': '0'}) #no formatting
 
-        df = ReportWriter(self.first, self.last).print_to_json(
+        if weekly_fmt:
+            df = WeeklyWriter(self.first, self.last).weekly_labor(selected_jobs=selected_jobs)
+        else:
+            df = ReportWriter(self.first, self.last).print_to_json(
                     rpt=rpt, 
                     sum_only=sum_only, 
                     selected_employees=selected_employees, 
@@ -152,7 +156,7 @@ if __name__ == '__main__':
     print("loading ExcelPrinter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        a = ExcelPrinter('20210416','20210430').print_to_excel('labor_main', pys_print=True)
+        a = ExcelPrinter('20211004','20211115').print_to_excel('labor_main', weekly_fmt=True)
         #a = a.loc[a['LASTNAME'] == 'Alder']
         print(a)
     r = 1
