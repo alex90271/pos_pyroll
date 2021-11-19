@@ -98,6 +98,9 @@ class ReportWriter():
         #df = pd.concat(hrly).reset_index(drop=True)
         return None
 
+    def get_total_sales(self):
+        return [labor(day).get_total_sales() for day in self.days]
+
     #concatenates all the data into a proper report ready for a spreadsheet
     def labor_main(
                     self,
@@ -109,6 +112,7 @@ class ReportWriter():
                     selected_jobs=None,
                     sum_only=False, 
                     nightly=False,
+                    append_totals=True
                     ): 
         '''this is the main labor report'''
         a = [labor(day).calc_payroll() for day in self.days]
@@ -147,7 +151,8 @@ class ReportWriter():
             _df.sort_values(by=['SYSDATEIN', 'LASTNAME'], inplace=True)
         else:
             _df.sort_values(by=['LASTNAME'], inplace=True)
-        _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
+        if append_totals:
+            _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
         _df.set_index('EMPLOYEE', inplace=True)
         _df.index.rename('ID', inplace=True)
         return _df
@@ -222,25 +227,35 @@ class WeeklyWriter(ReportWriter):
         lastdayofweek = firstdayofweek + datetime.timedelta(days=6.9)
         return firstdayofweek, lastdayofweek
     
-    def weekly_labor(self):
+    def weekly_labor(self, selected_jobs):
         #0 = year, 1 = week, 2 = day
         week_start = datetime.datetime.strptime(self.first_day, "%Y%m%d").isocalendar()
         week_end = datetime.datetime.strptime(self.last_day, "%Y%m%d").isocalendar() 
+
         week_nums = []
         date_ranges = []
-
-        for week_num in range(week_start[1],week_end[1]+1):
+        for week_num in range(week_start[1]+1,week_end[1]+1):
             week_nums.append(week_num)
             date_ranges.append((self.getDateRangeFromWeek(week_start[0],week_num)))
 
+        data = []
         for x in date_ranges:
             super().__init__(first_day=datetime.datetime.strftime(x[0], "%Y%m%d"), last_day=datetime.datetime.strftime(x[1], "%Y%m%d"), increment=1)
-            print(self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
-                index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                addl_cols=['MEALS'],))
-
-        print(date_ranges)
+            t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+                    index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
+                    totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                    addl_cols=['DATE', 'SALES'],
+                    sum_only=False,
+                    append_totals=False,
+                    selected_jobs=selected_jobs)
+            if type(t) != str:
+                t['DATE'] = x[0]
+                t['SALES'] = np.sum(self.get_total_sales())
+                data.append(t)
+        
+        tmp_df = pd.concat(data)
+        df = pd.DataFrame(tmp_df)
+        return df.pivot_table(index=['FIRSTNAME'], columns=['DATE', 'SALES'],values=['HOURS','OVERHRS']).sort_index()
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
