@@ -22,11 +22,9 @@ class ExcelPrinter():
     def print_to_excel(
                 self, 
                 rpt, 
-                sum_only=False,
                 pys_print=False, 
                 selected_employees=None,
-                selected_jobs=None,
-                weekly_fmt=False
+                selected_jobs=None
                 ):
         '''
             currently supports 'tip_rate' 'labor_main' 'labor_rate' 'cout_eod' 'labor_total'
@@ -35,6 +33,9 @@ class ExcelPrinter():
         '''
         mod = ''
         rpt_modifier = '_'
+        sum_only = False
+        if rpt == 'labor_total':
+            sum_only = True
         if sum_only or selected_employees or selected_jobs:
             mod = '_filtered'
         worksheet_name = (rpt + '_' + self.first + '_' + self.last)
@@ -50,11 +51,15 @@ class ExcelPrinter():
         f2 = wrkbook.add_format({'border': 1, 'num_format': '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'}) #adds $
         f3 = wrkbook.add_format({'border': 1, 'num_format': '0'}) #no formatting
 
-        if weekly_fmt:
+        if rpt == 'labor_weekly':
             df = WeeklyWriter(self.first, self.last).weekly_labor(selected_jobs=selected_jobs)
         else:
+            if rpt == 'labor_total':
+                tmp_rpt = 'labor_main'
+            else:
+                tmp_rpt = rpt
             df = ReportWriter(self.first, self.last).print_to_json(
-                    rpt=rpt, 
+                    rpt=tmp_rpt, 
                     sum_only=sum_only, 
                     selected_employees=selected_employees, 
                     selected_jobs=selected_jobs)
@@ -67,8 +72,6 @@ class ExcelPrinter():
             #wrksheet.set_landscape()
 
         elif rpt == 'labor_main':
-            if sum_only:
-                rpt_modifier += "TOTALS_"
             if selected_employees:
                 rpt_modifier += 'FILTERED ON EMPLOYEE_'
             if selected_jobs:
@@ -77,6 +80,21 @@ class ExcelPrinter():
             wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
             wrksheet.set_column('E:G', 12, f1)
             wrksheet.set_column('H:J', 12, f2)
+
+        elif rpt == 'labor_total':
+            rpt_modifier += "TOTALS_"
+            
+            wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
+            wrksheet.set_column('E:G', 12, f1)
+            wrksheet.set_column('H:J', 12, f2)
+
+        elif rpt == 'labor_weekly':
+            if selected_employees:
+                rpt_modifier += 'FILTERED ON EMPLOYEE_'
+            if selected_jobs:
+                rpt_modifier += 'FILTERED ON JOBCODE_'
+
+            wrksheet.set_column(1, int(len(df.columns)), 15, f1)
 
         elif rpt == 'labor_nightly':
             if sum_only:
@@ -100,12 +118,12 @@ class ExcelPrinter():
             wrksheet.set_column('G:H', 12, f1)
 
         else:
-            raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
+            raise ValueError('' + rpt + ' is an invalid selection')
 
         df.to_excel(writer, sheet_name=worksheet_name, float_format="%.2f") #write with the updated data
         
         #boilerplate stuff to turn the spreadsheet more into a report
-        wrksheet.set_column('A:A', 4, f3) #make index column small
+        #wrksheet.set_column('A:A', 4, f3) #make index column small
         wrksheet.repeat_rows(0) #repeat first row
         wrksheet.set_margins(left=0.5, right=0.5, top=0.7, bottom=0.7)
         wrksheet.fit_to_pages(1,0) #fits all columns to one page
@@ -117,7 +135,7 @@ class ExcelPrinter():
                 &LREPORT TYPE: {rpt} 
                 &CREPORT DATES: {self.get_full_date(self.first)} --- {self.get_full_date(self.last)} 
                 &RPAGE &P of &N
-                &COPTIONS:{rpt_modifier}
+                \n&COPTIONS:{rpt_modifier}
                 ''')
         wrksheet.set_footer(
                 f'''
@@ -156,7 +174,7 @@ if __name__ == '__main__':
     print("loading ExcelPrinter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        a = ExcelPrinter('20211004','20211115').print_to_excel('labor_main', weekly_fmt=True)
+        a = ExcelPrinter('20211001','20211113').print_to_excel('labor_weekly',selected_jobs=[7,8,9])
         #a = a.loc[a['LASTNAME'] == 'Alder']
         print(a)
     r = 1
