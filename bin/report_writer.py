@@ -228,7 +228,7 @@ class WeeklyWriter(ReportWriter):
         return firstdayofweek, lastdayofweek
     
     def weekly_labor(self, selected_jobs):
-        #0 = year, 1 = week, 2 = day
+        #index 0 = year, 1 = week, 2 = day
         week_start = datetime.datetime.strptime(self.first_day, "%Y%m%d").isocalendar()
         week_end = datetime.datetime.strptime(self.last_day, "%Y%m%d").isocalendar() 
 
@@ -245,7 +245,7 @@ class WeeklyWriter(ReportWriter):
                     index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                     totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                     addl_cols=['DATE', 'SALES'],
-                    sum_only=False,
+                    sum_only=True,
                     append_totals=False,
                     selected_jobs=selected_jobs)
             if type(t) != str:
@@ -255,13 +255,14 @@ class WeeklyWriter(ReportWriter):
         
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
-        return df.pivot_table(index=['FIRSTNAME'], columns=['DATE', 'SALES'],values=['HOURS','OVERHRS']).sort_index()
+        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE', 'SALES'],values=['HOURS','OVERHRS'])
+        return rtn_df
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        print(WeeklyWriter('20211001','20211115').weekly_labor())
+        print(WeeklyWriter('20211001','20211115').weekly_labor(selected_jobs=[7,8,9]))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
