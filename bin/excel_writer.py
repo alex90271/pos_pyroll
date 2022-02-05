@@ -32,6 +32,7 @@ class ExcelPrinter():
         
         '''
         mod = ''
+        ver = 1.0
         rpt_modifier = '_'
         sum_only = False
         if rpt == 'labor_total':
@@ -95,6 +96,8 @@ class ExcelPrinter():
                 rpt_modifier += 'FILTERED ON JOBCODE_'
 
             wrksheet.set_column(1, int(len(df.columns)), 15, f1)
+            wrksheet.set_row(1, None, f3.set_num_format('dd mmm yyyy'))
+            wrksheet.set_row(2, None, f2.set_num_format('$#,##0.00'))
 
         elif rpt == 'labor_nightly':
             if sum_only:
@@ -110,7 +113,7 @@ class ExcelPrinter():
 
         elif rpt == 'labor_rate':
             wrksheet.set_column('B:B', 20, f3)
-            wrksheet.set_column('C:I', 12, f1)
+            wrksheet.set_column('C:I', 12, f2)
             #wrksheet.set_landscape()
 
         elif rpt == 'cout_eod':
@@ -135,11 +138,12 @@ class ExcelPrinter():
                 &LREPORT TYPE: {rpt} 
                 &CREPORT DATES: {self.get_full_date(self.first)} --- {self.get_full_date(self.last)} 
                 &RPAGE &P of &N
-                \n&COPTIONS:{rpt_modifier}
                 ''')
         wrksheet.set_footer(
                 f'''
-                DATE PRINTED: &D &T
+                &LDATE PRINTED: &D &T
+                &COPTIONS:{rpt_modifier}
+                &Rver:{ver}
                 ''')
 
         writer.save()
