@@ -134,6 +134,8 @@ class ReportWriter():
                 index_cols.remove('JOB_NAME')
             except:
                 print('JOB_NAME not specified')
+            sumcols = df['SRVTIPS'] + df['TIPOUT']
+            df['TOTALTIPS'] = sumcols
         df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")        
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
         _df.drop(drop_cols, axis=1, inplace=True) #if there any any columns passed in to drop, drop them
@@ -210,6 +212,8 @@ class ReportWriter():
             df = self.cout_by_eod(
                 cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
                 cout_col='COUTBYEOD')
+        elif rpt == 'labor_weekly':
+            raise ValueError('labor_weekly is not fully implemented, please use print= TRUE for now')
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             
@@ -220,27 +224,16 @@ class WeeklyWriter(ReportWriter):
     def __init__(self, first_day, last_day):
         self.first_day = first_day
         self.last_day = last_day
-
-    def getDateRangeFromWeek(self,p_year,p_week):
-        #returns a date range from a week number, useful for weekly_labor function
-        firstdayofweek = datetime.datetime.strptime(f'{p_year}-W{int(p_week )- 1}-1', "%Y-W%W-%w").date()
-        lastdayofweek = firstdayofweek + datetime.timedelta(days=6.9)
-        return firstdayofweek, lastdayofweek
     
     def weekly_labor(self, selected_jobs):
         #index 0 = year, 1 = week, 2 = day
-        week_start = datetime.datetime.strptime(self.first_day, "%Y%m%d").isocalendar()
-        week_end = datetime.datetime.strptime(self.last_day, "%Y%m%d").isocalendar() 
-
-        week_nums = []
-        date_ranges = []
-        for week_num in range(week_start[1]+1,week_end[1]+1):
-            week_nums.append(week_num)
-            date_ranges.append((self.getDateRangeFromWeek(week_start[0],week_num)))
-
+        #week_start = datetime.datetime.strptime(self.first_day, "%Y%m%d").isocalendar()
+        #week_end = datetime.datetime.strptime(self.last_day, "%Y%m%d").isocalendar() 
+        date_ranges = pd.date_range(start=self.first_day,end=self.last_day,freq='w')
+        print(date_ranges)
         data = []
-        for x in date_ranges:
-            super().__init__(first_day=datetime.datetime.strftime(x[0], "%Y%m%d"), last_day=datetime.datetime.strftime(x[1], "%Y%m%d"), increment=1)
+        for date in date_ranges:
+            super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"), last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
             t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                     index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                     totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
@@ -249,20 +242,19 @@ class WeeklyWriter(ReportWriter):
                     append_totals=False,
                     selected_jobs=selected_jobs)
             if type(t) != str:
-                t['DATE'] = x[0]
+                t['DATE'] = date
                 t['SALES'] = np.sum(self.get_total_sales())
                 data.append(t)
-        
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
-        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE', 'SALES'],values=['HOURS','OVERHRS'])
+        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE', 'SALES'], values=['OVERHRS'])
         return rtn_df
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        print(WeeklyWriter('20211001','20211115').weekly_labor(selected_jobs=[7,8,9]))
+        print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8,9]))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
