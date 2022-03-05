@@ -1,3 +1,4 @@
+from re import A
 from process_labor import ProcessLabor as labor
 from query_db import QueryDB as query_db
 from chip_config import ChipConfig
@@ -29,6 +30,20 @@ class ReportWriter():
                 cur_day = first_day.strftime("%Y%m%d")
                 self.days.append(cur_day)
                 first_day += datetime.timedelta(days=increment)
+    def unused_tip_in_period(self):
+        '''returns total amount of unallocated tips for the period'''
+        return [labor(day).get_unallocated_tips() for day in self.days]
+
+    def punctuality(self,
+                    selected_employees=None,
+                    selected_jobs=None,
+                    ):
+        '''returns a clockin report with a date of the week'''
+        a = [labor(day).get_clockin_time() for day in self.days]
+        df = pd.concat(a)
+        if selected_employees:
+            df = df.loc[df['EMPLOYEE'].isin(selected_employees)]        
+        return df
 
     def append_totals(
                     self,
@@ -94,9 +109,7 @@ class ReportWriter():
         return _df
 
     def labor_hourly(self):
-        #hrly = [ for day in self.days]
-        #df = pd.concat(hrly).reset_index(drop=True)
-        return None
+        return [labor(day).get_labor_rate(return_nan=False) for day in self.days]
 
     def get_total_sales(self):
         return [labor(day).get_total_sales() for day in self.days]
@@ -184,7 +197,7 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'OTHERTIPS'],
                 addl_cols=['MEALS'],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
@@ -195,7 +208,7 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD'],
                 index_cols=['EMPLOYEE','LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS','OTHERTIPS'],
                 addl_cols=[],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
@@ -237,24 +250,27 @@ class WeeklyWriter(ReportWriter):
             t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                     index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                     totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                    addl_cols=['DATE', 'SALES'],
+                    addl_cols=['DATE', 'SALES','RATE'],
                     sum_only=True,
                     append_totals=False,
                     selected_jobs=selected_jobs)
             if type(t) != str:
                 t['DATE'] = date
                 t['SALES'] = np.sum(self.get_total_sales())
+                t['RATE'] = np.mean(self.labor_hourly())
                 data.append(t)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
-        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE', 'SALES'], values=['OVERHRS'])
+        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE','SALES','RATE'], values=['OVERHRS'])
         return rtn_df
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8,9]))
+        #print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
+        #print(ReportWriter('20220107','20220107').print_to_json('labor_main'))
+        print(ReportWriter('20220103','20220107').punctuality(selected_employees=[1070]))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

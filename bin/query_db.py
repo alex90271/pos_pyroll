@@ -20,10 +20,12 @@ class QueryDB():
         leave empty for 'Today'
     '''
     def __init__(self, data=''):
+        #print("DATA:",data)
         if data == datetime.datetime.today().strftime("%Y%m%d"): #if the date is TODAY, use latest data
             self.data = 'Data'
-            print('WARNING: Using data from the Data folder. This data should be considered unoffical and may change')
+            #print('WARNING: Using data from the Data folder. This data should be considered unoffical and may change')
         elif data == '': #if the data is left empty, it assumes you want to access the latest data
+            #print('WARNING: Using data from the Data folder. This data should be considered unoffical and may change')
             self.data = 'Data'
         elif data > datetime.datetime.today().strftime("%Y%m%d"): #if someone tries to use a future day, throw an error. 
             raise ValueError('ERROR: Future data cannot be used. It does not exist')

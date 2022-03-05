@@ -21,7 +21,7 @@ class ProcessLabor():
         self.df = self.db.process_db('labor')
         #print(self.df)
         self.day = day
-        self.cached = DatabaseHandler(day).get_data('daily_calc_cache')
+        #self.cached = DatabaseHandler(day).get_data('daily_calc_cache')
 
         #config options
         c = ChipConfig()
@@ -33,6 +33,7 @@ class ProcessLabor():
         self.tracked_labor = c.query('SETTINGS','tracked_labor', return_type='int_array')
         self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
         self.salary = c.query('SETTINGS','count_salary')
+        self.nonsharedtip_code = c.query('SETTINGS','nonshared_tip_codes', return_type='int_array') 
         self.debug = False
     
     def get_day(self, fmt="%a %b %e"):
@@ -75,8 +76,8 @@ class ProcessLabor():
 
     def get_tip_rate(self):
         '''returns hourly rate'''
-        if self.cached:
-            return self.cached[2]
+        #if self.cached:
+           # return self.cached[2]
         tipped_hours = self.get_tipped_hours()
         total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(decl=True, cctip=True))
         with np.errstate(invalid='ignore'): #some days may return zero and thats okay (closed days)
@@ -108,29 +109,40 @@ class ProcessLabor():
             pass include declared = TRUE to include declared tips in the total, by default does not
         '''
         df = self.df
-        cc = np.sum(df['CCTIPS'].values)
+        cc = np.round(np.sum(df['CCTIPS'].values),6)
         if include_declared:
             decl = np.sum(df['DECTIPS'].values)
             return cc + decl
         return cc
+
+    def get_clockin_time(self):
+        df = self.df[['EMPLOYEE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
+        df['DATE'] = self.get_day()
+        return df
     
     def get_unallocated_tips(self):
         '''
         returns any tips not allocated in the tip pool, or paid out to a server
         '''
-        total = np.round(self.get_total_tips(include_declared=False) + self.get_percent_tips(decl=True),2)
-        used = np.round(np.sum(self.calc_servtips()[["SRVTIPS"]].values) + np.sum(self.calc_tipout()[["TIPOUT"]].values),2)
-        
+        total = self.get_total_tips(include_declared=False) + self.get_percent_tips(decl=True)
+        used = np.sum([np.sum(self.calc_servtips()[["SRVTIPS"]].values),
+                      np.sum(self.calc_tipout()[["TIPOUT"]].values),
+                      np.sum(self.calc_tipout()[["DECTIPS"]].values),
+                      np.sum(self.calc_nonsharedtips()[["OTHERTIPS"]].values)])
+        print(used,total)
          #save just the tipout from calc_tipout
-        return np.subtract(total,used)
+        return np.round(np.subtract(total,used),4)
 
-    def get_labor_rate(self):
-        if self.cached:
-            return self.cached[3]
+    def get_labor_rate(self,return_nan=True):
+        #if self.cached:
+            #return self.cached[3]
         labor_cost = self.get_total_pay()
         sales = self.get_total_sales()
         if sales == 0:
-            return np.nan
+            if return_nan:
+                return np.nan
+            else:
+                return 0
         else:
             return np.multiply(np.divide(labor_cost, sales), 100)
 
@@ -142,6 +154,12 @@ class ProcessLabor():
         if self.debug:
             cur_df.to_csv('debug/calc_tipout' + self.day + '.csv')
 
+        return cur_df
+
+    def calc_nonsharedtips(self):
+        '''calculates any tips for jobcodes who keeps the entire tip'''
+        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.nonsharedtip_code)].copy()
+        cur_df['OTHERTIPS'] = cur_df['CCTIPS']
         return cur_df
 
     def calc_servtips(self): 
@@ -240,12 +258,14 @@ class ProcessLabor():
         #print(self.calc_tiprate_df())
         s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]] #save just those columns from calc_serve_tips
         t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
+        n = self.calc_nonsharedtips()[["OTHERTIPS"]]
         df = self.df
-        tdf = df.join([s,t])
+        tdf = df.join([s,t,n])
         #print('process labor :' + tdf)
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
         return tdf
+
     def calc_emps_in_day(self):
         return self.df['EMPLOYEE']
 
@@ -253,6 +273,8 @@ if __name__ == '__main__':
 
     def main():
         #print("loading ProcessTips.py")
-        print(ProcessLabor("20210807").calc_emps_in_day())
-    f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=1)
+        #print(ProcessLabor("20220107").calc_emps_in_day())
+        print(ProcessLabor("20211214").get_clockin_time())
+    r=1
+    f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

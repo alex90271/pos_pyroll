@@ -35,6 +35,8 @@ class ExcelPrinter():
         ver = 1.0
         rpt_modifier = '_'
         sum_only = False
+        unallocated_tip_footer = 0.0
+
         if rpt == 'labor_total':
             sum_only = True
         if sum_only or selected_employees or selected_jobs:
@@ -59,11 +61,14 @@ class ExcelPrinter():
                 tmp_rpt = 'labor_main'
             else:
                 tmp_rpt = rpt
-            df = ReportWriter(self.first, self.last).print_to_json(
-                    rpt=tmp_rpt, 
-                    sum_only=sum_only, 
-                    selected_employees=selected_employees, 
-                    selected_jobs=selected_jobs)
+
+            rpt_writer = ReportWriter(self.first, self.last)
+            unallocated_tip_footer = np.sum(rpt_writer.unused_tip_in_period())
+            df = rpt_writer.print_to_json(
+                rpt=tmp_rpt, 
+                sum_only=sum_only, 
+                selected_employees=selected_employees, 
+                selected_jobs=selected_jobs)
 
         df.to_excel(writer, sheet_name=worksheet_name) #instantiate a blank excel file to write
         wrksheet = writer.sheets[worksheet_name] 
@@ -80,7 +85,7 @@ class ExcelPrinter():
 
             wrksheet.set_column('B:D', ChipConfig().query('RPT_LABOR_MAIN', 'col_width'), f1)
             wrksheet.set_column('E:G', 12, f1)
-            wrksheet.set_column('H:J', 12, f2)
+            wrksheet.set_column('H:K', 12, f2)
 
         elif rpt == 'labor_total':
             rpt_modifier += "TOTALS_"
@@ -98,7 +103,7 @@ class ExcelPrinter():
             wrksheet.set_column(1, int(len(df.columns)), 15, f1)
             wrksheet.set_row(1, None, f3.set_num_format('dd mmm yyyy'))
             wrksheet.set_row(2, None, f2.set_num_format('$#,##0.00'))
-
+        #rows 2-4 need formatting
         elif rpt == 'labor_nightly':
             if sum_only:
                 rpt_modifier += "TOTALS_"
@@ -113,7 +118,9 @@ class ExcelPrinter():
 
         elif rpt == 'labor_rate':
             wrksheet.set_column('B:B', 20, f3)
-            wrksheet.set_column('C:I', 12, f2)
+            wrksheet.set_column('C:D', 12, f1)
+            wrksheet.set_column('E:F', 12, f2)
+            wrksheet.set_column('G:I', 12, f1)
             #wrksheet.set_landscape()
 
         elif rpt == 'cout_eod':
@@ -143,7 +150,7 @@ class ExcelPrinter():
                 f'''
                 &LDATE PRINTED: &D &T
                 &COPTIONS:{rpt_modifier}
-                &Rver:{ver}
+                &RUNALLOCATED TIPS:{unallocated_tip_footer}
                 ''')
 
         writer.save()
@@ -178,7 +185,7 @@ if __name__ == '__main__':
     print("loading ExcelPrinter.py")
     def main():
         os.environ['json_name'] = 'chip.json'
-        a = ExcelPrinter('20211001','20211113').print_to_excel('labor_weekly',selected_jobs=[7,8,9])
+        a = ExcelPrinter('20211211','20211211').print_to_excel('labor_main')
         #a = a.loc[a['LASTNAME'] == 'Alder']
         print(a)
     r = 1

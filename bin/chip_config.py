@@ -28,8 +28,9 @@ class ChipConfig():
             'tip_sales_percent': '0.03', #float, 0 - 1 (decimal percent)
             'tip_amt_percent': '1', #float, 0 - 1 (decimal percent)
             'percent_sale_codes': '1', #array
-            'percent_tip_codes': '11', #array
+            'percent_tip_codes': '4', #array
             'tipped_codes': '2,3,5,10,11,12,13,14', #array
+            'nonshared_tip_codes': '40',
             'tracked_labor': '8', #array
             'pay_period_days': '15', #array
             'count_salary': True, #bool
