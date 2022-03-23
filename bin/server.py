@@ -11,7 +11,7 @@ from query_db import QueryDB
 import numpy as np
 import os
 import json
-from flask import Flask, redirect, url_for, request, jsonify
+from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
 from report_writer import ReportWriter
 from chip_config import ChipConfig
@@ -21,8 +21,8 @@ cors = CORS(app)
 app.config['JSON_SORT_KEYS'] = False
 
 @cross_origin
-@app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>/<opt_print>')
-def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
+@app.route('/v01/<html>/data/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>/<opt_print>')
+def print_rpt(html, day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
     if select_emps == '0':
          select_emps = None
     else:
@@ -44,7 +44,11 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print):
             return jsonify('empty')
         result.reset_index(drop=True, inplace=True)
         result = result.fillna(0) #turn any NaN data to Zero for json compatability
-        return result.to_dict(orient='index') #'False' assumes the return type DataFrame
+        if html:
+            return render_template('render.html',  tables=[result.to_html(table_id="table")], titles=result.columns.values) #result.to_html(header="true", table_id="table")
+            
+        else:
+            return result.to_dict(orient='index')
     else:
         raise ValueError('Print argument not passed a bool type')
 
@@ -53,7 +57,6 @@ def employees_in_period(day_one, day_two):
     result = ReportWriter(day_one,day_two).employees_in_dates()
     print(result)
     return jsonify(result.to_dict(orient='index'))
-
 
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
