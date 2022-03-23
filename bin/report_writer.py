@@ -34,16 +34,21 @@ class ReportWriter():
         '''returns total amount of unallocated tips for the period'''
         return [labor(day).get_unallocated_tips() for day in self.days]
 
-    def punctuality(self,
-                    selected_employees=None,
-                    selected_jobs=None,
-                    ):
+    def punctuality(self, selected_employees=None):
         '''returns a clockin report with a date of the week'''
         a = [labor(day).get_clockin_time() for day in self.days]
         df = pd.concat(a)
         if selected_employees:
-            df = df.loc[df['EMPLOYEE'].isin(selected_employees)]        
-        return df
+            df = df.loc[df['EMPLOYEE'].isin(selected_employees)]
+        _df = query_db(self.days[len(self.days)-1]).process_names(df=df,job_bool=False)
+        _df.drop(columns=['EMPLOYEE','TERMINATED'],inplace=True)
+        _df = _df[['FIRSTNAME','LASTNAME','DATE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
+        #for column in ['INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']:
+            #df[column].loc(lambda x: x > 12)
+        #df['CLOCKIN'] = df['INHOUR'] + df['INMINUTE']
+        #df['CLOCKOUT'] = df['OUTHOUR'] + df['OUTMINUTE']
+        
+        return _df
 
     def append_totals(
                     self,
@@ -191,7 +196,11 @@ class ReportWriter():
             df = self.rate_rpt(
                 rpt='Tip',
                 totaled_cols=['Cash Tips', 'Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', 'Total Tip\'d Hours'], 
-                averaged_cols=['Tip Hourly']) 
+                averaged_cols=['Tip Hourly'])
+
+        elif rpt == 'punctuality':
+            df = self.punctuality(
+                selected_employees=selected_employees)
 
         elif rpt == 'labor_main':
             df = self.labor_main(
@@ -261,7 +270,8 @@ class WeeklyWriter(ReportWriter):
                 data.append(t)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
-        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE','SALES','RATE'], values=['OVERHRS'])
+        vals = ['OVERHRS']#,'HOURS']
+        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE','SALES','RATE'], values=vals)
         return rtn_df
 
 if __name__ == '__main__':
@@ -270,7 +280,7 @@ if __name__ == '__main__':
         os.environ['json_name'] = 'chip.json'
         #print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         #print(ReportWriter('20220107','20220107').print_to_json('labor_main'))
-        print(ReportWriter('20220103','20220107').punctuality(selected_employees=[1070]))
+        print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
