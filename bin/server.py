@@ -44,8 +44,8 @@ def print_rpt(html, day_one, day_two, rpt_type, select_jobs, select_emps, opt_pr
             return jsonify('empty')
         result.reset_index(drop=True, inplace=True)
         result = result.fillna(0) #turn any NaN data to Zero for json compatability
-        if html:
-            return render_template('render.html',  tables=[result.to_html(table_id="table", classes="table is-bordered")], titles=result.columns.values) #result.to_html(header="true", table_id="table")
+        if html == 'True':
+            return render_template('render.html',  tables=[result.to_html(table_id="table", classes="ui striped table")], titles=result.columns.values) #result.to_html(header="true", table_id="table")
             
         else:
             return result.to_dict(orient='index')
