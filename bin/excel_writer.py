@@ -42,7 +42,7 @@ class ExcelPrinter():
         if sum_only or selected_employees or selected_jobs:
             mod = '_filtered'
         worksheet_name = (rpt + '_' + self.first + '_' + self.last)
-        print(worksheet_name)
+        #print(worksheet_name)
         try:
             os.mkdir(self.FILEPATH)
         except:

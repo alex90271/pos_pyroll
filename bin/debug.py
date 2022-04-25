@@ -31,7 +31,7 @@ class Debugger():
             for i in range(0,5):
                 data.append([i+1,names[i]])
 
-        print(data)
+        #print(data)
         return pd.DataFrame(data, columns=data_header)
 
 
