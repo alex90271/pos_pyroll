@@ -129,7 +129,7 @@ class ProcessLabor():
                       np.sum(self.calc_tipout()[["TIPOUT"]].values),
                       np.sum(self.calc_tipout()[["DECTIPS"]].values),
                       np.sum(self.calc_nonsharedtips()[["OTHERTIPS"]].values)])
-        print(used,total)
+        #print(used,total)
          #save just the tipout from calc_tipout
         return np.round(np.subtract(total,used),4)
 

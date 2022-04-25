@@ -32,11 +32,11 @@ class ReportWriter():
                 first_day += datetime.timedelta(days=increment)
     def unused_tip_in_period(self):
         '''returns total amount of unallocated tips for the period'''
-        return [labor(day).get_unallocated_tips() for day in self.days]
+        return (labor(day).get_unallocated_tips() for day in self.days)
 
     def punctuality(self, selected_employees=None):
         '''returns a clockin report with a date of the week'''
-        a = [labor(day).get_clockin_time() for day in self.days]
+        a = (labor(day).get_clockin_time() for day in self.days)
         df = pd.concat(a)
         if selected_employees:
             df = df.loc[df['EMPLOYEE'].isin(selected_employees)]
@@ -81,9 +81,9 @@ class ReportWriter():
                 ):
         a = []
         if rpt == 'Tip':
-            a = [labor(day).calc_tiprate_df() for day in self.days]
+            a = (labor(day).calc_tiprate_df() for day in self.days)
         elif rpt == 'Labor':
-            a = [labor(day).calc_laborrate_df() for day in self.days]
+            a = (labor(day).calc_laborrate_df() for day in self.days)
         else:
             print('no proper data provided the following report is blank:')
             return pd.DataFrame({}) #returns a blank dataframe
@@ -133,7 +133,7 @@ class ReportWriter():
                     append_totals=True
                     ): 
         '''this is the main labor report'''
-        a = [labor(day).calc_payroll() for day in self.days]
+        a = (labor(day).calc_payroll() for day in self.days)
         df = pd.concat(a)
         #if any filter options are provided, fliter the data now. 
         #While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data 
@@ -164,7 +164,7 @@ class ReportWriter():
         #if any additonal columns are requested, add them        
         if addl_cols is not None:
             for col in addl_cols:
-                 _df[col] = np.nan
+                 _df[col] = ''
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         _df.reset_index(inplace=True)
         if nightly == True:
@@ -252,7 +252,7 @@ class WeeklyWriter(ReportWriter):
         #week_start = datetime.datetime.strptime(self.first_day, "%Y%m%d").isocalendar()
         #week_end = datetime.datetime.strptime(self.last_day, "%Y%m%d").isocalendar() 
         date_ranges = pd.date_range(start=self.first_day,end=self.last_day,freq='w')
-        print(date_ranges)
+        #print(date_ranges)
         data = []
         for date in date_ranges:
             super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"), last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
