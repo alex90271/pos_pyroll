@@ -7,7 +7,6 @@ import pandas as pd
 import datetime
 import os
 import timeit
-import time
 
 class ReportWriter():
 
@@ -164,7 +163,7 @@ class ReportWriter():
         #if any additonal columns are requested, add them        
         if addl_cols is not None:
             for col in addl_cols:
-                 _df[col] = ''
+                 _df[col] = np.NaN
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         _df.reset_index(inplace=True)
         if nightly == True:
