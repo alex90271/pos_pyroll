@@ -1,4 +1,4 @@
-python dependencies (updated 8-11-2021)
+python dependencies (updated 4-25-2022)
 
     pandas
     dbfread
@@ -7,10 +7,6 @@ python dependencies (updated 8-11-2021)
     flask_cors
     timeit - (used only for testing purposes)
     sqlite3
-
-    WINDOWS ONLY:
-     win32api
-     win32print
 
 built on python 3.8.6 64Bit
 
@@ -28,7 +24,7 @@ API:
 
 IF NO DATA IS AVAILABLE TO BE RETURNED, API WILL RETURN 'empty'
 
-/v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/<int: jobcode_filter>/<int: employee_filter>/<bool: print>
+/v01/data/<str: day_one>/<str: day_two>/<str: rpt_type>/<int: jobcode_filter>/<int: employee_filter>/<str: opt_print>
 
     day_one = first day in the sequence (ex. 20210701)
 
@@ -58,9 +54,9 @@ IF NO DATA IS AVAILABLE TO BE RETURNED, API WILL RETURN 'empty'
         
         pass 0 to not filter data
 
-    pass 'print = True' to print report
-        changes to invoke the report printer function
-        when print 'True' is passed, the result will either be 'True' or 'False' depending on if it printed or not
+    pass opt_print = 'html' to output a printable html verison of the report
+    pass opt_print = 'json' to output a json file for the frontent
+        default is json if no option is provided
 
     example query, no filter: 
         http://localhost:5000/v01/data/20210416/20210430/labor_main/0/0/False

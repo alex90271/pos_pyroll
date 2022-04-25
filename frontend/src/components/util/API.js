@@ -7,7 +7,7 @@ const API = {
   },
 
   process(firstDay, lastDay, jobcodes = 0, employees = 0) {
-    return fetch(`${url}data/${firstDay}/${lastDay}/labor_nightly/${jobcodes}/${employees}/False`)
+    return fetch(`${url}data/${firstDay}/${lastDay}/labor_nightly/${jobcodes}/${employees}`)
       .then(response => response.json());
   },
 
