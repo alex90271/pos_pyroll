@@ -5,6 +5,7 @@
 #date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
 
 #v01 Routes
+from datetime import datetime
 from query_db import QueryDB
 import numpy as np
 import os
@@ -46,7 +47,11 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
         return result.to_dict(orient='index')
     elif opt_print == 'html':
         result = result.fillna('') #turn any NaN data to blank for printability
-        return render_template('render.html',  tables=[result.to_html(table_id="table", classes="ui striped table")], titles=result.columns.values) #result.to_html(header="true", table_id="table")
+        return render_template('render.html', 
+                                tables=[result.to_html(table_id="table", classes="ui striped table")], 
+                                titles=result.columns.values,
+                                timestamp=datetime.now(),
+                                rpttp=rpt_type) 
     else:
         raise ValueError('Print argument not passed json or html -- leave blank for json')
 

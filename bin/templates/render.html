@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{{rpttp}}</title>
     <link rel="stylesheet" media ="all" href="{{ url_for('static', filename='css/semantic.min.css') }}">
 </head>
 <body>
+    <p>Generated: </p>{{timestamp}}
 {% for table in tables %}
-            {{titles[loop.index]}}
             {{ table|safe }}
 {% endfor %}
 </body>
-
 </html>
