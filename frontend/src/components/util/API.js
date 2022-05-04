@@ -1,8 +1,8 @@
-const url = "http://backend.alderautomations.com/v01/";
+const url = "localhost:5000/";
 
 const API = {
   settings() {
-    return fetch(`${url}config/SETTINGS`) 
+    return fetch(`${url}config/SETTINGS`)
       .then(response => response.json());
   },
 
@@ -44,7 +44,7 @@ const formatSettingsForExport = (newSettings) => {
     let outputValue;
     if (inputValue instanceof Array) {
       outputValue = inputValue.map((currentValue) => {
-        return currentValue.value;   
+        return currentValue.value;
       }).join(",");
     } else {
       outputValue = inputValue;
