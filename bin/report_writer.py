@@ -69,7 +69,6 @@ class ReportWriter():
             df.loc['TTL','EMPLOYEE'] = 'TTL'
             df.loc['TTL','LASTNAME'] = 'TOTAL'
             df.loc['TTL','FIRSTNAME'] = 'TOTAL'
-            df.loc['TTL','JOB_NAME'] = 'TOTAL'
         return df
 
     def rate_rpt(
@@ -151,8 +150,6 @@ class ReportWriter():
                 index_cols.remove('JOB_NAME')
             except:
                 print('JOB_NAME not specified')
-            sumcols = df['SRVTIPS'] + df['TIPOUT']
-            df['TOTALTIPS'] = sumcols
         df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")        
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
         _df.drop(drop_cols, axis=1, inplace=True) #if there any any columns passed in to drop, drop them
@@ -160,10 +157,6 @@ class ReportWriter():
                             index=index_cols,
                             aggfunc=np.sum, 
                             fill_value=np.NaN)
-        #if any additonal columns are requested, add them        
-        if addl_cols is not None:
-            for col in addl_cols:
-                 _df[col] = np.NaN
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         _df.reset_index(inplace=True)
         if nightly == True:
@@ -174,6 +167,13 @@ class ReportWriter():
             _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
         _df.set_index('EMPLOYEE', inplace=True)
         _df.index.rename('ID', inplace=True)
+        _df = _df[['LASTNAME','FIRSTNAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS','TOTALTIPS']]
+    
+        #if any additonal columns are requested, add them        
+        if addl_cols is not None:
+            for col in addl_cols:
+                 _df[col] = np.NaN
+
         return _df
 
     def employees_in_dates(self):
@@ -205,7 +205,7 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'OTHERTIPS'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'OTHERTIPS', 'TOTALTIPS'],
                 addl_cols=['MEALS'],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
@@ -216,12 +216,23 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD'],
                 index_cols=['EMPLOYEE','LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS','OTHERTIPS'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS','OTHERTIPS', 'TOTALTIPS'],
                 addl_cols=[],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs, 
                 nightly=True)
+
+        elif rpt == 'labor_totals':
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME'],
+                index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'OTHERTIPS', 'TOTALTIPS'],
+                addl_cols=['MEALS'],
+                sum_only=True, 
+                selected_employees=selected_employees,
+                selected_jobs=selected_jobs,
+                nightly=False)
 
         elif rpt == 'labor_rate':
             df = self.rate_rpt(
@@ -234,7 +245,7 @@ class ReportWriter():
                 cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
                 cout_col='COUTBYEOD')
         elif rpt == 'labor_weekly':
-            raise ValueError('labor_weekly is not fully implemented, please use print= TRUE for now')
+            df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs)
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
             
