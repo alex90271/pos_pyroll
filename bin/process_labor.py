@@ -261,9 +261,10 @@ class ProcessLabor():
         n = self.calc_nonsharedtips()[["OTHERTIPS"]]
         df = self.df
         tdf = df.join([s,t,n])
-        #print('process labor :' + tdf)
+        tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT","OTHERTIPS"]].sum(axis=1)
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
+        print(tdf)
         return tdf
 
     def calc_emps_in_day(self):
