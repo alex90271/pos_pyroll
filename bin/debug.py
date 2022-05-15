@@ -54,7 +54,7 @@ class Debugger():
                     '00', #inminute
                     '22', #outhour
                     '00', #outminute
-                    '2.13',
+                    7.25,
                     '30']
             )
         return [header,data]
