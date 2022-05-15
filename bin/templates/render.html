@@ -6,12 +6,25 @@
     <link rel="stylesheet" media ="all" href="{{ url_for('static', filename='css/semantic.min.css') }}">
 </head>
 <body>
-    <p>Generated: </p>{{timestamp}}
-{% for table in tables %}
-            {{ table|safe }}
-{% endfor %}
+   <p>Selected Dates:<br>
+    {{dates[0]}}<br>
+    -<br>
+    {{dates[1]}}</p>
 
-<p>
+    <p>Report Type:<br>
+    {{rpttp}}</p>
+
+    <p>Selected Employee Codes:<br>
+      {{select_emps}}</p>
+
+    <p>Selected Job Codes:<br>
+      {{select_jobs}}</p>
+
+  {% for table in tables %}
+        {{ table|safe }}
+  {% endfor %}
+
+ <p>
   Notes:<br>
   Srvtips column accounts for removed tipshare (currently 4% of sales)<br>
   Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for more info <br>
@@ -23,7 +36,10 @@
   <br>
 
   Any questions, problems, or concerns, email: <a herf="mailto:alex@alderautomations.com">alex@alderautomations.com</a>
-</p>
+ </p>
+
+ <p>Generated:<br>
+  {{timestamp}}</p>
 
 </body>
 </html>

@@ -40,18 +40,24 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
     result = ReportWriter(day_one, day_two).print_to_json(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
     if type(result) == str:
             return jsonify('empty')
-    result.reset_index(drop=True, inplace=True)
+    #result.reset_index(drop=True, inplace=True)
 
     if opt_print == 'json':
         result = result.fillna(0) #turn any NaN data to Zero for json compatability
+        result.reset_index(inplace=True)
         return result.to_dict(orient='index')
     elif opt_print == 'html':
         result = result.fillna('') #turn any NaN data to blank for printability
         return render_template('render.html', 
                                 tables=[result.to_html(table_id="table", classes="ui striped table")], 
                                 titles=result.columns.values,
-                                timestamp=datetime.now(),
-                                rpttp=rpt_type) 
+                                timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
+                                dates=[
+                                    datetime.strptime(day_one, "%Y%m%d").strftime('%a, %b %d, %Y'),
+                                    datetime.strptime(day_two, "%Y%m%d").strftime('%a, %b %d, %Y')
+                                    ],
+                                rpttp=rpt_type, 
+                                select_emps=select_emps, select_jobs=select_jobs) 
     else:
         raise ValueError('Print argument not passed json or html -- leave blank for json')
 

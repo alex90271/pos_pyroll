@@ -167,7 +167,7 @@ class ReportWriter():
             _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
         _df.set_index('EMPLOYEE', inplace=True)
         _df.index.rename('ID', inplace=True)
-        _df = _df[['LASTNAME','FIRSTNAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS','TOTALTIPS']]
+        #df = _df[['LASTNAME','FIRSTNAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS','TOTALTIPS']]
     
         #if any additonal columns are requested, add them        
         if addl_cols is not None:
@@ -248,8 +248,11 @@ class ReportWriter():
             df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs)
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
-            
-        return df.round(2)
+
+        if type(df) == str: #if df is 'empty' don't try to round it
+            return df
+        else:
+            return df.round(2)
 
 class WeeklyWriter(ReportWriter):
 
@@ -258,10 +261,8 @@ class WeeklyWriter(ReportWriter):
         self.last_day = last_day
     
     def weekly_labor(self, selected_jobs):
-        #index 0 = year, 1 = week, 2 = day
-        #week_start = datetime.datetime.strptime(self.first_day, "%Y%m%d").isocalendar()
-        #week_end = datetime.datetime.strptime(self.last_day, "%Y%m%d").isocalendar() 
-        date_ranges = pd.date_range(start=self.first_day,end=self.last_day,freq='w')
+
+        date_ranges = pd.date_range(start=self.first_day,end=self.last_day,freq='w-mon')
         #print(date_ranges)
         data = []
         for date in date_ranges:
@@ -274,14 +275,14 @@ class WeeklyWriter(ReportWriter):
                     append_totals=False,
                     selected_jobs=selected_jobs)
             if type(t) != str:
-                t['DATE'] = date
+                data.append(t)
+                t['WEEK OF'] = date.strftime('%a %b %d, %Y')
                 t['SALES'] = np.sum(self.get_total_sales())
                 t['RATE'] = np.mean(self.labor_hourly())
-                data.append(t)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
         vals = ['OVERHRS']#,'HOURS']
-        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['DATE','SALES','RATE'], values=vals)
+        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['WEEK OF','SALES','RATE'], values=vals)
         return rtn_df
 
 if __name__ == '__main__':
