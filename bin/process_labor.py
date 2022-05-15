@@ -117,6 +117,9 @@ class ProcessLabor():
 
     def get_clockin_time(self):
         df = self.df[['EMPLOYEE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
+        for col in ['INHOUR','OUTHOUR']:
+            df[col] = np.where(df[col].astype(int) < 12, df[col].astype(str) + 'am', df[col])
+            df[col] = np.where(df[col].astype(int) > 12, df[col].astype(int) - 12, df[col].astype(int))
         df['DATE'] = self.get_day()
         return df
     
@@ -264,7 +267,7 @@ class ProcessLabor():
         tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT","OTHERTIPS"]].sum(axis=1)
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
-        print(tdf)
+        #print(tdf)
         return tdf
 
     def calc_emps_in_day(self):
