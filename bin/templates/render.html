@@ -4,42 +4,38 @@
     <meta charset="UTF-8">
     <title>{{rpttp}}</title>
     <link rel="stylesheet" media ="all" href="{{ url_for('static', filename='css/semantic.min.css') }}">
+    <link rel="stylesheet" media ="all" href="{{ url_for('static', filename='css/print.css') }}">
 </head>
 <body>
-   <p>Selected Dates:<br>
-    {{dates[0]}}<br>
-    -<br>
-    {{dates[1]}}</p>
+  <div class="ui message">
+   <p>Selected Dates: {{dates[0]}} - {{dates[1]}}</p>
 
-    <p>Report Type:<br>
-    {{rpttp}}</p>
+    <p>Report Type: {{rpttp}}</p>
 
-    <p>Selected Employee Codes:<br>
-      {{select_emps}}</p>
+    <p>Selected Employee Codes: {{select_emps}}</p>
 
-    <p>Selected Job Codes:<br>
-      {{select_jobs}}</p>
+    <p>Selected Job Codes: {{select_jobs}}</p>
+    <div class="ui top right attached label">
+      <p>Generated: {{timestamp}}</p>
+      <p class="noprint">Support: <a herf="mailto:alex@alderautomations.com">alex@alderautomations.com</a></p>
+      </div>
+  </div>
+
+  <div class='ui message noprint' id="noprint">
+    <p>
+     Notes:<br>
+     Srvtips column accounts for removed tipshare (currently 4% of sales)<br>
+     Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for more info <br>
+     Meals must be hand calculated at this time, but a space is provided to write down <br>
+     Total tips column does NOT include DECTIPS, as these do not need to be paid out <br>
+     Each time the page is refreshed it grabs new data from aloha. <br>
+     To change hours or tips, update in aloha, save, then refresh here <br>
+     </p>
+    </div>
 
   {% for table in tables %}
         {{ table|safe }}
   {% endfor %}
-
- <p>
-  Notes:<br>
-  Srvtips column accounts for removed tipshare (currently 4% of sales)<br>
-  Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for more info <br>
-  Meals must be hand calculated at this time, but a space is provided to write down <br>
-  Total tips column does NOT include DECTIPS, as these do not need to be paid out <br>
-  Each time the page is refreshed it grabs new data from aloha. <br>
-  To change hours or tips, update in aloha, save, then refresh here <br>
-
-  <br>
-
-  Any questions, problems, or concerns, email: <a herf="mailto:alex@alderautomations.com">alex@alderautomations.com</a>
- </p>
-
- <p>Generated:<br>
-  {{timestamp}}</p>
 
 </body>
 </html>
