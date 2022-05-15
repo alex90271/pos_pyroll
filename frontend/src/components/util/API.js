@@ -1,4 +1,4 @@
-const url = "v01/localhost:5000/";
+const url = "http://127.0.0.1:5000/v01/";
 
 const API = {
   settings() {
@@ -7,7 +7,7 @@ const API = {
   },
 
   process(firstDay, lastDay, jobcodes = 0, employees = 0) {
-    return fetch(`${url}data/${firstDay}/${lastDay}/labor_nightly/${jobcodes}/${employees}`)
+    return fetch(`${url}data/${firstDay}/${lastDay}/labor_totals/${jobcodes}/${employees}`)
       .then(response => response.json());
   },
 
