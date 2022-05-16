@@ -3,4 +3,5 @@
        display: none;
        visibility: hidden;
     }
+	@page { margin: 5px 15px 5px 15px; }
  }
