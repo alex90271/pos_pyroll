@@ -32,7 +32,6 @@ class ProcessLabor():
         self.use_aloha_tipshare = c.query('SETTINGS','use_aloha_tipshare', return_type='bool')
         self.tracked_labor = c.query('SETTINGS','tracked_labor', return_type='int_array')
         self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
-        self.salary = c.query('SETTINGS','count_salary')
         self.nonsharedtip_code = c.query('SETTINGS','nonshared_tip_codes', return_type='int_array') 
         self.debug = True
     
@@ -45,7 +44,10 @@ class ProcessLabor():
         '''returns tip share  total from server jobcodes'''
         cur_df = self.calc_servtips()
         total = np.sum(cur_df.loc[:,('TIP_CONT')].values)
-        #print('tipshare ' + str(total))
+        
+        if self.debug:
+            print('tipshare ' + str(total))
+
         return total
 
     def get_percent_tips(self, decl=False, cctip=False):
@@ -64,14 +66,20 @@ class ProcessLabor():
             
         if decl == False and cctip == False:
             raise ValueError('function get_percent_tips returned 0 as no true args were passed')
-        #print('reg tips ' + str(total))
+            
+        if self.debug:
+            print('reg tips ' + str(total))
+
         return total
 
     def get_tipped_hours(self):
         '''returns total hours to be tipped'''
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.tipped_code)].copy()
         total = np.add(np.sum(cur_df['HOURS'].values), np.sum(cur_df['OVERHRS'].values))
-        #print('total hours ' + str(total))
+            
+        if self.debug:
+            print('total hours ' + str(total))
+
         return total
 
     def get_tip_rate(self):
@@ -156,6 +164,10 @@ class ProcessLabor():
         cur_df = cur_df.join(labor)
         cur_df = cur_df.join(tips)
         cur_df['ACTUAL_HOURLY'] = np.divide((cur_df['TOTALTIPS'] + cur_df['TOTAL_PAY']), (cur_df['HOURS'] + cur_df['OVERHRS']))
+
+        if self.debug:
+            cur_df.to_csv('debug/calc_hourly_rate' + self.day + '.csv')
+
         return cur_df
         
 
@@ -173,6 +185,10 @@ class ProcessLabor():
         '''calculates any tips for jobcodes who keeps the entire tip'''
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.nonsharedtip_code)].copy()
         cur_df['OTHERTIPS'] = cur_df['CCTIPS']
+
+        if self.debug:
+            cur_df.to_csv('debug/calc_nonshared_tips' + self.day + '.csv')
+
         return cur_df
 
     def calc_servtips(self): 
@@ -185,6 +201,11 @@ class ProcessLabor():
             cur_df['TIP_CONT'] = np.multiply(cur_df['SALES'].values, float(self.sales_percent))
 
         cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
+
+
+        if self.debug:
+            cur_df.to_csv('debug/calc_srv_tips' + self.day + '.csv')
+
 
         return cur_df
 
@@ -217,6 +238,12 @@ class ProcessLabor():
         cur_df.loc[:,('REGPAY')] = reg
         cur_df.loc[:,('OVERPAY')] = over
         cur_df.loc[:,('TOTAL_PAY')] = np.add(reg,over)
+
+
+        if self.debug:
+            cur_df.to_csv('debug/calc_labor_cost' + self.day + '.csv')
+
+
         return cur_df
 
     def calc_hourly_labor(self, interval=60, jobcodes=[7,8]):
@@ -231,7 +258,10 @@ class ProcessLabor():
         cur_df['STARTMIN'] = pd.to_datetime(cur_df['STARTMIN'], format='%M')
         cur_df['STARTHOUR'] = cur_df['STARTHOUR'].dt.strftime('%I%p')
         cur_df['STARTMIN'] = cur_df['STARTMIN'].dt.strftime('%M')
-  
+
+        if self.debug:
+            cur_df.to_csv('debug/calc_hourly_labor' + self.day + '.csv')
+
         return cur_df
 
     def calc_laborrate_df(self):
