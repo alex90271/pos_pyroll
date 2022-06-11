@@ -29,6 +29,7 @@ class ReportWriter():
                 cur_day = first_day.strftime("%Y%m%d")
                 self.days.append(cur_day)
                 first_day += datetime.timedelta(days=increment)
+
     def unused_tip_in_period(self):
         '''returns total amount of unallocated tips for the period'''
         return (labor(day).get_unallocated_tips() for day in self.days)
@@ -52,7 +53,6 @@ class ReportWriter():
     def hourly(self):
         a = [labor(day).calc_hourly_rate() for day in self.days]
         _df = pd.concat(a)
-        print(_df)
         return _df
 
     def append_totals(
@@ -284,7 +284,6 @@ class WeeklyWriter(ReportWriter):
                     sum_only=True,
                     append_totals=False,
                     selected_jobs=selected_jobs)
-            print(self.labor_hourly())
             if type(t) != str:
                 data.append(t)
                 t['WEEK OF'] = date.strftime('%a %b %d, %Y')
