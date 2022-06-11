@@ -19,9 +19,7 @@ class ProcessLabor():
         #instantiate a single day to process data
         self.db = QueryDB(day)
         self.df = self.db.process_db('labor')
-        #print(self.df)
         self.day = day
-        #self.cached = DatabaseHandler(day).get_data('daily_calc_cache')
 
         #config options
         c = ChipConfig()
@@ -301,7 +299,6 @@ class ProcessLabor():
 
     def calc_payroll(self):
         '''appends serving tips and tipout to the main dataframe, and returns the resulting dataframe'''
-        #print(self.calc_tiprate_df())
         s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]] #save just those columns from calc_serve_tips
         t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
         n = self.calc_nonsharedtips()[["OTHERTIPS"]]
@@ -310,7 +307,10 @@ class ProcessLabor():
         tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT","OTHERTIPS"]].sum(axis=1)
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
-        #print(tdf)
+
+        if self.debug:
+            tdf.to_csv('debug/calc_payroll' + self.day + '.csv')
+
         return tdf
 
     def calc_emps_in_day(self):
