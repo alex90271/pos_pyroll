@@ -7,9 +7,7 @@
 #v01 Routes
 from datetime import datetime
 from query_db import QueryDB
-import numpy as np
-import os
-import json
+import pdfkit
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
 from report_writer import ReportWriter

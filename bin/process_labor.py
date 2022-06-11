@@ -34,7 +34,7 @@ class ProcessLabor():
         self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
         self.salary = c.query('SETTINGS','count_salary')
         self.nonsharedtip_code = c.query('SETTINGS','nonshared_tip_codes', return_type='int_array') 
-        self.debug = False
+        self.debug = True
     
     def get_day(self, fmt="%a %b %e"):
         '''returns the current day for the process labor object'''
@@ -81,7 +81,10 @@ class ProcessLabor():
         tipped_hours = self.get_tipped_hours()
         total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(decl=True, cctip=True))
         with np.errstate(invalid='ignore'): #some days may return zero and thats okay (closed days)
-            return np.divide(total_pool, tipped_hours)
+            rt = np.divide(total_pool, tipped_hours)
+            if self.debug:
+                print(self.day, rt)
+            return rt
             
     def get_total_pay(self):
         '''returns total cost of labor'''
@@ -141,12 +144,20 @@ class ProcessLabor():
         labor_cost = self.get_total_pay()
         sales = self.get_total_sales()
         if sales == 0:
-            if return_nan:
-                return np.nan
-            else:
-                return 0
+            return 0
         else:
             return np.multiply(np.divide(labor_cost, sales), 100)
+
+    def calc_hourly_rate(self):
+        '''calculates the individual employee hourly rate, including any tips earned'''
+        cur_df = self.df
+        labor = self.calc_labor_cost(total=True, salary=False)[['TOTAL_PAY']],
+        tips = self.calc_payroll()[['TOTALTIPS']],
+        cur_df = cur_df.join(labor)
+        cur_df = cur_df.join(tips)
+        cur_df['ACTUAL_HOURLY'] = np.divide((cur_df['TOTALTIPS'] + cur_df['TOTAL_PAY']), (cur_df['HOURS'] + cur_df['OVERHRS']))
+        return cur_df
+        
 
     def calc_tipout(self):
         '''calculates tipouts and returns a dataframe with added tipout values'''
@@ -192,11 +203,14 @@ class ProcessLabor():
         salary_df.loc[:,('OVERHRS')] = np.divide(salary_df.loc[:,('OVERHRS')], self.pay_period)
         return salary_df
 
-    def calc_labor_cost(self):
+    def calc_labor_cost(self, total=False, salary=True):
         '''returns a dataframe with pay based on pay rate and hours on tracked labor
            use salary=False to skip calculating salary'''
-        cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tracked_labor)].copy()
-        if self.salary:
+        if not total:
+            cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tracked_labor)].copy()
+        else:
+            cur_df = self.df.copy()
+        if salary:
             cur_df = cur_df.append(self.calc_salary())
         reg = np.multiply(cur_df.loc[:,('HOURS')], cur_df.loc[:,('RATE')])
         over = np.multiply(cur_df.loc[:,('OVERHRS')], np.multiply(cur_df.loc[:,('RATE')],1.5))
@@ -277,7 +291,7 @@ if __name__ == '__main__':
     def main():
         #print("loading ProcessTips.py")
         #print(ProcessLabor("20220107").calc_emps_in_day())
-        print(ProcessLabor("20211214").get_clockin_time())
+        print(ProcessLabor("20211214").calc_hourly_rate())
     r=1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

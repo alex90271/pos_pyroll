@@ -48,6 +48,12 @@ class ReportWriter():
         #df['CLOCKOUT'] = df['OUTHOUR'] + df['OUTMINUTE']
         
         return _df
+    
+    def hourly(self):
+        a = [labor(day).calc_hourly_rate() for day in self.days]
+        _df = pd.concat(a)
+        print(_df)
+        return _df
 
     def append_totals(
                     self,
@@ -244,10 +250,14 @@ class ReportWriter():
             df = self.cout_by_eod(
                 cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
                 cout_col='COUTBYEOD')
+
         elif rpt == 'labor_weekly':
             df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs)
+
+        elif rpt == 'hourly':
+            df = self.hourly()
         else:
-            raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_main, labor_rate, cout_eod')
+            raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')
 
         if type(df) == str: #if df is 'empty' don't try to round it
             return df
@@ -274,6 +284,7 @@ class WeeklyWriter(ReportWriter):
                     sum_only=True,
                     append_totals=False,
                     selected_jobs=selected_jobs)
+            print(self.labor_hourly())
             if type(t) != str:
                 data.append(t)
                 t['WEEK OF'] = date.strftime('%a %b %d, %Y')
@@ -281,7 +292,7 @@ class WeeklyWriter(ReportWriter):
                 t['RATE'] = np.mean(self.labor_hourly())
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
-        vals = ['OVERHRS']#,'HOURS']
+        vals = ['OVERHRS','HOURS']
         rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['WEEK OF','SALES','RATE'], values=vals)
         return rtn_df
 
