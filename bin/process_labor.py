@@ -32,6 +32,10 @@ class ProcessLabor():
         self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
         self.nonsharedtip_code = c.query('SETTINGS','nonshared_tip_codes', return_type='int_array') 
         self.debug = c.query('SETTINGS','debug', return_type='bool')
+
+        if self.debug:
+            if not os.path.exists('debug'):
+                os.mkdir('debug')
     
     def get_day(self, fmt="%a %b %e"):
         '''returns the current day for the process labor object'''
