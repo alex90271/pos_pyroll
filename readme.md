@@ -1,3 +1,27 @@
+### ---FRONTEND:
+
+Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
+
+### `npm run dev`
+
+Runs the app in the electron with dev mode enabled
+
+### `npm run electron`
+
+Runs the app in the electron
+
+### ---BACKEND:
+
 python dependencies (updated 4-25-2022)
 
     pandas
