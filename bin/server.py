@@ -7,7 +7,7 @@
 #v01 Routes
 from datetime import datetime
 from query_db import QueryDB
-import pdfkit
+import flask_weasyprint
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
 from report_writer import ReportWriter
@@ -46,7 +46,7 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
         return result.to_dict(orient='index')
     elif opt_print == 'html':
         result = result.fillna('') #turn any NaN data to blank for printability
-        return render_template('render.html', 
+        tmplt =  render_template('render.html', 
                                 tables=[result.to_html(table_id="table", classes="ui striped table")], 
                                 titles=result.columns.values,
                                 timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
@@ -55,7 +55,10 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
                                     datetime.strptime(day_two, "%Y%m%d").strftime('%a, %b %d, %Y')
                                     ],
                                 rpttp=rpt_type, 
-                                select_emps=select_emps, select_jobs=select_jobs) 
+                                select_emps=select_emps, select_jobs=select_jobs)
+        #pdfkit.from_string(tmplt, 'out.pdf')
+        #pdfkit.from_url('http://localhost:5000' + path, 'out.pdf')
+        return tmplt
     else:
         raise ValueError('Print argument not passed json or html -- leave blank for json')
 
@@ -64,6 +67,17 @@ def employees_in_period(day_one, day_two):
     result = ReportWriter(day_one,day_two).employees_in_dates()
     print(result)
     return jsonify(result.to_dict(orient='index'))
+
+@app.route('/v01/print/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>')
+def print_pdf(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='html'):
+    return flask_weasyprint.render_pdf(url_for(    
+                                                'print_rpt',
+                                                day_one=day_one,
+                                                day_two=day_two,
+                                                rpt_type=rpt_type,
+                                                select_jobs=select_jobs,
+                                                select_emps=select_emps, 
+                                                opt_print=opt_print))
 
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
