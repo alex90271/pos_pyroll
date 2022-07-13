@@ -46,7 +46,7 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
         return result.to_dict(orient='index')
     elif opt_print == 'html':
         result = result.fillna('') #turn any NaN data to blank for printability
-        tmplt =  render_template('render.html', 
+        return render_template('render.html', 
                                 tables=[result.to_html(table_id="table", classes="ui striped table")], 
                                 titles=result.columns.values,
                                 timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
@@ -56,9 +56,6 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
                                     ],
                                 rpttp=rpt_type, 
                                 select_emps=select_emps, select_jobs=select_jobs)
-        #pdfkit.from_string(tmplt, 'out.pdf')
-        #pdfkit.from_url('http://localhost:5000' + path, 'out.pdf')
-        return tmplt
     else:
         raise ValueError('Print argument not passed json or html -- leave blank for json')
 
