@@ -11,6 +11,13 @@ const API = {
       .then(response => response.json());
   },
 
+  print(firstDay, lastDay, jobcodes = 0, employees = 0) {
+    var link = document.createElement('a');
+    link.href = (`${url}print/${firstDay}/${lastDay}/labor_totals/${jobcodes}/${employees}`)
+    link.download = 'file.pdf'
+    link.dispatchEvent(new MouseEvent('click'));
+  },
+
   consoleLogConfig() {
     fetch(`${url}config/SETTINGS`)
       .then(response => response.json())

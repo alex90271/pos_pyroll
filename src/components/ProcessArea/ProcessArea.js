@@ -6,9 +6,14 @@ export default function ProcessArea(props) {
     const availableOptions = () => {
         if (props.canProcess) {
             return (
+                <div>
                 <button onClick={props.process} className='ui light blue button'>
                     Process
                 </button>
+                 <button onClick={props.print} className='ui light grey button'>
+                    Print
+                </button>
+                </div>
             )
         } else {
             return (

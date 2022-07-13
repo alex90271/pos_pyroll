@@ -360,6 +360,14 @@ export default function ConfigArea(props) {
             });
     }
 
+    const print = () => {
+        const range = selectedDayRange;
+        API.print(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
+            .then(data => {
+            props.setEditedTableData(data);
+            });
+    }
+
     return (
         <div className="ConfigArea">
             <div className='CustomCalendar'>
@@ -374,6 +382,7 @@ export default function ConfigArea(props) {
             <ProcessArea
                 canProcess={canProcess}
                 process={process}
+                print={print}
                 displayedRange={displayedRange()}
             />
             <Settings
