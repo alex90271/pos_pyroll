@@ -1,24 +1,26 @@
 import React from 'react'
-import { Dropdown, DropdownItem, Icon } from 'semantic-ui-react'
+import { Dropdown } from 'semantic-ui-react'
 
 export default function DrownMenu(props) {
-
-  var selected = (array) => array[1];
 
   const options = (array) => {
     const output = [];
     array.forEach((item) => {
         output.push(
-          <Dropdown.Item>
-            {item}
-          </Dropdown.Item>
+          item
         );
     });
     return output;
   }
 
 return (
-  <Dropdown text={selected(props.reports)} floating labeled button className='icon' options={options(props.reports)}
-  />
+  <div className='thediv'>
+    <Dropdown
+      placeholder='select report'
+      floating labeled button
+      className='icon' 
+      options={options(props.reports)}
+    />
+  </div>
 )
 }

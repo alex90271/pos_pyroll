@@ -42,3 +42,7 @@
     opacity: 1;
     pointer-events: all;
 }
+
+.Reports {
+    margin: 5px;
+}

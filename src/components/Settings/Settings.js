@@ -58,7 +58,7 @@ export default function Settings(props) {
                     </div>
                 }
             />
-            <div>
+            <div className='Reports'>
                 <DrownMenu
                     reports={props.reports}
                     change={props.changeReport}

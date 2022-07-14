@@ -109,25 +109,25 @@ def jobcode_list():
 
 @app.route('/v01/reports')
 def report_list():
-    return jsonify(['labor_main','labor_total','labor_nightly','tip_rate','labor_rate','cout_eod'])
+    #return jsonify(['labor_main','labor_total','labor_nightly','tip_rate','labor_rate','cout_eod'])
     return jsonify((
-            {'ID':0,'NAME':'labor_main', 
-                "DESC": 'the main labor report, returns hours, tips, etc. for payroll',
+            {'key':'labor_main','text':'labor_main', 'value':'labor_main', 
+                "description": '',
                 },
-            {'ID':1,'NAME':'labor_total',
-                "DESC": 'totaled main labor report, returns hours, tips, etc. for payroll *WITHOUT* jobcodes'}
+            {'key':'labor_total','text':'labor_total','value':'labor_total',
+                "description": ''}
                , 
-            {'ID':2,'NAME':'labor_nightly',
-                "DESC": 'the main nightly labor report, returns hours, tips, etc. for payroll *WITH* shift dates, gives each shift',}
+            {'key':'labor_nightly','text':'labor_nightly','value':'labor_nightly',
+                "description": '',}
                 ,
-            {'ID':3,'NAME':'tip_rate',
-                "DESC": 'the report showing hourly tip out daily',}
+            {'key':'tip_rate','text':'tip_rate','value':'tip_rate',
+                "description": '',}
                 ,
-            {'ID':4,'NAME':'labor_rate',
-                "DESC": 'the report showing labor rates daily',}
+            {'key':'labor_rate','text':'labor_rate','value':'labor_rate',
+                "description": '',}
                 ,
-           {'ID':5,'NAME':'cout_eod',
-                "DESC": 'shows any clock outs forced by end of day (EOD)',}
+           {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
+                "description": '',}
                 
         )
         )
