@@ -29,6 +29,11 @@ const API = {
       .then(response => response.json());
   },
 
+  reports() {
+    return fetch(`${url}reports`)
+      .then(response => response.json());
+  },
+
   jobcodes() {
     return fetch(`${url}jobcodes`)
       .then(response => response.json());

@@ -107,6 +107,31 @@ def jobcode_list():
     .process_db('jobcodes')
     .to_dict(orient='records'))
 
+@app.route('/v01/reports')
+def report_list():
+    return jsonify(['labor_main','labor_total','labor_nightly','tip_rate','labor_rate','cout_eod'])
+    return jsonify((
+            {'ID':0,'NAME':'labor_main', 
+                "DESC": 'the main labor report, returns hours, tips, etc. for payroll',
+                },
+            {'ID':1,'NAME':'labor_total',
+                "DESC": 'totaled main labor report, returns hours, tips, etc. for payroll *WITHOUT* jobcodes'}
+               , 
+            {'ID':2,'NAME':'labor_nightly',
+                "DESC": 'the main nightly labor report, returns hours, tips, etc. for payroll *WITH* shift dates, gives each shift',}
+                ,
+            {'ID':3,'NAME':'tip_rate',
+                "DESC": 'the report showing hourly tip out daily',}
+                ,
+            {'ID':4,'NAME':'labor_rate',
+                "DESC": 'the report showing labor rates daily',}
+                ,
+           {'ID':5,'NAME':'cout_eod',
+                "DESC": 'shows any clock outs forced by end of day (EOD)',}
+                
+        )
+        )
+
 #Unfinished Requests
 #@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])
 def update_data(employee_id,data):

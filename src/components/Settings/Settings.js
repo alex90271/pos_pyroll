@@ -5,6 +5,7 @@ import Modal from '../Modal/Modal.js';
 import './Settings.css';
 import Checkbox from '../SettingComponents/Checkbox/Checkbox.js';
 import EditedSettingsBox from '../EditedSettingsBox/EditedSettingsBox.js';
+import DrownMenu from '../DrownMenu/DrownMenu';
 
 export default function Settings(props) {
 
@@ -57,6 +58,12 @@ export default function Settings(props) {
                     </div>
                 }
             />
+            <div>
+                <DrownMenu
+                    reports={props.reports}
+                    change={props.changeReport}
+                />
+            </div>
             <SelectionWindow 
                 title={"Jobcodes"}
                 parsingFunction={getJobcodeName}

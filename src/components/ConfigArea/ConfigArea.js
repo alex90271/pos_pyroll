@@ -8,9 +8,11 @@ import API from '../util/API.js';
 import { defaultSettingsObject } from '../../defaultSettingsObject';
 import Lodash from 'lodash';
 
+
 export default function ConfigArea(props) {
 
     const [canProcess, setCanProcess] = useState(false);
+    const [reports, setReports] = useState([]);
     const [jobcodes, setJobcodes] = useState([]);
     const [jobcodeFilters, setJobcodeFilters] = useState({});
     const [employees, setEmployees] = useState([]);
@@ -81,6 +83,15 @@ export default function ConfigArea(props) {
     //On startup this useEffect will use the API to get jobcodes and settings from the backend.
     //The jobcodes stored in the settings object are stored using their code-number only.
     //We use the jobcode objects from the previous get query in order to map and display their names.
+    useEffect(() => {
+        API.reports()
+            .then(response => {
+                setReports(response);
+                return response
+            });
+
+    }, []);
+
     useEffect(() => {
         API.jobcodes()
             .then(response => {
@@ -199,6 +210,14 @@ export default function ConfigArea(props) {
             let output = [...prevState];
             let index = prevState.findIndex((element) => element.ID === id);
             output[index].SELECTED = newValue;
+            return output;
+        });
+    }
+
+    const changeReport = (newReport) => {
+        setReports((prevState) => {
+            let output = [...prevState];
+            output = newReport;
             return output;
         });
     }
@@ -389,6 +408,8 @@ export default function ConfigArea(props) {
                 settings={settings}
                 handleSettingChange={handleSettingChange}
                 jobcodes={jobcodes}
+                reports={reports}
+                changeReport={changeReport}
                 toggleJobcode={toggleJobcode}
                 jobcodeFilters={jobcodeFilters}
                 employees={employees}

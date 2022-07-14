@@ -71,26 +71,6 @@ class ChipConfig():
             'columnsToRound':["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"],
             'editableColumns':["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"]
         }
-        data['REPORT_OPTIONS'] = {
-            'labor_main':
-                ['the main labor report, returns hours, tips, etc. for payroll',
-                'LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'DECTIPS', 'HOURS','OVERHRS', 'SRVTIPS', 'TIPOUT'],
-            'labor_total': 
-                ['totaled main labor report, returns hours, tips, etc. for payroll *WITHOUT* jobcodes',
-                'LASTNAME', 'FIRSTNAME', 'DECTIPS', 'HOURS','OVERHRS', 'SRVTIPS', 'TIPOUT'], 
-            'labor_nightly':
-                ['the main nightly labor report, returns hours, tips, etc. for payroll *WITH* shift dates, gives each shift',
-                'LASTNAME', 'FIRSTNAME', 'JOB_NAME','SYSDATEIN', 'DECTIPS', 'HOURS','OVERHRS', 'SRVTIPS', 'TIPOUT'],
-            'tip_rate':
-                ['the report showing hourly tip out daily',
-                'Date','Tip Hourly','Cash Tips','Takeout CC Tips', 'Server Tipshare', 'Total Tip Pool', "Total Tip'd Hours"],
-            'labor_rate':
-                ['the report showing labor rates daily',
-                'Jobs','Day','Rate (%)','Total Pay', 'Total Sales', 'Reg Hours', 'Over Hours', 'Total Hours'],
-            'cout_eod':
-                ['shows any clock outs forced by end of day (EOD)',
-                'SYSDATEIN', 'EMPLOYEE', 'FIRSTNAME', 'LASTNAME', 'JOB_NAME', 'HOURS','OVERHRS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD']
-        }
             
         return data
     
