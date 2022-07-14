@@ -18,12 +18,7 @@ export default function DrownMenu(props) {
   }
 
 return (
-  <Dropdown text={selected(props.reports)} floating labeled button className='icon'>
-    <Dropdown.Menu className='left'>
-      {options(
-            props.reports
-        )}
-    </Dropdown.Menu>
-  </Dropdown>
+  <Dropdown text={selected(props.reports)} floating labeled button className='icon' options={options(props.reports)}
+  />
 )
 }
