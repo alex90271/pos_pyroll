@@ -16,9 +16,10 @@ export default function DrownMenu(props) {
 return (
   <div className='thediv'>
     <Dropdown
-      placeholder='select report'
+      placeholder='Change Report'
       floating labeled button
-      className='icon' 
+      className='icon'
+      onChange={props.change} 
       options={options(props.reports)}
     />
   </div>
