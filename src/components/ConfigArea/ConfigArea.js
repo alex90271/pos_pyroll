@@ -13,6 +13,7 @@ export default function ConfigArea(props) {
 
     const [canProcess, setCanProcess] = useState(false);
     const [reports, setReports] = useState([]);
+    const [selectedReport, setSelcReport] = useState('labor_main');
     const [jobcodes, setJobcodes] = useState([]);
     const [jobcodeFilters, setJobcodeFilters] = useState({});
     const [employees, setEmployees] = useState([]);
@@ -214,12 +215,8 @@ export default function ConfigArea(props) {
         });
     }
 
-    const changeReport = (newReport) => {
-        setReports((prevState) => {
-            let output = [...prevState];
-            output = newReport;
-            return output;
-        });
+    const changeReport = (e, {value}) => {
+        setSelcReport(value);
     }
 
     
@@ -373,7 +370,8 @@ export default function ConfigArea(props) {
 
     const process = () => {
         const range = selectedDayRange;
-        API.process(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
+        //console.log(reports)
+        API.process(formatDate(range.from), formatDate(range.to), selectedReport, selectedToCSV(jobcodes), selectedToCSV(employees))
             .then(data => {
             props.setEditedTableData(data);
             });
@@ -381,7 +379,7 @@ export default function ConfigArea(props) {
 
     const print = () => {
         const range = selectedDayRange;
-        API.print(formatDate(range.from), formatDate(range.to), selectedToCSV(jobcodes), selectedToCSV(employees))
+        API.print(formatDate(range.from), formatDate(range.to), selectedReport, selectedToCSV(jobcodes), selectedToCSV(employees))
             .then(data => {
             props.setEditedTableData(data);
             });
