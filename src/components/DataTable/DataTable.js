@@ -36,7 +36,7 @@ export default function DataTable(props) {
     
     const tableHeaderItems = (tableObject) => {
         if (!props.tableData) {
-            return;
+            return (<h4>No data to display</h4>)
         }
         return (
             <Table.Row className={"TableHeader"}>
