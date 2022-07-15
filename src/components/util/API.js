@@ -6,14 +6,14 @@ const API = {
       .then(response => response.json());
   },
 
-  process(firstDay, lastDay, jobcodes = 0, employees = 0) {
-    return fetch(`${url}data/${firstDay}/${lastDay}/labor_totals/${jobcodes}/${employees}`)
+  process(firstDay, lastDay, report, jobcodes = 0, employees = 0) {
+    return fetch(`${url}data/${firstDay}/${lastDay}/${report}/${jobcodes}/${employees}`)
       .then(response => response.json());
   },
 
-  print(firstDay, lastDay, jobcodes = 0, employees = 0) {
+  print(firstDay, lastDay, report, jobcodes = 0, employees = 0) {
     var link = document.createElement('a');
-    link.href = (`${url}print/${firstDay}/${lastDay}/labor_totals/${jobcodes}/${employees}`)
+    link.href = (`${url}print/${firstDay}/${lastDay}/${report}/${jobcodes}/${employees}`)
     link.download = 'file.pdf'
     link.dispatchEvent(new MouseEvent('click'));
   },
