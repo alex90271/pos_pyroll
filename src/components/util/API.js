@@ -13,8 +13,7 @@ const API = {
 
   print(firstDay, lastDay, report, jobcodes = 0, employees = 0) {
     var link = document.createElement('a');
-    link.href = (`${url}print/${firstDay}/${lastDay}/${report}/${jobcodes}/${employees}`)
-    link.download = 'file.pdf'
+    link.href = (`${url}/data/${firstDay}/${lastDay}/${report}/${jobcodes}/${employees}/html`)
     link.dispatchEvent(new MouseEvent('click'));
   },
 
