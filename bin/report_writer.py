@@ -52,8 +52,9 @@ class ReportWriter():
     
     def hourly(self):
         a = [labor(day).calc_hourly_rate() for day in self.days]
-        _df = pd.concat(a)
-        return _df
+        df = pd.concat(a)
+        df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR', 'INMINUTE', 'JOBCODE', 'OUTHOUR', 'OUTMINUTE', 'RATE'], axis=1, inplace=True)
+        return df
 
     def append_totals(
                     self,

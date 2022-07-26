@@ -163,10 +163,10 @@ class ProcessLabor():
         '''calculates the individual employee hourly rate, including any tips earned'''
         cur_df = self.df
         labor = self.calc_labor_cost(total=True, salary=False)[['TOTAL_PAY']],
-        tips = self.calc_payroll()[['TOTALTIPS']],
+        tips = self.calc_payroll()[['TOTALTIPS', 'TIPOUT']],
         cur_df = cur_df.join(labor)
         cur_df = cur_df.join(tips)
-        cur_df['ACTUAL_HOURLY'] = np.divide((cur_df['TOTALTIPS'] + cur_df['TOTAL_PAY']), (cur_df['HOURS'] + cur_df['OVERHRS']))
+        cur_df['ACTUAL_HOURLY'] = np.divide((cur_df['TOTALTIPS'] + cur_df['TOTAL_PAY'] + cur_df['TIPOUT']), (cur_df['HOURS'] + cur_df['OVERHRS']))
 
         if self.debug:
             cur_df.to_csv('debug/calc_hourly_rate' + self.day + '.csv')
