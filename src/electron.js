@@ -1,5 +1,5 @@
-import path from 'path'
-import {app, BrowserWindow} from 'electron'
+const path = require('path')
+const {app, BrowserWindow} = require('electron')
 
 function createWindow() {
   // Create the browser window.
@@ -13,11 +13,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   // win.loadFile("index.html");
-  win.loadURL(
-    isDev
-      ? 'http://localhost:3000'
-      : `file://${path.join(__dirname, '../build/index.html')}`
-  );
+  win.loadURL('http://localhost:3000');
   // Open the DevTools.
   if (isDev) {
     win.webContents.openDevTools({ mode: 'detach' });
