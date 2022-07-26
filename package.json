@@ -10,6 +10,8 @@
     "create-react-app": "^1.5.2",
     "electron-squirrel-startup": "^1.0.0",
     "fomantic-ui": "^2.8.8",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-preset-env": "^7.7.2",
     "python-shell": "^3.0.1",
     "react": "^17.0.2",
     "react-contenteditable": "^3.3.6",

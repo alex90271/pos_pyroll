@@ -289,7 +289,7 @@ class WeeklyWriter(ReportWriter):
                 data.append(t)
                 t['WEEK OF'] = date.strftime('%a %b %d, %Y')
                 t['SALES'] = np.sum(self.get_total_sales())
-                t['RATE'] = np.mean(self.labor_hourly())
+                t['RATE'] = (np.sum(self.labor_hourly())/6)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
         vals = ['OVERHRS','HOURS']

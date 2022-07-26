@@ -129,6 +129,9 @@ def report_list():
                 ,
            {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
                 "description": '',}
+                ,
+           {'key':'labor_weekly','text':'labor_weekly','value':'labor_weekly',
+                "description": '',}
                 
         )
         )
