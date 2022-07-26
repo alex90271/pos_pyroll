@@ -7,7 +7,7 @@
 #v01 Routes
 from datetime import datetime
 from query_db import QueryDB
-import flask_weasyprint
+#import flask_weasyprint
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
 from report_writer import ReportWriter
@@ -67,6 +67,7 @@ def employees_in_period(day_one, day_two):
 
 @app.route('/v01/print/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>')
 def print_pdf(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='html'):
+    return 'false'
     return flask_weasyprint.render_pdf(url_for(    
                                                 'print_rpt',
                                                 day_one=day_one,
