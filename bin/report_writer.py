@@ -140,6 +140,7 @@ class ReportWriter():
         '''this is the main labor report'''
         a = (labor(day).calc_payroll() for day in self.days)
         df = pd.concat(a)
+        sorter = []
         #if any filter options are provided, fliter the data now. 
         #While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data 
         if selected_employees and selected_jobs:
@@ -153,10 +154,13 @@ class ReportWriter():
             return 'empty'
 
         if sum_only: #setting sum_only to true gives a list of total hours, ignoring the job type
+            sorter = ['LASTNAME','FIRSTNAME','HOURS','OVERHRS','DECTIPS','TOTALTIPS']
             try:
                 index_cols.remove('JOB_NAME')
             except:
                 print('JOB_NAME not specified')
+        else:
+            sorter = ['LASTNAME','FIRSTNAME','JOB_NAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS']
         df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")        
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
         _df.drop(drop_cols, axis=1, inplace=True) #if there any any columns passed in to drop, drop them
@@ -167,14 +171,15 @@ class ReportWriter():
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         _df.reset_index(inplace=True)
         if nightly == True:
+            sorter = ['SYSDATEIN','LASTNAME','FIRSTNAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS']
             _df.sort_values(by=['SYSDATEIN', 'LASTNAME'], inplace=True)
         else:
-            _df.sort_values(by=['LASTNAME'], inplace=True)
+            _df.sort_values(by=['LASTNAME', 'FIRSTNAME'], inplace=True)
         if append_totals:
             _df = self.append_totals(_df, totaled_cols=totaled_cols, averaged_cols=[], labor_main=True)
         _df.set_index('EMPLOYEE', inplace=True)
         _df.index.rename('ID', inplace=True)
-        #df = _df[['LASTNAME','FIRSTNAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS','TOTALTIPS']]
+        _df = _df[sorter]
     
         #if any additonal columns are requested, add them        
         if addl_cols is not None:
@@ -249,11 +254,11 @@ class ReportWriter():
 
         elif rpt == 'cout_eod':
             df = self.cout_by_eod(
-                cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'HOURS', 'OVERHRS','INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
+                cols=['SYSDATEIN', 'EMPLOYEE','FIRSTNAME','LASTNAME', 'JOB_NAME', 'INHOUR','INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'COUTBYEOD'],
                 cout_col='COUTBYEOD')
 
         elif rpt == 'labor_weekly':
-            df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs)
+            df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs, selected_employees=selected_employees)
 
         elif rpt == 'hourly':
             df = self.hourly()
@@ -271,7 +276,7 @@ class WeeklyWriter(ReportWriter):
         self.first_day = first_day
         self.last_day = last_day
     
-    def weekly_labor(self, selected_jobs):
+    def weekly_labor(self, selected_jobs, selected_employees):
 
         date_ranges = pd.date_range(start=self.first_day,end=self.last_day,freq='w-mon')
         #print(date_ranges)
@@ -284,16 +289,18 @@ class WeeklyWriter(ReportWriter):
                     addl_cols=['DATE', 'SALES','RATE'],
                     sum_only=True,
                     append_totals=False,
-                    selected_jobs=selected_jobs)
+                    selected_jobs=selected_jobs,
+                    selected_employees=selected_employees)
             if type(t) != str:
                 data.append(t)
-                t['WEEK OF'] = date.strftime('%a %b %d, %Y')
+                t['WEEK'] = date.strftime('%a %b %d, %Y')
                 t['SALES'] = np.sum(self.get_total_sales())
                 t['RATE'] = (np.sum(self.labor_hourly())/6)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
-        vals = ['OVERHRS','HOURS']
-        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['WEEK OF','SALES','RATE'], values=vals)
+        vals = ['OVERHRS']
+        df.sort_values(by='WEEK')
+        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['WEEK','SALES','RATE'], values=vals)
         return rtn_df
 
 if __name__ == '__main__':
