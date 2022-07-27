@@ -7,16 +7,19 @@
 #v01 Routes
 from datetime import datetime
 from query_db import QueryDB
-#import flask_weasyprint
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
 from report_writer import ReportWriter
 from chip_config import ChipConfig
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 cors = CORS(app)
 app.config['JSON_SORT_KEYS'] = False
-debug = False #set to false to turn off print statements
+debug = False #set to false to turn off print statements0
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @cross_origin
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>')
@@ -65,18 +68,6 @@ def employees_in_period(day_one, day_two):
     print(result)
     return jsonify(result.to_dict(orient='index'))
 
-@app.route('/v01/print/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>')
-def print_pdf(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='html'):
-    return 'false'
-    return flask_weasyprint.render_pdf(url_for(    
-                                                'print_rpt',
-                                                day_one=day_one,
-                                                day_two=day_two,
-                                                rpt_type=rpt_type,
-                                                select_jobs=select_jobs,
-                                                select_emps=select_emps, 
-                                                opt_print=opt_print))
-
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
     return jsonify(ChipConfig()
@@ -110,28 +101,27 @@ def jobcode_list():
 
 @app.route('/v01/reports')
 def report_list():
-    #return jsonify(['labor_main','labor_total','labor_nightly','tip_rate','labor_rate','cout_eod'])
     return jsonify((
             {'key':'labor_main','text':'labor_main', 'value':'labor_main', 
-                "description": 'job by job',
+                "description": '*',
                 },
             {'key':'labor_totals','text':'labor_totals','value':'labor_totals',
-                "description": 'payroll report'}
+                "description": '*'}
                , 
             {'key':'labor_nightly','text':'labor_nightly','value':'labor_nightly',
-                "description": 'shift by shift',}
+                "description": '*',}
                 ,
             {'key':'labor_weekly','text':'labor_weekly','value':'labor_weekly',
-                "description": 'week by week',}
+                "description": '*',}
                 ,
             {'key':'tip_rate','text':'tip_rate','value':'tip_rate',
-                "description": 'nightly tip rpt',}
+                "description": '',}
                 ,
             {'key':'labor_rate','text':'labor_rate','value':'labor_rate',
-                "description": 'nightly labor rpt',}
+                "description": '',}
                 ,
            {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
-                "description": 'bad clockouts',}     
+                "description": '*',}     
             )
         )
 
