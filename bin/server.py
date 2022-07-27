@@ -38,7 +38,11 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
     if debug:
         print(select_jobs, select_emps)
 
-    result = ReportWriter(day_one, day_two).print_to_json(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs)
+    if opt_print == 'json':
+        json_fmt = True
+    else:
+        json_fmt = False
+    result = ReportWriter(day_one, day_two).print_to_json(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=json_fmt)
     if type(result) == str:
             return jsonify('empty')
     #result.reset_index(drop=True, inplace=True)

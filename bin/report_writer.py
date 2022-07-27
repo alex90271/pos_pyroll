@@ -1,3 +1,4 @@
+import json
 from re import A
 from process_labor import ProcessLabor as labor
 from query_db import QueryDB as query_db
@@ -5,7 +6,6 @@ from chip_config import ChipConfig
 import numpy as np
 import pandas as pd
 import datetime
-import os
 import timeit
 
 class ReportWriter():
@@ -198,9 +198,10 @@ class ReportWriter():
     def print_to_json(
                 self, 
                 rpt, 
+                json_fmt,
                 sum_only=False,
                 selected_employees=None,
-                selected_jobs=None
+                selected_jobs=None, 
                 ):
         #TODO include something so the frontend can know if the report is filtered or not ()
         if rpt == 'tip_rate':
@@ -258,7 +259,7 @@ class ReportWriter():
                 cout_col='COUTBYEOD')
 
         elif rpt == 'labor_weekly':
-            df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs, selected_employees=selected_employees)
+            df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs, selected_employees=selected_employees, json_fmt=json_fmt)
 
         elif rpt == 'hourly':
             df = self.hourly()
@@ -276,7 +277,7 @@ class WeeklyWriter(ReportWriter):
         self.first_day = first_day
         self.last_day = last_day
     
-    def weekly_labor(self, selected_jobs, selected_employees):
+    def weekly_labor(self, selected_jobs, selected_employees, json_fmt):
 
         date_ranges = pd.date_range(start=self.first_day,end=self.last_day,freq='w-mon')
         #print(date_ranges)
@@ -286,27 +287,28 @@ class WeeklyWriter(ReportWriter):
             t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                     index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                     totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                    addl_cols=['DATE', 'SALES','RATE'],
+                    addl_cols=['DATE','SALES','RATE'],
                     sum_only=True,
                     append_totals=False,
                     selected_jobs=selected_jobs,
                     selected_employees=selected_employees)
             if type(t) != str:
                 data.append(t)
-                t['WEEK'] = date.strftime('%a %b %d, %Y')
+                t['WEEK'] = date#.strftime('%b, %d, %a, %Y')
                 t['SALES'] = np.sum(self.get_total_sales())
                 t['RATE'] = (np.sum(self.labor_hourly())/6)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
-        vals = ['OVERHRS']
-        df.sort_values(by='WEEK')
-        rtn_df = df.pivot_table(index=['FIRSTNAME'], columns=['WEEK','SALES','RATE'], values=vals)
+        if json_fmt:
+            rtn_df = df.pivot_table(index=['WEEK','FIRSTNAME', 'SALES', 'RATE'], values=['OVERHRS'])
+        else:
+            rtn_df = df.pivot_table(index=['WEEK', 'SALES', 'RATE'],columns=['FIRSTNAME'], values=['OVERHRS'])
+        rtn_df.sort_values(by=['WEEK'], inplace=True)
         return rtn_df
 
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
-        os.environ['json_name'] = 'chip.json'
         #print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         #print(ReportWriter('20220107','20220107').print_to_json('labor_main'))
         print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
