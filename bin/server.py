@@ -113,27 +113,26 @@ def report_list():
     #return jsonify(['labor_main','labor_total','labor_nightly','tip_rate','labor_rate','cout_eod'])
     return jsonify((
             {'key':'labor_main','text':'labor_main', 'value':'labor_main', 
-                "description": '',
+                "description": 'job by job',
                 },
             {'key':'labor_totals','text':'labor_totals','value':'labor_totals',
-                "description": ''}
+                "description": 'payroll report'}
                , 
             {'key':'labor_nightly','text':'labor_nightly','value':'labor_nightly',
-                "description": '',}
+                "description": 'shift by shift',}
+                ,
+            {'key':'labor_weekly','text':'labor_weekly','value':'labor_weekly',
+                "description": 'week by week',}
                 ,
             {'key':'tip_rate','text':'tip_rate','value':'tip_rate',
-                "description": '',}
+                "description": 'nightly tip rpt',}
                 ,
             {'key':'labor_rate','text':'labor_rate','value':'labor_rate',
-                "description": '',}
+                "description": 'nightly labor rpt',}
                 ,
            {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
-                "description": '',}
-                ,
-           {'key':'labor_weekly','text':'labor_weekly','value':'labor_weekly',
-                "description": '',}
-                
-        )
+                "description": 'bad clockouts',}     
+            )
         )
 
 #Unfinished Requests
