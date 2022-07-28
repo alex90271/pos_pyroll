@@ -10,13 +10,10 @@ frontend/.pnp.js
 # production
 /frontend/build
 
-#storage
-/data
-/debug
-
 # testing db
 database/*
 data/*
+debug/*
 *.xlsx
 *.csv
 
