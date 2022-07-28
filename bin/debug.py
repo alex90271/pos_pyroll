@@ -18,7 +18,7 @@ class Debugger():
                     ('John','Snow'),('Abigail','Smith'),
                     ('Adam','Abraham'),('David','Bell'),
                     ('Zoe','Ball'),('Charlie','Duncan'),
-                    ('David','Davidson'),('Harrison','Baahls')
+                    ('David','Davidson'),('Harry','Jones')
                     ]
             data_header = ['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']
             for i in range(1001,1011):

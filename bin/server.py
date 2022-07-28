@@ -17,6 +17,7 @@ cors = CORS(app)
 app.config['JSON_SORT_KEYS'] = False
 debug = False #set to false to turn off print statements0
 
+@cross_origin
 @app.route('/')
 def index():
     return render_template('index.html')
