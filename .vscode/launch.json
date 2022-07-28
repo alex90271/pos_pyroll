@@ -10,7 +10,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "args": ["20210801", "20210803", "0", "0"],
+            "args": [""],
             "console": "integratedTerminal"
         }
     ]
