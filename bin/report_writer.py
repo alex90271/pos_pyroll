@@ -54,7 +54,8 @@ class ReportWriter():
         a = [labor(day).calc_hourly_rate() for day in self.days]
         df = pd.concat(a)
         df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR', 'INMINUTE', 'JOBCODE', 'OUTHOUR', 'OUTMINUTE', 'RATE'], axis=1, inplace=True)
-        return df
+        _df = query_db(self.days[len(self.days)-1]).process_names(df=df, job_bool=False)
+        return _df
 
     def append_totals(
                     self,
@@ -259,7 +260,12 @@ class ReportWriter():
                 cout_col='COUTBYEOD')
 
         elif rpt == 'labor_weekly':
-            df = WeeklyWriter(self.first_day, self.last_day).weekly_labor(selected_jobs=selected_jobs, selected_employees=selected_employees, json_fmt=json_fmt)
+            df = WeeklyWriter(
+                self.first_day, 
+                self.last_day).weekly_labor(
+                    selected_jobs=selected_jobs, 
+                    selected_employees=selected_employees, 
+                    json_fmt=json_fmt)
 
         elif rpt == 'hourly':
             df = self.hourly()
