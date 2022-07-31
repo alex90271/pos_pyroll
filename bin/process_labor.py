@@ -166,7 +166,7 @@ class ProcessLabor():
         tips = self.calc_payroll()[['TOTALTIPS', 'TIPOUT']],
         cur_df = cur_df.join(labor)
         cur_df = cur_df.join(tips)
-        cur_df['ACTUAL_HOURLY'] = np.divide((cur_df['TOTALTIPS'] + cur_df['TOTAL_PAY'] + cur_df['TIPOUT']), (cur_df['HOURS'] + cur_df['OVERHRS']))
+        cur_df['ACTUAL_HOURLY'] = np.divide(np.add(cur_df['TOTALTIPS'], cur_df['TOTAL_PAY']), np.add(cur_df['HOURS'], cur_df['OVERHRS']))
 
         if self.debug:
             cur_df.to_csv('debug/calc_hourly_rate' + self.day + '.csv')
