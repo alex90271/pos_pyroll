@@ -11,6 +11,8 @@ from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
 from report_writer import ReportWriter
 from chip_config import ChipConfig
+import webbrowser
+
 
 app = Flask(__name__, static_url_path='')
 cors = CORS(app)
@@ -146,4 +148,5 @@ def update_data(employee_id,data):
 
 
 if __name__ == '__main__':
+    webbrowser.open_new('http://localhost:5000/')
     app.run(debug=True)
