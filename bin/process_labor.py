@@ -159,7 +159,7 @@ class ProcessLabor():
         else:
             return np.multiply(np.divide(labor_cost, sales), 100)
 
-    def calc_hourly_rate(self):
+    def calc_hourly_pay_rate(self):
         '''calculates the individual employee hourly rate, including any tips earned'''
         cur_df = self.df
         labor = self.calc_labor_cost(total=True, salary=False)[['TOTAL_PAY']],

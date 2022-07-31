@@ -50,8 +50,8 @@ class ReportWriter():
         
         return _df
     
-    def hourly(self):
-        a = [labor(day).calc_hourly_rate() for day in self.days]
+    def hourly_pay_rate(self):
+        a = [labor(day).calc_hourly_pay_rate() for day in self.days]
         df = pd.concat(a)
         df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR', 'INMINUTE', 'JOBCODE', 'OUTHOUR', 'OUTMINUTE', 'RATE'], axis=1, inplace=True)
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df, job_bool=False)
@@ -119,7 +119,7 @@ class ReportWriter():
 
         return _df
 
-    def labor_hourly(self):
+    def labor_hourly_rate(self):
         return [labor(day).get_labor_rate(return_nan=False) for day in self.days]
 
     def get_total_sales(self):
@@ -268,7 +268,8 @@ class ReportWriter():
                     json_fmt=json_fmt)
 
         elif rpt == 'hourly':
-            df = self.hourly()
+            df = self.hourly_pay_rate()
+            df = df[['SYSDATEIN','FIRSTNAME','LASTNAME','HOURS','OVERHRS','TOTAL_PAY','TOTALTIPS','ACTUAL_HOURLY']]
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')
 
@@ -302,7 +303,7 @@ class WeeklyWriter(ReportWriter):
                 data.append(t)
                 t['WEEK'] = date#.strftime('%b, %d, %a, %Y')
                 t['SALES'] = np.sum(self.get_total_sales())
-                t['RATE'] = (np.sum(self.labor_hourly())/6)
+                t['RATE'] = (np.sum(self.labor_hourly_rate())/6)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
         if json_fmt:
