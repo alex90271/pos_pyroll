@@ -126,7 +126,10 @@ def report_list():
                 "description": '',}
                 ,
            {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
-                "description": '*',}     
+                "description": '*',} 
+                ,
+            {'key':'hourly','text':'hourly','value':'hourly',
+                "description": '',}       
             )
         )
 
