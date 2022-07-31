@@ -125,11 +125,15 @@ def report_list():
             {'key':'labor_rate','text':'labor_rate','value':'labor_rate',
                 "description": '',}
                 ,
-           {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
+           {'key':'punctuality','text':'punctuality','value':'punctuality',
                 "description": '*',} 
                 ,
             {'key':'hourly','text':'hourly','value':'hourly',
-                "description": '',}       
+                "description": '*',}
+                ,
+            {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
+                "description": '*',} 
+                ,       
             )
         )
 

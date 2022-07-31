@@ -131,8 +131,16 @@ class ProcessLabor():
 
     def get_clockin_time(self):
         df = self.df[['EMPLOYEE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
-        #for col in ['INHOUR','OUTHOUR']:
-            #df[col] = np.where(df[col].astype(int) > 12, df[col].astype(int) - 12, df[col].astype(int))
+        for col in ['INHOUR', 'OUTHOUR']:
+            df[col] = np.where(df[col].astype(int) < 12, df[col].astype(str) + 'am', df[col]) #any hours that are am, add am
+            try:
+                df[col] = np.where(df[col].astype(int) > 12, df[col].astype(int) - 12, df[col]) #convert 24hr time to a readable 12hr time, skip if an am time
+            except:
+                pass #skip that row, if an am is already added
+            try:
+                df[col] = np.where(df[col].astype(int) < 12, df[col].astype(str) + 'pm', df[col]) #any hours that are left over, add PM
+            except:
+                pass #skip that row if an am is already added
         df['DATE'] = self.get_day()
         return df
     

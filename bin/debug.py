@@ -50,7 +50,7 @@ class Debugger():
                     self.gen_int(0,50), #decl tips
                     'N', #coutbyeod
                     self.gen_int(400,1700), #sales
-                    '16', #inhour
+                    '8', #inhour
                     '00', #inminute
                     '22', #outhour
                     '00', #outminute
