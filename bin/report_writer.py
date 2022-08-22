@@ -155,7 +155,7 @@ class ReportWriter():
             return 'empty'
 
         if sum_only: #setting sum_only to true gives a list of total hours, ignoring the job type
-            sorter = ['LASTNAME','FIRSTNAME','HOURS','OVERHRS','DECTIPS','SRVTIPS','TIPOUT','DECTIPS','UNALLOCTIPS']
+            sorter = ['LASTNAME','FIRSTNAME','HOURS','OVERHRS','DECTIPS','TOTALTIPS','DECTIPS','UNALLOCTIPS']
             try:
                 index_cols.remove('JOB_NAME')
             except:

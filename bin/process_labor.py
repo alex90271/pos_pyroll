@@ -318,7 +318,7 @@ class ProcessLabor():
         n = self.calc_nonsharedtips()[["UNALLOCTIPS"]]
         df = self.df
         tdf = df.join([s,t,n])
-        #tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT","UNALLOCTIPS"]].sum(axis=1)
+        tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT"]].sum(axis=1)
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
 
