@@ -148,5 +148,6 @@ def update_data(employee_id,data):
 
 
 if __name__ == '__main__':
-    webbrowser.open_new('http://localhost:5000/')
+    #webbrowser.open_new('http://localhost:5000/')
     app.run(debug=True)
+    

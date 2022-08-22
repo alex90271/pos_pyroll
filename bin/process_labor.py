@@ -152,7 +152,7 @@ class ProcessLabor():
         used = np.sum([np.sum(self.calc_servtips()[["SRVTIPS"]].values),
                       np.sum(self.calc_tipout()[["TIPOUT"]].values),
                       np.sum(self.calc_tipout()[["DECTIPS"]].values),
-                      np.sum(self.calc_nonsharedtips()[["OTHERTIPS"]].values)])
+                      np.sum(self.calc_nonsharedtips()[["UNALLOCTIPS"]].values)])
         #print(used,total)
          #save just the tipout from calc_tipout
         return np.round(np.subtract(total,used),4)
@@ -196,7 +196,7 @@ class ProcessLabor():
     def calc_nonsharedtips(self):
         '''calculates any tips for jobcodes who keeps the entire tip'''
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.nonsharedtip_code)].copy()
-        cur_df['OTHERTIPS'] = cur_df['CCTIPS']
+        cur_df['UNALLOCTIPS'] = cur_df['CCTIPS']
 
         if self.debug:
             cur_df.to_csv('debug/calc_nonshared_tips' + self.day + '.csv')
@@ -315,10 +315,10 @@ class ProcessLabor():
         '''appends serving tips and tipout to the main dataframe, and returns the resulting dataframe'''
         s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]] #save just those columns from calc_serve_tips
         t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
-        n = self.calc_nonsharedtips()[["OTHERTIPS"]]
+        n = self.calc_nonsharedtips()[["UNALLOCTIPS"]]
         df = self.df
         tdf = df.join([s,t,n])
-        tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT","OTHERTIPS"]].sum(axis=1)
+        #tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT","UNALLOCTIPS"]].sum(axis=1)
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
 

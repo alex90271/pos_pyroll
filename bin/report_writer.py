@@ -155,13 +155,13 @@ class ReportWriter():
             return 'empty'
 
         if sum_only: #setting sum_only to true gives a list of total hours, ignoring the job type
-            sorter = ['LASTNAME','FIRSTNAME','HOURS','OVERHRS','DECTIPS','TOTALTIPS']
+            sorter = ['LASTNAME','FIRSTNAME','HOURS','OVERHRS','DECTIPS','SRVTIPS','TIPOUT','DECTIPS','UNALLOCTIPS']
             try:
                 index_cols.remove('JOB_NAME')
             except:
                 print('JOB_NAME not specified')
         else:
-            sorter = ['LASTNAME','FIRSTNAME','JOB_NAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS']
+            sorter = ['LASTNAME','FIRSTNAME','JOB_NAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','UNALLOCTIPS']
         df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")        
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df) #add employee names before generating report 
         _df.drop(drop_cols, axis=1, inplace=True) #if there any any columns passed in to drop, drop them
@@ -172,7 +172,7 @@ class ReportWriter():
         #this block of code sets the index to employee numbers, sorts by last name, and adds totals
         _df.reset_index(inplace=True)
         if nightly == True:
-            sorter = ['SYSDATEIN','LASTNAME','FIRSTNAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','OTHERTIPS']
+            sorter = ['SYSDATEIN','LASTNAME','FIRSTNAME','HOURS','OVERHRS','SRVTIPS','TIPOUT','DECTIPS','UNALLOCTIPS']
             _df.sort_values(by=['SYSDATEIN', 'LASTNAME'], inplace=True)
         else:
             _df.sort_values(by=['LASTNAME', 'FIRSTNAME'], inplace=True)
@@ -219,7 +219,7 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'OTHERTIPS', 'TOTALTIPS'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
                 addl_cols=['MEALS'],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
@@ -230,7 +230,7 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD'],
                 index_cols=['EMPLOYEE','LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS','OTHERTIPS', 'TOTALTIPS'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS','UNALLOCTIPS', 'TOTALTIPS'],
                 addl_cols=[],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
@@ -241,7 +241,7 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'OTHERTIPS', 'TOTALTIPS'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
                 addl_cols=['MEALS'],
                 sum_only=True, 
                 selected_employees=selected_employees,
