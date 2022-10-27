@@ -135,7 +135,10 @@ def report_list():
                 ,
             {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
                 "description": '*',} 
-                ,       
+                ,    
+            {'key':'labor_avg_hours','text':'labor_avg_hours','value':'labor_avg_hours',
+                "description": '*',}    
+                
             )
         )
 

@@ -267,6 +267,15 @@ class ReportWriter():
                     selected_employees=selected_employees, 
                     json_fmt=json_fmt)
 
+        elif rpt == 'labor_avg_hours':
+            df = WeeklyWriter(
+                self.first_day, 
+                self.last_day).weekly_labor(
+                    selected_jobs=selected_jobs, 
+                    selected_employees=selected_employees, 
+                    json_fmt=json_fmt, 
+                    avg_hrs=True)
+                    
         elif rpt == 'hourly':
             df = self.hourly_pay_rate()
             df = df[['SYSDATEIN','FIRSTNAME','LASTNAME','HOURS','OVERHRS','TOTAL_PAY','TOTALTIPS','ACTUAL_HOURLY']]
@@ -284,7 +293,7 @@ class WeeklyWriter(ReportWriter):
         self.first_day = first_day
         self.last_day = last_day
     
-    def weekly_labor(self, selected_jobs, selected_employees, json_fmt):
+    def weekly_labor(self, selected_jobs, selected_employees, json_fmt, avg_hrs=False):
 
         date_ranges = pd.date_range(start=self.first_day,end=self.last_day,freq='w-mon')
         #print(date_ranges)
@@ -306,13 +315,18 @@ class WeeklyWriter(ReportWriter):
                 t['RATE'] = (np.sum(self.labor_hourly_rate())/6)
         tmp_df = pd.concat(data)
         df = pd.DataFrame(tmp_df)
+
+        if avg_hrs:
+            rtn_df = df.pivot_table(index=['FIRSTNAME'], values=['HOURS'])
+            return rtn_df
+
         if json_fmt:
-            rtn_df = df.pivot_table(index=['WEEK','FIRSTNAME', 'SALES', 'RATE'], values=['OVERHRS'])
+            rtn_df = df.pivot_table(index=['WEEK','FIRSTNAME', 'SALES', 'RATE'], values=['HOURS'])
         else:
-            rtn_df = df.pivot_table(index=['WEEK', 'SALES', 'RATE'],columns=['FIRSTNAME'], values=['OVERHRS'])
+            rtn_df = df.pivot_table(index=['WEEK', 'SALES', 'RATE'],columns=['FIRSTNAME'], values=['HOURS'])
         rtn_df.sort_values(by=['WEEK'], inplace=True)
         return rtn_df
-
+        
 if __name__ == '__main__':
     print("loading ReportWriter.py")
     def main():
