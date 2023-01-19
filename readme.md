@@ -22,6 +22,9 @@ Runs the app in the electron
 
 ### ---BACKEND:
 
+Pyinstaller Command: 
+pyinstaller server.py --onefile --add-data "templates;templates" --add-data "static;static"  
+
 python dependencies (updated 4-25-2022)
 
     pandas
