@@ -121,17 +121,17 @@ def report_list():
             {'key':'labor_weekly','text':'labor_weekly','value':'labor_weekly',
                 "description": '*',}
                 ,
-            {'key':'tip_rate','text':'tip_rate','value':'tip_rate',
-                "description": '',}
-                ,
-            {'key':'labor_rate','text':'labor_rate','value':'labor_rate',
-                "description": '',}
-                ,
            {'key':'punctuality','text':'punctuality','value':'punctuality',
                 "description": '*',} 
                 ,
             {'key':'hourly','text':'hourly','value':'hourly',
                 "description": '*',}
+                ,
+            {'key':'tip_rate','text':'tip_rate','value':'tip_rate',
+                "description": '',}
+                ,
+            {'key':'labor_rate','text':'labor_rate','value':'labor_rate',
+                "description": '',}
                 ,
             {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
                 "description": '*',} 
@@ -153,4 +153,3 @@ def update_data(employee_id,data):
 if __name__ == '__main__':
     #webbrowser.open_new('http://localhost:5000/')
     app.run(debug=True)
-    

@@ -30,16 +30,25 @@ class ReportWriter():
                 self.days.append(cur_day)
                 first_day += datetime.timedelta(days=increment)
 
+    def job_emp_filter(self, selected_employees, selected_jobs, _df):
+        '''takes an input dataframe, and returns a filtered dataframe, based on the input selected employees and jobcodes'''
+        if selected_employees and selected_jobs:
+            _df = _df.loc[_df['JOBCODE'].isin(selected_jobs) & _df['EMPLOYEE'].isin(selected_employees)]
+        elif selected_employees:
+            _df = _df.loc[_df['EMPLOYEE'].isin(selected_employees)]
+        elif selected_jobs:
+            _df = _df.loc[_df['JOBCODE'].isin(selected_jobs)]
+        return _df
+
     def unused_tip_in_period(self):
         '''returns total amount of unallocated tips for the period'''
         return (labor(day).get_unallocated_tips() for day in self.days)
 
-    def punctuality(self, selected_employees=None):
+    def punctuality(self, selected_employees, selected_jobs):
         '''returns a clockin report with a date of the week'''
         a = (labor(day).get_clockin_time() for day in self.days)
         df = pd.concat(a)
-        if selected_employees:
-            df = df.loc[df['EMPLOYEE'].isin(selected_employees)]
+        df = self.job_emp_filter(selected_employees, selected_jobs, df)
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df,job_bool=False)
         _df.drop(columns=['EMPLOYEE','TERMINATED'],inplace=True)
         _df = _df[['FIRSTNAME','LASTNAME','DATE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
@@ -50,12 +59,12 @@ class ReportWriter():
         
         return _df
     
-    def hourly_pay_rate(self):
+    def hourly_pay_rate(self, selected_employees, selected_jobs):
         a = [labor(day).calc_hourly_pay_rate() for day in self.days]
         df = pd.concat(a)
-        df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR', 'INMINUTE', 'JOBCODE', 'OUTHOUR', 'OUTMINUTE', 'RATE'], axis=1, inplace=True)
+        df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE'], axis=1, inplace=True)
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df, job_bool=False)
-        return _df
+        return self.job_emp_filter(selected_employees,selected_jobs,_df)
 
     def append_totals(
                     self,
@@ -144,12 +153,7 @@ class ReportWriter():
         sorter = []
         #if any filter options are provided, fliter the data now. 
         #While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data 
-        if selected_employees and selected_jobs:
-            df = df.loc[df['JOBCODE'].isin(selected_jobs) & df['EMPLOYEE'].isin(selected_employees)]
-        elif selected_employees:
-            df = df.loc[df['EMPLOYEE'].isin(selected_employees)]
-        elif selected_jobs:
-            df = df.loc[df['JOBCODE'].isin(selected_jobs)]
+        df = self.job_emp_filter(selected_employees,selected_jobs,df)
 
         if df.empty: #if there is no data left after filtering, return 'empty'
             return 'empty'
@@ -213,7 +217,8 @@ class ReportWriter():
 
         elif rpt == 'punctuality':
             df = self.punctuality(
-                selected_employees=selected_employees)
+                selected_employees=selected_employees, 
+                selected_jobs=selected_jobs,)
 
         elif rpt == 'labor_main':
             df = self.labor_main(
@@ -277,7 +282,10 @@ class ReportWriter():
                     avg_hrs=True)
                     
         elif rpt == 'hourly':
-            df = self.hourly_pay_rate()
+            df = self.hourly_pay_rate(
+                selected_employees=selected_employees,
+                selected_jobs=selected_jobs,
+            )
             df = df[['SYSDATEIN','FIRSTNAME','LASTNAME','HOURS','OVERHRS','TOTAL_PAY','TOTALTIPS','ACTUAL_HOURLY']]
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')

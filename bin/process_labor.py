@@ -130,7 +130,7 @@ class ProcessLabor():
         return cc
 
     def get_clockin_time(self):
-        df = self.df[['EMPLOYEE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
+        df = self.df[['EMPLOYEE','JOBCODE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']].copy()
         for col in ['INHOUR', 'OUTHOUR']:
             df[col] = np.where(df[col].astype(int) < 12, df[col].astype(str) + 'am', df[col]) #any hours that are am, add am
             try:
@@ -169,7 +169,7 @@ class ProcessLabor():
 
     def calc_hourly_pay_rate(self):
         '''calculates the individual employee hourly rate, including any tips earned'''
-        cur_df = self.df
+        cur_df = self.df.copy()
         labor = self.calc_labor_cost(total=True, salary=False)[['TOTAL_PAY']],
         tips = self.calc_payroll()[['TOTALTIPS']],
         cur_df = cur_df.join(labor)
