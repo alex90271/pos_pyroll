@@ -17,7 +17,7 @@ import webbrowser
 app = Flask(__name__, static_url_path='')
 cors = CORS(app)
 app.config['JSON_SORT_KEYS'] = False
-debug = False #set to false to turn off print statements0
+debug = False #set to false to turn off print statements
 
 @cross_origin
 @app.route('/')
