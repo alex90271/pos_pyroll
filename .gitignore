@@ -8,7 +8,10 @@ frontend/.pnp.js
 /frontend/coverage
 
 # production
-/frontend/build
+/build
+/bin/build
+/bin/dist
+/bin/
 
 # testing db
 database/*
