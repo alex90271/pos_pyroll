@@ -225,7 +225,7 @@ class ReportWriter():
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
-                addl_cols=['MEALS'],
+                addl_cols=[],
                 sum_only=sum_only, 
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
@@ -242,7 +242,7 @@ class ReportWriter():
                 selected_jobs=selected_jobs, 
                 nightly=True)
 
-        elif rpt == 'labor_totals':
+        elif rpt == 'payroll':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],

@@ -112,7 +112,7 @@ def report_list():
             {'key':'labor_main','text':'labor_main', 'value':'labor_main', 
                 "description": '*',
                 },
-            {'key':'labor_totals','text':'labor_totals','value':'labor_totals',
+            {'key':'payroll','text':'payroll','value':'payroll',
                 "description": '*'}
                , 
             {'key':'labor_nightly','text':'labor_nightly','value':'labor_nightly',
