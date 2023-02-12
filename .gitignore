@@ -11,12 +11,20 @@ frontend/.pnp.js
 /build
 /bin/build
 /bin/dist
-/bin/
+src-tauri/dist
+src-tauri/build
+src-tauri/bin/build
+src-tauri/bin/dist
+src-tauri/bin/*.exe
+
 
 # testing db
-database/*
-data/*
-debug/*
+database
+data
+debug
+src-tauri/bin/database
+src-tauri/bin/data
+src-tauri/bin/debug
 *.xlsx
 *.csv
 
@@ -33,3 +41,4 @@ frontend/yarn-error.log*
 
 frontend/out/
 node_modules
+src-tauri/bin/__pycache__
