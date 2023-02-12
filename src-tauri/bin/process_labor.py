@@ -335,7 +335,7 @@ if __name__ == '__main__':
     def main():
         #print("loading ProcessTips.py")
         #print(ProcessLabor("20220107").calc_emps_in_day())
-        print(ProcessLabor("20211214").calc_hourly_rate())
+        print(ProcessLabor("20220501").calc_hourly_pay_rate())
     r=1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

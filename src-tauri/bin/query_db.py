@@ -103,8 +103,8 @@ class QueryDB():
                 raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
             a = self.dbf_to_list('/GNDTndr.dbf')
             df = pd.DataFrame(a)
-            df = df.loc[np.where(df['TYPE'] == 1)] #type ID 1 in Aloha Docs are normal transactions
             return df
+        
         elif db_type == 'labor_hourly':
             shared_cols = ['DOB','STARTHOUR','STARTMIN','STOPHOUR','STOPMIN', 'STOREID', 'REGIONID', 'OCCASIONID']
             if self.data == 'Data':
