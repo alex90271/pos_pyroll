@@ -1,3 +1,14 @@
+### --- REQUIREMENTS
+
+Tauri requires rust, and rust requires the windows APIs to be used on windows
+
+    rust-lang.org
+
+    1. download: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+    2. download: https://rustup.rs/
+
+
 ### ---FRONTEND:
 
 Available Scripts
