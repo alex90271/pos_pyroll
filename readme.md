@@ -1,3 +1,7 @@
+### --- NOTES:
+
+    At the moment, tauri does not correctly despawn the server instance, must be killed manually
+
 ### --- REQUIREMENTS
 
 Tauri requires rust, and rust requires the windows APIs to be used on windows
