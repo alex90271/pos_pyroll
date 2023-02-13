@@ -17,45 +17,51 @@ Tauri requires rust, and rust requires the windows APIs to be used on windows
 
     3. Run `npm install`
 
-    4. To launch, `npm run tauri dev`
+    4. Compile backend
+        a. `cd src-tauri\bin`
+        b. `pyinstaller server.py --onefile --add-data "templates;templates" --add-data "static;static"`
+        c. Move the .exe file from the bin\dist folder, one directory up to the bin folder. 
+            i. Rename it server-x86_64-pc-windows-msvc.exe (for tauri to find)
 
+    5. To launch, `npm run tauri dev`
+
+
+### --- DIRECTORIES
+
+    1. src-tauri : tauri directory
+        a. src-tauri/bin : python source code
+    2. src : react source code
 
 ### ---FRONTEND:
 
-Available Scripts
+The frontend is written in react, and controlled with tauri
+
+    dependency install: `npm install`
 
 In the project directory, you can run:
 
-### `npm start`
+     `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+        Runs the app in the development mode.\
+        Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+        The page will reload if you make edits.\
+        You will also see any lint errors in the console.
 
-### `npm run dev`
+    `npm run tauri dev`
 
-Runs the app in the electron with dev mode enabled
+        Launches tauri dev server
 
-### `npm run electron`
+    `npm run tauri build`
 
-Runs the app in the electron
+        Build tauri output, see tauri documentation
 
 ### ---BACKEND:
 
-Pyinstaller Command: 
+Pyinstaller Compile Command: 
 pyinstaller server.py --onefile --add-data "templates;templates" --add-data "static;static"  
 
-python dependencies (updated 4-25-2022)
-
-    pandas
-    dbfread
-    xlsxwriter
-    flask
-    flask_cors
-    timeit - (used only for testing purposes)
-    sqlite3
+    dependency install: `python -m pip install -r "requirements.txt"`
 
 built on python 3.8.6 64Bit
 
