@@ -9,6 +9,17 @@ Tauri requires rust, and rust requires the windows APIs to be used on windows
     2. download: https://rustup.rs/
 
 
+### --- INSTALL INSTRUCTIONS
+
+    1. First see requirements above
+
+    2. Run `python -m pip install -r "requirements.txt"`
+
+    3. Run `npm install`
+
+    4. To launch, `npm run tauri dev`
+
+
 ### ---FRONTEND:
 
 Available Scripts
