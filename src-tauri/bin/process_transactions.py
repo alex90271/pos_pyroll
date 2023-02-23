@@ -19,12 +19,9 @@ class ProcessTransactions():
     def __init__(self, day):
         # instantiate a single day to process data
         self.db = QueryDB(day)
-        self.df = self.db.process_db('transactions')
+        self.df = self.db.process_db('transactions')[['EMPLOYEE','CHECK','DATE','SYSDATE','TYPE','TYPEID','NAME','UNIT','AMOUNT','TIP','HOUSEID','MINUTE','REVENUE']]
+        self.house = self.db.process_db('house_acct')[['ID','NUMBER','FIRSTNAME','LASTNAME']]
         self.day = day
-
-        # database cleanup
-        self.df.drop(columns=['AUTH', 'EXP', 'AUTOGRAT', 'SOURCE', 'PMSPOSTD', 'DRAWER', 'OCCASION',
-                     'STRUNIT', 'TIPPABLE', 'TRACK', 'MANAGER', 'HOUR', 'ID', 'NR', 'IDENT'], axis=1, inplace=True)
 
         # config options
         c = ChipConfig()

@@ -105,6 +105,13 @@ class QueryDB():
             df = pd.DataFrame(a)
             return df
         
+        elif db_type == 'house_acct':
+            if self.data == 'Data':
+                raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
+            a = self.dbf_to_list('/HSE.DBF')
+            df = pd.DataFrame(a)
+            return df
+        
         elif db_type == 'labor_hourly':
             shared_cols = ['DOB','STARTHOUR','STARTMIN','STOPHOUR','STOPMIN', 'STOREID', 'REGIONID', 'OCCASIONID']
             if self.data == 'Data':
