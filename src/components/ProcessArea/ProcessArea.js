@@ -7,12 +7,16 @@ export default function ProcessArea(props) {
         if (props.canProcess) {
             return (
                 <div>
-                <button onClick={props.process} className='ui light blue button'>
-                    Process
-                </button>
-                 <button onClick={props.print} className='ui light grey button'>
-                    Print
-                </button>
+                    <div></div>
+                    <button onClick={props.process} className='ui light blue button'>
+                        Process
+                    </button>
+                    <button onClick={props.print} className='ui light blue button'>
+                        Print
+                    </button>
+                    <button onClick={props.exporttogusto} className='ui light grey button'>
+                        Export
+                    </button>
                 </div>
             )
         } else {

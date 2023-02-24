@@ -385,6 +385,14 @@ export default function ConfigArea(props) {
             });
     }
 
+    const exporttogusto = () => {
+        const range = selectedDayRange;
+        API.export(formatDate(range.from), formatDate(range.to), selectedReport, selectedToCSV(jobcodes), selectedToCSV(employees))
+            .then(data => {
+            props.setEditedTableData(data);
+            });
+    }
+
     return (
         <div className="ConfigArea">
             <div className='CustomCalendar'>
@@ -399,6 +407,7 @@ export default function ConfigArea(props) {
             <ProcessArea
                 canProcess={canProcess}
                 process={process}
+                exporttogusto={exporttogusto}
                 print={print}
                 displayedRange={displayedRange()}
             />

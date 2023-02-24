@@ -54,6 +54,10 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
         result = result.fillna(0) #turn any NaN data to Zero for json compatability
         result.reset_index(inplace=True)
         return result.to_dict(orient='index')
+    if opt_print == 'csv':
+        result.to_csv('export.csv')
+        print('exporting')
+        return 'exported'
     elif opt_print == 'html':
         result = result.fillna('') #turn any NaN data to blank for printability
         return render_template('render.html', 
