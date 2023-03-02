@@ -309,6 +309,25 @@ class Payroll(ReportWriter):
     def __init__(self, first_day, last_day):
         self.first_day = first_day
         self.last_day = last_day
+        self.payroll_dates_check()
+
+    def payroll_dates_check(self, first_period_end=15):
+        '''checks that the dates selected are actually payroll dates before processing'''
+        self.first_day
+        self.last_day
+        #TODO implement 
+        #https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases
+        pass
+
+    def process_payroll(self):
+            super().__init__(first_day=self.first_day, last_day=self.last_day)
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME'],
+                index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
+                addl_cols=['MEALS'],
+                sum_only=True)
+            print(df)
 
 class WeeklyWriter(ReportWriter):
 
@@ -356,7 +375,7 @@ if __name__ == '__main__':
         #print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         #print(ReportWriter('20220107','20220107').print_to_json('labor_main'))
         #print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        print(ReportWriter('20220501','20220515').house_accounts())
+        print(Payroll('20220501','20220515').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
