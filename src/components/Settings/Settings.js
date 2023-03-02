@@ -66,6 +66,7 @@ export default function Settings(props) {
         <div className='Settings'>
             {settingsButton}
             <div className='Reports'>
+                <p>Reports with an * can be filtered by employees</p>
                 <DrownMenu
                     reports={props.reports}
                     change={props.changeReport}
