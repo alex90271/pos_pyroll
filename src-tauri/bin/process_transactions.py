@@ -17,15 +17,20 @@ class ProcessTransactions():
     '''
 
     def __init__(self, day):
-        # instantiate a single day to process data
-        self.db = QueryDB(day)
-        self.df = self.db.process_db('transactions')[['EMPLOYEE','CHECK','DATE','SYSDATE','TYPE','TYPEID','NAME','UNIT','AMOUNT','TIP','HOUSEID','MINUTE','REVENUE']]
-        self.house = self.db.process_db('house_acct')[['ID','NUMBER','FIRSTNAME','LASTNAME']]
-        self.day = day
-
         # config options
         c = ChipConfig()
         self.debug = c.query('SETTINGS', 'debug', return_type='bool')
+
+        # instantiate a single day to process data
+        self.db = QueryDB(day)
+        self.day = day
+        try:
+            self.df = self.db.process_db('transactions')[['EMPLOYEE','CHECK','SYSDATE','TYPE','TYPEID','NAME','UNIT','AMOUNT','TIP','HOUSEID']]
+            #self.house = self.db.process_db('house_acct')[['ID','NUMBER','FIRSTNAME','LASTNAME']]
+        except:
+            if self.debug:
+                print(day + ' has no data.. generating blank sheets')
+            self.df = pd.DataFrame(data={'EMPLOYEE':[0],'CHECK':[0],'SYSDATE':[0],'TYPE':[0],'TYPEID':[0],'NAME':[0],'UNIT':[0],'AMOUNT':[0],'TIP':[0],'HOUSEID':[0]})
 
         if self.debug:
             if not os.path.exists('debug'):
@@ -48,7 +53,15 @@ class ProcessTransactions():
         _df = _df.loc[np.where(_df['TYPE'] == type)].reset_index(
             drop=True)  # filter by transaction type first
         return _df.loc[np.where(_df['TYPEID'] == id)].reset_index(drop=True) # then filter by tender type id
+        
+
+    def get_total_byhouseid(self):
+        df = self.get_transactions_bytype(id=25)
+        df = df.drop(['EMPLOYEE','CHECK'])
+        df = df.groupby(['HOUSEID']).sum(numeric_only=True) #sum up duplicates
+        return df
+
 
 
 if __name__ == '__main__':
-    print(ProcessTransactions('20220502').get_transactions_bytype(id=3))
+    print(ProcessTransactions('20220502').get_total_byhouseid())
