@@ -17,9 +17,10 @@ const API = {
     link.dispatchEvent(new MouseEvent('click'));
   },
 
-  export(firstDay, lastDay, report, jobcodes = 0, employees = 0) {
+  export(firstDay, lastDay) {
+    //exports to gusto the payroll report
     var link = document.createElement('a');
-    link.href = (`${url}data/${firstDay}/${lastDay}/${report}/${jobcodes}/${employees}/csv`)
+    link.href = (`${url}data/gusto/${firstDay}/${lastDay}`)
     link.dispatchEvent(new MouseEvent('click'));
   },
 
