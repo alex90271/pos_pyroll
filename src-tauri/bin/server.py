@@ -1,10 +1,10 @@
 
-#127.0.0.1:5000/
-#available data: 
-#['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total']
-#date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
+# 127.0.0.1:5000/
+# available data:
+# ['tip_rate', 'labor_main', 'labor_rate', 'cout_eod', 'labor_total']
+# date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
 
-#v01 Routes
+# v01 Routes
 from datetime import datetime
 from query_db import QueryDB
 from flask import Flask, redirect, render_template, url_for, request, jsonify
@@ -17,19 +17,21 @@ import webbrowser
 app = Flask(__name__, static_url_path='')
 cors = CORS(app)
 app.config['JSON_SORT_KEYS'] = False
-debug = False #set to false to turn off print statements
+debug = False  # set to false to turn off print statements
+
 
 @cross_origin
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @cross_origin
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>')
 @app.route('/v01/data/<day_one>/<day_two>/<rpt_type>/<select_jobs>/<select_emps>/<opt_print>/')
 def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='json'):
     if select_emps == '0':
-         select_emps = None
+        select_emps = None
     else:
         select_emps = [int(item) for item in select_emps.split(',')]
     if select_jobs == '0':
@@ -41,119 +43,143 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
     if debug:
         print(select_jobs, select_emps)
 
+    json_fmt=False
     if opt_print == 'json':
-        json_fmt = True
-    else:
-        json_fmt = False
-    result = ReportWriter(day_one, day_two).print_to_json(rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=json_fmt)
+        json_fmt=True
+
+    result = ReportWriter(day_one, day_two).print_to_json(
+        rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=json_fmt)
     if type(result) == str:
-            return jsonify('empty')
-    #result.reset_index(drop=True, inplace=True)
+        return jsonify('empty')
+    # result.reset_index(drop=True, inplace=True)
 
     if opt_print == 'json':
-        result = result.fillna(0) #turn any NaN data to Zero for json compatability
+        # turn any NaN data to Zero for json compatability
+        result = result.fillna(0)
         result.reset_index(inplace=True)
         return result.to_dict(orient='index')
-    if opt_print == 'csv':
-        result.to_csv('export.csv')
-        print('exporting')
-        return 'exported'
     elif opt_print == 'html':
-        result = result.fillna('') #turn any NaN data to blank for printability
-        return render_template('render.html', 
-                                tables=[result.to_html(table_id="table", classes="ui striped table")], 
-                                titles=result.columns.values,
-                                timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
-                                dates=[
-                                    datetime.strptime(day_one, "%Y%m%d").strftime('%a, %b %d, %Y'),
-                                    datetime.strptime(day_two, "%Y%m%d").strftime('%a, %b %d, %Y')
-                                    ],
-                                rpttp=rpt_type, 
-                                select_emps=select_emps, select_jobs=select_jobs)
+        # turn any NaN data to blank for printability
+        result = result.fillna('')
+        return render_template('render.html',
+                               tables=[result.to_html(
+                                   table_id="table", classes="ui striped table")],
+                               titles=result.columns.values,
+                               timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
+                               dates=[
+                                   datetime.strptime(day_one, "%Y%m%d").strftime(
+                                       '%a, %b %d, %Y'),
+                                   datetime.strptime(day_two, "%Y%m%d").strftime(
+                                       '%a, %b %d, %Y')
+                               ],
+                               rpttp=rpt_type,
+                               select_emps=select_emps, select_jobs=select_jobs)
     else:
-        raise ValueError('Print argument not passed json or html -- leave blank for json')
+        raise ValueError(
+            'Print argument not passed json or html -- leave blank for json')
+
+
+@app.route('/v01/data/gusto/<day_one>/<day_two>')
+def gusto(day_one, day_two):
+    '''exports payroll to gusto'''
+    result = ReportWriter(day_one, day_two).print_to_json(
+        'payroll')
+    if type(result) == str:
+        return jsonify('empty')
+    result.to_csv('export.csv')
+    print('exporting')
+    return 'exported'
+
+
+@app.route('/v01/data/house_acct/<day_one>/<day_two>')
+def house_acct(day_one, day_two):
+    result = ReportWriter(day_one, day_two).house_accounts()
+    print(result)
+    return jsonify(result.to_dict(orient='index'))
+
 
 @app.route('/v01/employees/in_period/<day_one>/<day_two>')
 def employees_in_period(day_one, day_two):
-    result = ReportWriter(day_one,day_two).employees_in_dates()
+    result = ReportWriter(day_one, day_two).employees_in_dates()
     print(result)
     return jsonify(result.to_dict(orient='index'))
+
 
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
     return jsonify(ChipConfig()
-    .read_json())
+                   .read_json())
+
 
 @app.route('/v01/config/<cfg>', methods=["GET"])
 def config_item(cfg):
     return jsonify(ChipConfig()
-    .query(cfg))
+                   .query(cfg))
+
 
 @app.route('/v01/config/<cfg>/<query>', methods=["GET"])
 def config_list_item(cfg, query):
     return jsonify(ChipConfig()
-    .query(cfg,str(query)))
+                   .query(cfg, str(query)))
+
 
 @app.route('/v01/config/<cfg>/<updated_cfg>')
-def config_item_update(cfg,updated_cfg):
+def config_item_update(cfg, updated_cfg):
     print(updated_cfg)
+
 
 @app.route('/v01/employees')
 def employee_list():
     return jsonify(QueryDB()
-    .process_db('employees')
-    .to_dict(orient='records'))
+                   .process_db('employees')
+                   .to_dict(orient='records'))
+
 
 @app.route('/v01/jobcodes')
 def jobcode_list():
     return jsonify(QueryDB()
-    .process_db('jobcodes')
-    .to_dict(orient='records'))
+                   .process_db('jobcodes')
+                   .to_dict(orient='records'))
+
 
 @app.route('/v01/reports')
 def report_list():
     return jsonify((
-            {'key':'labor_main','text':'labor_main', 'value':'labor_main', 
+        {'key': 'labor_main', 'text': 'labor_main', 'value': 'labor_main',
                 "description": '*',
-                },
-            {'key':'payroll','text':'payroll','value':'payroll',
-                "description": '*'}
-               , 
-            {'key':'labor_nightly','text':'labor_nightly','value':'labor_nightly',
-                "description": '*',}
-                ,
-            {'key':'labor_weekly','text':'labor_weekly','value':'labor_weekly',
-                "description": '*',}
-                ,
-           {'key':'punctuality','text':'punctuality','value':'punctuality',
-                "description": '*',} 
-                ,
-            {'key':'hourly','text':'hourly','value':'hourly',
-                "description": '*',}
-                ,
-            {'key':'tip_rate','text':'tip_rate','value':'tip_rate',
-                "description": '',}
-                ,
-            {'key':'labor_rate','text':'labor_rate','value':'labor_rate',
-                "description": '',}
-                ,
-            {'key':'cout_eod','text':'cout_eod','value':'cout_eod',
-                "description": '*',} 
-                ,    
-            {'key':'labor_avg_hours','text':'labor_avg_hours','value':'labor_avg_hours',
-                "description": '*',}    
-                
-            )
-        )
+         },
+        {'key': 'payroll', 'text': 'payroll', 'value': 'payroll',
+                "description": '*'},
+        {'key': 'labor_nightly', 'text': 'labor_nightly', 'value': 'labor_nightly',
+                "description": '*', },
+        {'key': 'labor_weekly', 'text': 'labor_weekly', 'value': 'labor_weekly',
+                "description": '*', },
+        {'key': 'punctuality', 'text': 'punctuality', 'value': 'punctuality',
+                "description": '*', },
+        {'key': 'hourly', 'text': 'hourly', 'value': 'hourly',
+                "description": '*', },
+        {'key': 'tip_rate', 'text': 'tip_rate', 'value': 'tip_rate',
+                "description": '', },
+        {'key': 'labor_rate', 'text': 'labor_rate', 'value': 'labor_rate',
+                "description": '', },
+        {'key': 'cout_eod', 'text': 'cout_eod', 'value': 'cout_eod',
+                "description": '*', },
+        {'key': 'labor_avg_hours', 'text': 'labor_avg_hours', 'value': 'labor_avg_hours',
+                "description": '*', },
+        {'key': 'house_acct', 'text': 'house_acct', 'value': 'house_acct',
+         "description": '*', }
+    )
+)
+# Unfinished Requests
+# @app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])
 
-#Unfinished Requests
-#@app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])
-def update_data(employee_id,data):
-    #TODO Finish this. Accepts a json object from frontend {employee_ID : data}
-    #data would be adjustments on the worksheet
+
+def update_data(employee_id, data):
+    # TODO Finish this. Accepts a json object from frontend {employee_ID : data}
+    # data would be adjustments on the worksheet
     pass
 
 
 if __name__ == '__main__':
-    #webbrowser.open_new('http://localhost:5000/')
+    # webbrowser.open_new('http://localhost:5000/')
     app.run(debug=True)
