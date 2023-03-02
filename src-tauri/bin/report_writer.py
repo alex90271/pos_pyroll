@@ -1,6 +1,7 @@
 import json
 from re import A
 from process_labor import ProcessLabor as labor
+from process_transactions import ProcessTransactions as transactions
 from query_db import QueryDB as query_db
 from chip_config import ChipConfig
 import numpy as np
@@ -200,10 +201,16 @@ class ReportWriter():
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df,job_bool=False)
         return _df
 
+    def house_accounts(self):
+        a = [transactions(day).get_total_byhouseid() for day in self.days]
+        df = pd.DataFrame(pd.concat(a))
+        return df
+
+
     def print_to_json(
                 self, 
                 rpt, 
-                json_fmt,
+                json_fmt=False,
                 sum_only=False,
                 selected_employees=None,
                 selected_jobs=None, 
@@ -287,6 +294,9 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
             )
             df = df[['SYSDATEIN','FIRSTNAME','LASTNAME','HOURS','OVERHRS','TOTAL_PAY','TOTALTIPS','ACTUAL_HOURLY']]
+
+        elif rpt == 'house_acct':
+            df = self.house_accounts()
         else:
             raise ValueError('' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')
 
@@ -294,6 +304,11 @@ class ReportWriter():
             return df
         else:
             return df.round(2)
+        
+class Payroll(ReportWriter):
+    def __init__(self, first_day, last_day):
+        self.first_day = first_day
+        self.last_day = last_day
 
 class WeeklyWriter(ReportWriter):
 
@@ -340,7 +355,8 @@ if __name__ == '__main__':
     def main():
         #print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         #print(ReportWriter('20220107','20220107').print_to_json('labor_main'))
-        print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
+        #print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
+        print(ReportWriter('20220501','20220515').house_accounts())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")
