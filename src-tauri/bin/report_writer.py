@@ -160,7 +160,7 @@ class ReportWriter():
             return 'empty'
 
         if sum_only: #setting sum_only to true gives a list of total hours, ignoring the job type
-            sorter = ['LASTNAME','FIRSTNAME','HOURS','OVERHRS','DECTIPS','TOTALTIPS','DECTIPS','UNALLOCTIPS']
+            sorter = ['LASTNAME','FIRSTNAME','HOURS','OVERHRS','DECTIPS','TOTALTIPS','DECTIPS','UNALLOCTIPS','EXP_ID']
             try:
                 index_cols.remove('JOB_NAME')
             except:
@@ -322,11 +322,13 @@ class Payroll(ReportWriter):
     def process_payroll(self):
             super().__init__(first_day=self.first_day, last_day=self.last_day)
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME'],
+                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
                 addl_cols=['MEALS'],
-                sum_only=True)
+                sum_only=False)
+            #gusto columns
+            ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
             print(df)
 
 class WeeklyWriter(ReportWriter):
