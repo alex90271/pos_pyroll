@@ -9,7 +9,7 @@ from datetime import datetime
 from query_db import QueryDB
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
-from report_writer import ReportWriter
+from report_writer import Payroll, ReportWriter
 from chip_config import ChipConfig
 import webbrowser
 
@@ -43,9 +43,9 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
     if debug:
         print(select_jobs, select_emps)
 
-    json_fmt=False
+    json_fmt = False
     if opt_print == 'json':
-        json_fmt=True
+        json_fmt = True
 
     result = ReportWriter(day_one, day_two).print_to_json(
         rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=json_fmt)
@@ -82,12 +82,9 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
 @app.route('/v01/data/gusto/<day_one>/<day_two>')
 def gusto(day_one, day_two):
     '''exports payroll to gusto'''
-    result = ReportWriter(day_one, day_two).print_to_json(
-        'payroll')
+    result = Payroll(day_one, day_two).process_payroll()
     if type(result) == str:
         return jsonify('empty')
-    result.to_csv('export.csv')
-    print('exporting')
     return 'exported'
 
 
@@ -148,7 +145,7 @@ def report_list():
         {'key': 'labor_main', 'text': 'labor_main', 'value': 'labor_main',
                 "description": '*',
          },
-        {'key': 'payroll', 'text': 'payroll', 'value': 'payroll',
+        {'key': 'labor_total', 'text': 'labor_total', 'value': 'labor_total',
                 "description": '*'},
         {'key': 'labor_nightly', 'text': 'labor_nightly', 'value': 'labor_nightly',
                 "description": '*', },
@@ -169,7 +166,7 @@ def report_list():
         {'key': 'house_acct', 'text': 'house_acct', 'value': 'house_acct',
          "description": '*', }
     )
-)
+    )
 # Unfinished Requests
 # @app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])
 
