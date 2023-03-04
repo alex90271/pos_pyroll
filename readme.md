@@ -23,7 +23,7 @@ Tauri requires rust, and rust requires the windows APIs to be used on windows
 
     4. Compile backend
         a. `cd src-tauri\bin`
-        b. `pyinstaller server.py --onefile --add-data "templates;templates" --add-data "static;static"`
+        b. `pyinstaller server.py --onefile --add-data "templates;templates"`
         c. Move the .exe file from the bin\dist folder, one directory up to the bin folder. 
             i. Rename it server-x86_64-pc-windows-msvc.exe (for tauri to find)
 
