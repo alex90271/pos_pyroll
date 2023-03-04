@@ -1,27 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>{{rpttp}}</title>
-    <link rel="stylesheet" media ="all" href="{{ url_for('static', filename='templates/print.css') }}">
+  <meta charset="UTF-8">
+  <title>{{rpttp}}</title>
 </head>
+<style>
+  @media print {
+    .noprint {
+      display: none;
+      visibility: hidden;
+    }
+
+    #table {
+      font-size: 12px;
+    }
+
+    @page {
+      margin: 5px
+    }
+  }
+    table {
+      border: 3px solid #000000;
+      width: 100%;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    table td,
+    table th {
+      border: 1px solid #000000;
+      padding: 5px 4px;
+    }
+
+    table tbody td {
+      font-size: 13px;
+    }
+
+    table thead {
+      background: #CFCFCF;
+      border-bottom: 3px solid #000000;
+    }
+
+    table thead th {
+      font-size: 15px;
+      font-weight: bold;
+      color: #000000;
+      text-align: left;
+    }
+
+    table tfoot {
+      font-size: 14px;
+      font-weight: bold;
+      color: #000000;
+      border-top: 3px solid #000000;
+    }
+
+    table tfoot td {
+      font-size: 14px;
+    }
+  
+</style>
+
 <body>
-  <div class="ui message">
-   <p>Selected Dates: {{dates[0]}} - {{dates[1]}}</p>
+  <div class="">
+    <p>Selected Dates: {{dates[0]}} - {{dates[1]}}</p>
 
     <p>Report Type: {{rpttp}}</p>
 
     <p>Selected Employee Codes: {{select_emps}}</p>
 
     <p>Selected Job Codes: {{select_jobs}}</p>
-    <div class="ui top right attached label">
+    <div class="">
       <p>Generated: {{timestamp}}</p>
       <p class="noprint">Support: <a herf="mailto:alex@alderautomations.com">alex@alderautomations.com</a></p>
-      </div>
+    </div>
   </div>
   {% for table in tables %}
-        {{ table|safe }}
+  {{ table|safe }}
   {% endfor %}
 
 </body>
+
 </html>
