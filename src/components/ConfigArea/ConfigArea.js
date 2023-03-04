@@ -131,10 +131,6 @@ export default function ConfigArea(props) {
         if (selectedDayRange.from && selectedDayRange.to) {
             setCanProcess(true);
             const range = selectedDayRange;
-            API.process(formatDate(range.from), formatDate(range.to))
-                .then((data) => {
-                    setPreflightReportData(data);
-                });
         } else {
             setCanProcess(false);
             //setPreflightReportData();
@@ -288,7 +284,7 @@ export default function ConfigArea(props) {
                 return `Dates selected: ${selectedDayRange.from.month}/${selectedDayRange.from.day}/${selectedDayRange.from.year} - ${selectedDayRange.to.month}/${selectedDayRange.to.day}/${selectedDayRange.to.year}`;
             }
         } else {
-            return 'Select first and last day. If calculating a single day, click it twice.';
+            return '';
         }
     }
 
