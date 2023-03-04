@@ -65,21 +65,11 @@ In the project directory, you can run:
 Pyinstaller Compile Command: 
 pyinstaller server.py --onefile --add-data "templates;templates" --add-data "static;static"  
 
+    Compiled file must be renamed to `server-x86_64-pc-windows-msvc.exe`
+
     dependency install: `python -m pip install -r "requirements.txt"`
 
-built on python 3.8.6 64Bit
-
-run server.py to launch API
-
-run test.py for viewing data in the console, or printing reports
-
 date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
-
-test.py uses command line args, edit the launch.json line: "args": ["20210416", "20210530", "True"], to change 
-
-    (TRUE at the end will print the file to a printer, if on windows. )
-
-API:
 
 IF NO DATA IS AVAILABLE TO BE RETURNED, API WILL RETURN 'empty'
 
