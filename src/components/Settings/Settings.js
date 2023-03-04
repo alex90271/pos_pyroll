@@ -12,21 +12,21 @@ export default function Settings(props) {
     const settingsButton = () => {
         const settings = false //set to true when settings are enabled
         if (settings) {
-            return <Modal 
+            return <Modal
                 openButtonLabel={'Settings'}
                 className={'settings-modal'}
                 headerText={'Settings'}
                 innerHTML={
-                    <div style={{height: "100%"}}>
-                    <SettingsList 
-                        settings={props.settings}
-                        handleSettingChange={props.handleSettingChange}
-                    />
-                    <EditedSettingsBox
-                        save={props.saveSettings}
-                        revert={props.revertSettings}
-                        display={props.settingsChanged}
-                    />
+                    <div style={{ height: "100%" }}>
+                        <SettingsList
+                            settings={props.settings}
+                            handleSettingChange={props.handleSettingChange}
+                        />
+                        <EditedSettingsBox
+                            save={props.saveSettings}
+                            revert={props.revertSettings}
+                            display={props.settingsChanged}
+                        />
                     </div>
                 }
             />
@@ -55,7 +55,7 @@ export default function Settings(props) {
                     displayName={currentFilter.displayName}
                     id={currentFilter.id}
                     key={"Checkbox-" + currentFilter.displayName}
-                    selected = {currentFilter.SELECTED}
+                    selected={currentFilter.SELECTED}
                     toggle={props.toggleEmployeeFilter}
                 />
             );
@@ -65,14 +65,11 @@ export default function Settings(props) {
     return (
         <div className='Settings'>
             {settingsButton}
-            <div className='Reports'>
-                <p>Reports with an * can be filtered by employees</p>
-                <DrownMenu
-                    reports={props.reports}
-                    change={props.changeReport}
-                />
-            </div>
-            <SelectionWindow 
+            <DrownMenu
+                reports={props.reports}
+                change={props.changeReport}
+            />
+            <SelectionWindow
                 title={"Jobcodes"}
                 parsingFunction={getJobcodeName}
                 options={props.jobcodes}

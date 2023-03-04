@@ -85,7 +85,7 @@ def gusto(day_one, day_two):
     result = Payroll(day_one, day_two).process_payroll()
     if type(result) == str:
         return jsonify('empty')
-    return 'exported'
+    return jsonify('exported')
 
 
 @app.route('/v01/data/house_acct/<day_one>/<day_two>')

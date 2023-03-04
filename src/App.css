@@ -1,5 +1,4 @@
 .App {
-  text-align: center;
   display: inline-flex;
   height: 100%;
   width: 100%
@@ -13,4 +12,8 @@
 #root {
   height: 100vh;
   width: 100vw;
+}
+
+.Settings {
+  text-align: center;
 }

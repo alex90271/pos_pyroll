@@ -6,22 +6,20 @@ export default function DrownMenu(props) {
   const options = (array) => {
     const output = [];
     array.forEach((item) => {
-        output.push(
-          item
-        );
+      output.push(
+        item
+      );
     });
     return output;
   }
 
-return (
-  <div className='thediv'>
+  return (
     <Dropdown
       placeholder='Change Report'
       floating labeled button
       className='icon'
-      onChange={props.change} 
+      onChange={props.change}
       options={options(props.reports)}
     />
-  </div>
-)
+  )
 }

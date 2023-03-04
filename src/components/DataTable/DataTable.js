@@ -8,7 +8,7 @@ import EditedTableWarning from '../EditedTableWarning/EditedTableWarning';
 export default function DataTable(props) {
 
     const handleChange = (e) => {
-        const {row, column} = e.currentTarget.dataset;
+        const { row, column } = e.currentTarget.dataset;
         const newValue = e.target.value;
         props.editTable(row, column, newValue);
     }
@@ -23,7 +23,7 @@ export default function DataTable(props) {
         }
         return tableObject;
     }
-    
+
     const canEditCell = (column) => {
         if (!props.canEditTable) {
             return false;
@@ -33,11 +33,8 @@ export default function DataTable(props) {
             return false;
         }
     }
-    
+
     const tableHeaderItems = (tableObject) => {
-        if (!props.tableData) {
-            return (<h4>No data to display</h4>)
-        }
         return (
             <Table.Row className={"TableHeader"}>
                 {Object.keys(tableObject[0]).map((column) => {
@@ -47,10 +44,10 @@ export default function DataTable(props) {
                         >
                             {column}
                         </Table.HeaderCell>
-                        
+
                     )
-                })}  
-            </Table.Row>          
+                })}
+            </Table.Row>
         )
     }
 
@@ -69,9 +66,9 @@ export default function DataTable(props) {
                 if (value === null) {
                     value = 0;
                 }
-                currentRow.push (
+                currentRow.push(
                     <Table.Cell
-                    key={row + column + "Table.cell"}
+                        key={row + column + "Table.cell"}
                     >
                         <ContentEditable
                             html={value.toString()}
@@ -89,13 +86,49 @@ export default function DataTable(props) {
         return output;
     }
 
+    if (!props.tableData) {
+        return (
 
+            <div>
+                <h1>To get Started: <br></br>Select the report type in dropdown, then report date range<br></br>(for a single day, click it twice)</h1>
+                    <h2>General Notes</h2>
+                        <p>-It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)</p>
+                        <p>-The data reported here is only as accurate as Aloha (ex. incorrect clockins)</p>
+                        <p>-Reports with an * can be filtered by Jobcode or Employee (export file is never filtered)</p>
+                    <h2>Report Info</h2>
+                    <h3>Cout_eod</h3>
+                        <p>-This report lists any clockins that were force closed by the end of day (3am)</p>
+                    <h3>Labor Rate</h3>
+                        <p>-Labor rate report pulls from pay rates set in Aloha</p>
+                    <h3>Hourly</h3>
+                        <p>-Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)</p>
+                    <h3>Labor Average Hours</h3>
+                        <p>-Labor Average shows the average hours and employee worked during the selected period</p>
+                    <h3>House Account</h3>
+                        <p>-House Acct report can only show transactions made between the selected dates (not a total balance)</p>
+                    <h3>Labor Reports</h3>
+                        <p>-Srvtips column accounts for removed tipshare (currently 4% of sales)</p>
+                        <p>-Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for a breakdown</p>
+                        <p>-Total Tips are both Srvtips and Tipout added together</p>
+            </div>
+        )
+    }
 
     if (props.tableData === "empty") {
         return (
             <div className="empty-data-table">
                 <h1>
                     No data for selected date/s
+                </h1>
+            </div>
+        )
+    }
+
+    if (props.tableData === "exported") {
+        return (
+            <div className="empty-data-table">
+                <h1>
+                    Data has been exported
                 </h1>
             </div>
         )
@@ -111,11 +144,11 @@ export default function DataTable(props) {
                     {tableBodyItems(props.tableData)}
                 </Table.Body>
             </Table>
-            <EditedTableWarning 
-            tableEdited={props.tableEdited}
+            <EditedTableWarning
+                tableEdited={props.tableEdited}
             //revertBackToOriginal={props.revertBackToOriginal}
             />
         </div>
-        
+
     )
 }

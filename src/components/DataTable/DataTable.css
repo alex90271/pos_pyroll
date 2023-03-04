@@ -12,3 +12,11 @@
     top: 0;
     z-index: 1;
 }
+
+p {
+    margin: 0;
+}
+
+h3 {
+    margin: 0;
+}
