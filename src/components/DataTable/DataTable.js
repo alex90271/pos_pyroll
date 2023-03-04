@@ -85,7 +85,6 @@ export default function DataTable(props) {
         }
         return output;
     }
-    const time = new Date().toLocaleTimeString();
     if (!props.tableData) {
         return (
             <div className="empty-data-table">
@@ -109,7 +108,6 @@ export default function DataTable(props) {
                         <p>-Srvtips column accounts for removed tipshare (currently 4% of sales)</p>
                         <p>-Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for a breakdown</p>
                         <p>-Total Tips are both Srvtips and Tipout added together</p>
-                <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
             </div>
         )
     }
@@ -120,7 +118,6 @@ export default function DataTable(props) {
                 <h1>
                     No data for selected date/s
                 </h1>
-                <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
             </div>
         )
     }
@@ -131,7 +128,16 @@ export default function DataTable(props) {
                 <h1>
                     Data has been exported
                 </h1>
-                <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
+            </div>
+        )
+    }
+
+    if (props.tableData === "day_error") {
+        return (
+            <div className="empty-data-table">
+                <h1>
+                    Dates cannot be used for export, please select a payroll interval <br></br> (ex. 1st-15th, 16th-31st)
+                </h1>
             </div>
         )
     }
@@ -150,7 +156,6 @@ export default function DataTable(props) {
                 tableEdited={props.tableEdited}
             //revertBackToOriginal={props.revertBackToOriginal}
             />
-            <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
         </div>
         
 

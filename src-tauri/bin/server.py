@@ -6,6 +6,8 @@
 
 # v01 Routes
 from datetime import datetime
+
+import pandas as pd
 from query_db import QueryDB
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -83,9 +85,9 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
 def gusto(day_one, day_two):
     '''exports payroll to gusto'''
     result = Payroll(day_one, day_two).process_payroll()
-    if type(result) == str:
+    if type(result) == 'empty':
         return jsonify('empty')
-    return jsonify('exported')
+    return jsonify(result)
 
 
 @app.route('/v01/data/house_acct/<day_one>/<day_two>')

@@ -353,19 +353,12 @@ class Payroll(ReportWriter):
     def __init__(self, first_day, last_day):
         self.first_day = first_day
         self.last_day = last_day
-        self.payroll_dates_check()
-
-    def payroll_dates_check(self, first_period_end=15):
-        '''checks that the dates selected are actually payroll dates before processing'''
-        # https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases
-        #SM   semi-month end frequency (15th and end of month)
-        if (pd.date_range(self.first_day, periods=1, freq='SM').strftime("%Y%m%d") != self.last_day):
-            raise ValueError('payroll export is not a payperiod')
-
+        self.c = ChipConfig()
 
     def process_payroll(self):
+        if (pd.date_range(self.first_day, periods=1, freq='SM').strftime("%Y%m%d") != self.last_day):
+            return 'day_error'
         super().__init__(first_day=self.first_day, last_day=self.last_day)
-        self.payroll_dates_check()
         df = self.labor_main(
             drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
                        'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
@@ -381,13 +374,15 @@ class Payroll(ReportWriter):
                 'HOURS', 'OVERHRS', 'TOTALTIPS', 'DECTIPS']]
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
                   'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
-        for x in ChipConfig().query("SETTINGS", "interface_employees", return_type='int_array'):
+        for x in self.c.query("SETTINGS", "interface_employees", return_type='int_array'):
             try:
                 df.drop([float(x)], inplace=True)
             except:
                 pass
-        df.to_csv('payroll.csv')
-        return df
+        
+        company = ''
+        df.to_csv(self.c.query("SETTINGS", "company_name") +'-timesheet-' + datetime.datetime.now().strftime('%Y-%M-%d_%I%M') + '.csv')
+        return 'exported'
 
 
 class WeeklyWriter(ReportWriter):

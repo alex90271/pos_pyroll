@@ -45,7 +45,8 @@ class ChipConfig():
             'use_aloha_tipshare': False,  # bool
             "interface_employees": [
                         "100, 200, 1002, 1009, 1021, 1022, 9998, 9999"
-            ]
+            ], 
+            "company_name": ''
         }
         data['RPT_GENERAL'] = {
             'margins_LeftRightTopBottom': [0.5, 0.5, 0.7, 0.7],  # margins
