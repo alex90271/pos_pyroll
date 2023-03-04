@@ -43,9 +43,7 @@ class ChipConfig():
             'debug': False,  # bool
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
             'use_aloha_tipshare': False,  # bool
-            "interface_employees": [
-                        "100, 200, 1002, 1009, 1021, 1022, 9998, 9999"
-            ], 
+            "interface_employees": "100, 200, 1002, 1009, 1021, 1022, 9998, 9999", 
             "company_name": ''
         }
         data['RPT_GENERAL'] = {
