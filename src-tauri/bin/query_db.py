@@ -74,21 +74,21 @@ class QueryDB():
                 d = pd.DataFrame(a)
             else:
                 d = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']).sort_values(by='ID')
-            return d
+            return d.copy()
         elif db_type == 'jobcodes':
             a = self.dbf_to_list('/JOB.Dbf')
             if ChipConfig().query('SETTINGS','debug'):
                 d = pd.DataFrame(a)
             else:
                 d = pd.DataFrame(a, columns=['ID', 'SHORTNAME']).sort_values(by='ID')
-            return d
+            return d.copy()
         elif db_type == 'labor':
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR LABOR DATA')
             a = self.dbf_to_list('/ADJTIME.DBF')
             if ChipConfig().query('SETTINGS','debug'):
                 data = pd.DataFrame(pd.DataFrame(data=a[1], columns=a[0]))
-                return data
+                return data.copy()
             else:
                 db_type = db_type + self.data
                 df = pd.DataFrame(a, columns=['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS',
@@ -96,21 +96,21 @@ class QueryDB():
                                             'RATE', 'TIPSHCON', 'EXP_ID'])
                 df = df.loc[np.where(df['INVALID'] == 'N')] #get rid of any invalid shifts (deleted or shifts that have been edited)
                 df['HOURS'] = np.subtract(df['HOURS'].values, df['OVERHRS'].values) #when the data is pulled in and HOURS includes OVERHRS
-                return df
+                return df.copy()
 
         elif db_type == 'transactions': #this isn't used yet
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
             a = self.dbf_to_list('/GNDTndr.dbf')
             df = pd.DataFrame(a)
-            return df
+            return df.copy()
         
         elif db_type == 'house_acct':
             if self.data == 'Data':
                 raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
             a = self.dbf_to_list('/HSE.DBF')
             df = pd.DataFrame(a)
-            return df
+            return df.copy()
         
         elif db_type == 'labor_hourly':
             shared_cols = ['DOB','STARTHOUR','STARTMIN','STOPHOUR','STOPMIN', 'STOREID', 'REGIONID', 'OCCASIONID']
@@ -126,7 +126,7 @@ class QueryDB():
                 print(self.data +' was empty')
                 return pd.DataFrame([])
             df = a_df.merge(b_df, on=shared_cols, how='left') #merge them on their shared columns and return the result
-            return df
+            return df.copy()
 
     def process_names(self, df, rename_columns=True, emp_bool=True, job_bool=True):
         '''takes in a dataframe, with employee IDs and appends the employee name
