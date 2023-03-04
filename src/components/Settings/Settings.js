@@ -65,10 +65,12 @@ export default function Settings(props) {
     return (
         <div className='Settings'>
             {settingsButton}
-            <DrownMenu
-                reports={props.reports}
-                change={props.changeReport}
-            />
+            <div>
+                <DrownMenu
+                    reports={props.reports}
+                    change={props.changeReport}
+                />
+            </div>
             <SelectionWindow
                 title={"Jobcodes"}
                 parsingFunction={getJobcodeName}
