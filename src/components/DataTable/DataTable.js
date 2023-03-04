@@ -85,11 +85,10 @@ export default function DataTable(props) {
         }
         return output;
     }
-
+    const time = new Date().toLocaleTimeString();
     if (!props.tableData) {
         return (
-
-            <div>
+            <div className="empty-data-table">
                 <h1>To get Started: <br></br>Select the report type in dropdown, then report date range<br></br>(for a single day, click it twice)</h1>
                     <h2>General Notes</h2>
                         <p>-It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)</p>
@@ -110,6 +109,7 @@ export default function DataTable(props) {
                         <p>-Srvtips column accounts for removed tipshare (currently 4% of sales)</p>
                         <p>-Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for a breakdown</p>
                         <p>-Total Tips are both Srvtips and Tipout added together</p>
+                <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
             </div>
         )
     }
@@ -120,6 +120,7 @@ export default function DataTable(props) {
                 <h1>
                     No data for selected date/s
                 </h1>
+                <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
             </div>
         )
     }
@@ -130,6 +131,7 @@ export default function DataTable(props) {
                 <h1>
                     Data has been exported
                 </h1>
+                <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
             </div>
         )
     }
@@ -148,7 +150,9 @@ export default function DataTable(props) {
                 tableEdited={props.tableEdited}
             //revertBackToOriginal={props.revertBackToOriginal}
             />
+            <div className='last-refresh'><p>(Last Refresh: {time})</p></div>
         </div>
+        
 
     )
 }
