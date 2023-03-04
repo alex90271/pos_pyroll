@@ -357,14 +357,15 @@ class Payroll(ReportWriter):
 
     def payroll_dates_check(self, first_period_end=15):
         '''checks that the dates selected are actually payroll dates before processing'''
-        self.first_day
-        self.last_day
-        # TODO implement
         # https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases
-        pass
+        #SM   semi-month end frequency (15th and end of month)
+        if (pd.date_range(self.first_day, periods=1, freq='SM').strftime("%Y%m%d") != self.last_day):
+            raise ValueError('payroll export is not a payperiod')
+
 
     def process_payroll(self):
         super().__init__(first_day=self.first_day, last_day=self.last_day)
+        self.payroll_dates_check()
         df = self.labor_main(
             drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
                        'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
