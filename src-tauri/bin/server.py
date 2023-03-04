@@ -13,7 +13,6 @@ from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
 from report_writer import Payroll, ReportWriter, ReportWriterReports
 from chip_config import ChipConfig
-import webbrowser
 
 
 app = Flask(__name__, static_url_path='')
