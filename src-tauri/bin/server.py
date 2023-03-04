@@ -9,7 +9,7 @@ from datetime import datetime
 from query_db import QueryDB
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
-from report_writer import Payroll, ReportWriter
+from report_writer import Payroll, ReportWriter, ReportWriterReports
 from chip_config import ChipConfig
 import webbrowser
 
@@ -141,31 +141,8 @@ def jobcode_list():
 
 @app.route('/v01/reports')
 def report_list():
-    return jsonify((
-        {'key': 'labor_main', 'text': 'labor_main', 'value': 'labor_main',
-                "description": '*',
-         },
-        {'key': 'labor_total', 'text': 'labor_total', 'value': 'labor_total',
-                "description": '*'},
-        {'key': 'labor_nightly', 'text': 'labor_nightly', 'value': 'labor_nightly',
-                "description": '*', },
-        {'key': 'labor_weekly', 'text': 'labor_weekly', 'value': 'labor_weekly',
-                "description": '*', },
-        {'key': 'punctuality', 'text': 'punctuality', 'value': 'punctuality',
-                "description": '*', },
-        {'key': 'hourly', 'text': 'hourly', 'value': 'hourly',
-                "description": '*', },
-        {'key': 'tip_rate', 'text': 'tip_rate', 'value': 'tip_rate',
-                "description": '', },
-        {'key': 'labor_rate', 'text': 'labor_rate', 'value': 'labor_rate',
-                "description": '', },
-        {'key': 'cout_eod', 'text': 'cout_eod', 'value': 'cout_eod',
-                "description": '*', },
-        {'key': 'labor_avg_hours', 'text': 'labor_avg_hours', 'value': 'labor_avg_hours',
-                "description": '*', },
-        {'key': 'house_acct', 'text': 'house_acct', 'value': 'house_acct',
-         "description": '*', }
-    )
+    return jsonify(
+        ReportWriterReports().available_reports()
     )
 # Unfinished Requests
 # @app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])

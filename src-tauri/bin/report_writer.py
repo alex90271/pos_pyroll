@@ -9,7 +9,6 @@ import pandas as pd
 import datetime
 import timeit
 
-
 class ReportWriter():
 
     def __init__(self, first_day, last_day=None, increment=1):
@@ -237,8 +236,8 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=False)
             # sort the columns
-            #df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS',
-                    #'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS']]
+            # df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS',
+            # 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS']]
 
         elif rpt == 'labor_nightly':
             df = self.labor_main(
@@ -253,8 +252,8 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=True)
             # sort the columns
-            #df = df[['SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'HOURS',
-                    #'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS']]
+            # df = df[['SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'HOURS',
+            # 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS']]
 
         elif rpt == 'labor_total':
             df = self.labor_main(
@@ -269,8 +268,8 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=False)
             # sort the columns
-            #df = df[['LASTNAME', 'FIRSTNAME', 'HOURS', 'OVERHRS',
-                     #'DECTIPS', 'TOTALTIPS', 'DECTIPS', 'UNALLOCTIPS']]
+            # df = df[['LASTNAME', 'FIRSTNAME', 'HOURS', 'OVERHRS',
+            # 'DECTIPS', 'TOTALTIPS', 'DECTIPS', 'UNALLOCTIPS']]
 
         elif rpt == 'labor_rate':
             df = self.rate_rpt(
@@ -319,8 +318,36 @@ class ReportWriter():
         if type(df) == str:  # if df is 'empty' don't try to round it
             return df
         else:
-            return df.round(2)
-
+            return df.round(2) 
+        
+class ReportWriterReports():
+    
+    def available_reports(self):
+        return (
+            {'key': 'labor_main', 'text': 'labor_main', 'value': 'labor_main',
+                "description": '*',
+             },
+            {'key': 'labor_total', 'text': 'labor_total', 'value': 'labor_total',
+                "description": '*'},
+            {'key': 'labor_nightly', 'text': 'labor_nightly', 'value': 'labor_nightly',
+                "description": '*', },
+            {'key': 'labor_weekly', 'text': 'labor_weekly', 'value': 'labor_weekly',
+                "description": '*', },
+            {'key': 'punctuality', 'text': 'punctuality', 'value': 'punctuality',
+                "description": '*', },
+            {'key': 'hourly', 'text': 'hourly', 'value': 'hourly',
+                "description": '*', },
+            {'key': 'tip_rate', 'text': 'tip_rate', 'value': 'tip_rate',
+                "description": '', },
+            {'key': 'labor_rate', 'text': 'labor_rate', 'value': 'labor_rate',
+                "description": '', },
+            {'key': 'cout_eod', 'text': 'cout_eod', 'value': 'cout_eod',
+                "description": '*', },
+            {'key': 'labor_avg_hours', 'text': 'labor_avg_hours', 'value': 'labor_avg_hours',
+                "description": '*', },
+            {'key': 'house_acct', 'text': 'house_acct', 'value': 'house_acct',
+             "description": '*', }
+        )
 
 class Payroll(ReportWriter):
     def __init__(self, first_day, last_day):
@@ -344,16 +371,16 @@ class Payroll(ReportWriter):
             index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
             totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
                           'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
-            addl_cols=[], 
+            addl_cols=[],
             append_totals=False)
-        
+
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'EXP_ID',
                 'HOURS', 'OVERHRS', 'TOTALTIPS', 'DECTIPS']]
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
                   'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
-        for x in ChipConfig().query("SETTINGS","interface_employees", return_type='int_array'):
+        for x in ChipConfig().query("SETTINGS", "interface_employees", return_type='int_array'):
             try:
                 df.drop([float(x)], inplace=True)
             except:
