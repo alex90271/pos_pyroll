@@ -19,9 +19,9 @@ const API = {
 
   export(firstDay, lastDay) {
     //exports to gusto the payroll report
-    var link = document.createElement('a');
-    link.href = (`${url}data/gusto/${firstDay}/${lastDay}`)
-    link.dispatchEvent(new MouseEvent('click'));
+    return fetch(`${url}data/gusto/${firstDay}/${lastDay}`)
+      .then(response => response.json());
+
   },
 
   consoleLogConfig() {
