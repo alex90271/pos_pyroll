@@ -9,6 +9,7 @@ import pandas as pd
 import datetime
 import timeit
 
+
 class ReportWriter():
 
     def __init__(self, first_day, last_day=None, increment=1):
@@ -67,14 +68,27 @@ class ReportWriter():
 
         return _df
 
-    def hourly_pay_rate(self, selected_employees, selected_jobs):
+    def hourly_pay_rate(self, selected_employees=None, selected_jobs=None, report=False):
+        '''returns the hourly pay rate through the period'''
         a = [labor(day).calc_hourly_pay_rate() for day in self.days]
-        df = pd.concat(a)
-        df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR',
-                'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE'], axis=1, inplace=True)
-        _df = query_db(self.days[len(self.days)-1]
-                       ).process_names(df=df, job_bool=False)
-        return self.job_emp_filter(selected_employees, selected_jobs, _df)
+        reg_df = pd.concat(a)
+        reg_df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR',
+                'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE', 'SYSDATEIN','EXP_ID'], axis=1, inplace=True)
+        
+        _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY']],
+                             index=['EMPLOYEE'],
+                             aggfunc=np.mean,
+                             fill_value=np.NaN)
+        if report:
+        #readds totals for report
+            #rpt_df = reg_df[['TOTALTIPS','TOTAL_PAY','HOURS','OVERHRS','EMPLOYEE']].join(_df, ['EMPLOYEE'])
+            _df = query_db(self.days[len(self.days)-1]
+                       ).process_names(df=_df, job_bool=False)
+        #the _df is the df being returned
+        if selected_employees or selected_jobs:
+            return self.job_emp_filter(selected_employees, selected_jobs, _df)
+        else:
+            return _df
 
     def append_totals(
         self,
@@ -137,6 +151,7 @@ class ReportWriter():
         return _df
 
     def labor_hourly_rate(self):
+        '''returns the labor rate to sales'''
         return [labor(day).get_labor_rate(return_nan=False) for day in self.days]
 
     def get_total_sales(self):
@@ -305,6 +320,7 @@ class ReportWriter():
             df = self.hourly_pay_rate(
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
+                report=True
             )
             df = df[['SYSDATEIN', 'FIRSTNAME', 'LASTNAME', 'HOURS',
                      'OVERHRS', 'TOTAL_PAY', 'TOTALTIPS', 'ACTUAL_HOURLY']]
@@ -318,10 +334,11 @@ class ReportWriter():
         if type(df) == str:  # if df is 'empty' don't try to round it
             return df
         else:
-            return df.round(2) 
-        
+            return df.round(2)
+
+
 class ReportWriterReports():
-    
+
     def available_reports(self):
         return (
             {'key': 'labor_main', 'text': 'labor_main', 'value': 'labor_main',
@@ -349,10 +366,12 @@ class ReportWriterReports():
              "description": '*', }
         )
 
+
 class Payroll(ReportWriter):
     def __init__(self, first_day, last_day):
         self.first_day = first_day
         self.last_day = last_day
+
         self.c = ChipConfig()
 
     def process_payroll(self):
@@ -368,20 +387,27 @@ class Payroll(ReportWriter):
             addl_cols=[],
             append_totals=False)
 
+
+        hr_df = self.hourly_pay_rate()
+        hr_df.index.rename('ID', inplace=True)
+        df = df.join(hr_df,['ID'])
+        df['ACTUAL_HOURLY'] = df['ACTUAL_HOURLY'].round(2)
+        df['ACTUAL_HOURLY'] = 'Average Hourly: ' + df['ACTUAL_HOURLY'].astype(str)
+
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'EXP_ID',
-                'HOURS', 'OVERHRS', 'TOTALTIPS', 'DECTIPS']]
+                'HOURS', 'OVERHRS', 'TOTALTIPS', 'DECTIPS', 'ACTUAL_HOURLY']]
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
-                  'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
+                  'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note'}, inplace=True)
         for x in self.c.query("SETTINGS", "interface_employees", return_type='int_array'):
             try:
                 df.drop([float(x)], inplace=True)
             except:
                 pass
-        
-        company = ''
-        df.to_csv(self.c.query("SETTINGS", "company_name") +'-timesheet-' + datetime.datetime.now().strftime('%Y-%M-%d_%I%M') + '.csv')
+
+        df.to_csv(self.c.query("SETTINGS", "company_name") + '-timesheet-' +
+                  datetime.datetime.now().strftime('%Y-%M-%d_%I%M') + '.csv')
         return 'exported'
 
 
