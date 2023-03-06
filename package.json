@@ -1,6 +1,6 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "report_helper",
+  "version": "0.34.2023",
   "private": true,
   "dependencies": {
     "@semantic-ui-react/css-patch": "^1.0.0",
