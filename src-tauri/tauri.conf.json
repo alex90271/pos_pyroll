@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "frontend",
-    "version": "0.34.23"
+    "version": "0.34.2023"
   },
   "tauri": {
     "allowlist": {

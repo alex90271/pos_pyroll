@@ -13,10 +13,6 @@
     z-index: 1;
 }
 
-p {
-    margin: 0;
-}
-
-h3 {
+.empty-data-table p {
     margin: 0;
 }
