@@ -12,6 +12,7 @@ class ChipConfig():
             try:
                 os.mkdir('data')
                 os.mkdir('debug')
+                os.mkdir('exports')
             except:
                 pass
             self.save_json(self.generate_config())
@@ -40,12 +41,13 @@ class ChipConfig():
             'tracked_labor': '8',  # array
             'pay_period_days': '15',  # array
             'count_salary': True,  # bool
-            'debug': False,  # bool
+            'debug': False, #bool
+            'verbose_debug': False,  # bool
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
             'use_aloha_tipshare': False,  # bool
-            "interface_employees": "100, 200, 1002, 1009, 1021, 1022, 9998, 9999", 
-            "company_name": '',
-            "export_type": "gusto"
+            'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999', 
+            'company_name': '',
+            'export_type': 'gusto'
         }
         data['RPT_GENERAL'] = {
             'margins_LeftRightTopBottom': [0.5, 0.5, 0.7, 0.7],  # margins

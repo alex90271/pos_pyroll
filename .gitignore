@@ -27,6 +27,7 @@ src-tauri/bin/data
 src-tauri/bin/debug
 *.xlsx
 *.csv
+/exports/
 
 # misc
 .DS_Store

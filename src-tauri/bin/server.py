@@ -8,6 +8,7 @@
 from datetime import datetime
 
 import pandas as pd
+
 from query_db import QueryDB
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -62,19 +63,25 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
     elif opt_print == 'html':
         # turn any NaN data to blank for printability
         result = result.fillna('')
-        return render_template('render.html',
-                               tables=[result.to_html(
-                                   table_id="table", classes="ui striped table")],
-                               titles=result.columns.values,
-                               timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
-                               dates=[
-                                   datetime.strptime(day_one, "%Y%m%d").strftime(
-                                       '%a, %b %d, %Y'),
-                                   datetime.strptime(day_two, "%Y%m%d").strftime(
-                                       '%a, %b %d, %Y')
-                               ],
-                               rpttp=rpt_type,
-                               select_emps=select_emps, select_jobs=select_jobs)
+        pdf = render_template('render.html',
+                              tables=[result.to_html(
+                                  table_id="table", classes="ui striped table")],
+                              titles=result.columns.values,
+                              timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
+                              dates=[
+                                  datetime.strptime(day_one, "%Y%m%d").strftime(
+                                      '%a, %b %d, %Y'),
+                                  datetime.strptime(day_two, "%Y%m%d").strftime(
+                                      '%a, %b %d, %Y')
+                              ],
+                              rpttp=rpt_type,
+                              select_emps=select_emps, select_jobs=select_jobs)
+        name_string = rpt_type + '-report-' + \
+            datetime.now().strftime('%Y-%m-%d')
+        export = open("exports/" + name_string + ".html", "w")
+        export.write(pdf)
+        export.close()
+        return jsonify('exported')
     else:
         raise ValueError(
             'Print argument not passed json or html -- leave blank for json')
@@ -83,10 +90,18 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
 @app.route('/v01/data/gusto/<day_one>/<day_two>')
 def gusto(day_one, day_two):
     '''exports payroll to gusto'''
+    if (pd.date_range(day_one, periods=1, freq='SM').strftime("%Y%m%d") != day_two):
+            return jsonify('day_error')
     result = Payroll(day_one, day_two).process_payroll()
     if type(result) == 'empty':
         return jsonify('empty')
-    return jsonify(result)
+    else:
+        name_string = ChipConfig().query("SETTINGS", "company_name") + '-timesheet-' + \
+            datetime.now().strftime('%Y-%m-%d')
+        result.to_csv(
+            ("exports/" + name_string + '.csv'),
+            index=False)
+        return jsonify('exported')
 
 
 @app.route('/v01/data/house_acct/<day_one>/<day_two>')
