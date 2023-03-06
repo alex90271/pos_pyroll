@@ -31,10 +31,10 @@ class ProcessLabor():
         self.tracked_labor = c.query('SETTINGS','tracked_labor', return_type='int_array')
         self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
         self.nonsharedtip_code = c.query('SETTINGS','nonshared_tip_codes', return_type='int_array') 
-        self.debug = c.query('SETTINGS','debug', return_type='bool')
+        self.verbose_debug = c.query('SETTINGS','verbose_debug', return_type='bool')
         self.salary = False #TODO Remove this temp fix
 
-        if self.debug:
+        if self.verbose_debug:
             if not os.path.exists('debug'):
                 os.mkdir('debug')
     
@@ -48,7 +48,7 @@ class ProcessLabor():
         cur_df = self.calc_servtips()
         total = np.sum(cur_df.loc[:,('TIP_CONT')].values)
         
-        if self.debug:
+        if self.verbose_debug:
             print('tipshare ' + str(total))
 
         return total
@@ -70,7 +70,7 @@ class ProcessLabor():
         if decl == False and cctip == False:
             raise ValueError('function get_percent_tips returned 0 as no true args were passed')
             
-        if self.debug:
+        if self.verbose_debug:
             print('reg tips ' + str(total))
 
         return total
@@ -80,7 +80,7 @@ class ProcessLabor():
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.tipped_code)].copy()
         total = np.add(np.sum(cur_df['HOURS'].values), np.sum(cur_df['OVERHRS'].values))
             
-        if self.debug:
+        if self.verbose_debug:
             print('total hours ' + str(total))
 
         return total
@@ -93,7 +93,7 @@ class ProcessLabor():
         total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(decl=True, cctip=True))
         with np.errstate(invalid='ignore'): #some days may return zero and thats okay (closed days)
             rt = np.divide(total_pool, tipped_hours)
-            if self.debug:
+            if self.verbose_debug:
                 print(self.day, rt)
             return rt
             
@@ -177,7 +177,7 @@ class ProcessLabor():
         cur_df.drop(columns=['INVALID','COUTBYEOD'], axis=1, inplace=True)
         cur_df['ACTUAL_HOURLY'] = np.divide(np.add(cur_df['TOTALTIPS'], cur_df['TOTAL_PAY']), np.add(cur_df['HOURS'], cur_df['OVERHRS']))
 
-        if self.debug:
+        if self.verbose_debug:
             cur_df.to_csv('debug/calc_hourly_rate' + self.day + '.csv')
 
         return cur_df
@@ -188,7 +188,7 @@ class ProcessLabor():
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.tipped_code)].copy()
         cur_df['TIPOUT'] = np.multiply(cur_df['HOURS'].values, self.get_tip_rate())
 
-        if self.debug:
+        if self.verbose_debug:
             cur_df.to_csv('debug/calc_tipout' + self.day + '.csv')
 
         return cur_df
@@ -198,7 +198,7 @@ class ProcessLabor():
         cur_df = self.df.loc[self.df['JOBCODE'].isin(self.nonsharedtip_code)].copy()
         cur_df['UNALLOCTIPS'] = cur_df['CCTIPS']
 
-        if self.debug:
+        if self.verbose_debug:
             cur_df.to_csv('debug/calc_nonshared_tips' + self.day + '.csv')
 
         return cur_df
@@ -215,7 +215,7 @@ class ProcessLabor():
         cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
 
 
-        if self.debug:
+        if self.verbose_debug:
             cur_df.to_csv('debug/calc_srv_tips' + self.day + '.csv')
 
 
@@ -252,7 +252,7 @@ class ProcessLabor():
         cur_df.loc[:,('TOTAL_PAY')] = np.add(reg,over)
 
 
-        if self.debug:
+        if self.verbose_debug:
             cur_df.to_csv('debug/calc_labor_cost' + self.day + '.csv')
 
 
@@ -271,7 +271,7 @@ class ProcessLabor():
         cur_df['STARTHOUR'] = cur_df['STARTHOUR'].dt.strftime('%I%p')
         cur_df['STARTMIN'] = cur_df['STARTMIN'].dt.strftime('%M')
 
-        if self.debug:
+        if self.verbose_debug:
             cur_df.to_csv('debug/calc_hourly_labor' + self.day + '.csv')
 
         return cur_df
@@ -322,7 +322,7 @@ class ProcessLabor():
         a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
         tdf.update(a.where(a<0, 0))
 
-        if self.debug:
+        if self.verbose_debug:
             tdf.to_csv('debug/calc_payroll' + self.day + '.csv')
 
         return tdf
