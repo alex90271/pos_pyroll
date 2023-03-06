@@ -394,20 +394,21 @@ class Payroll(ReportWriter):
         df['ACTUAL_HOURLY'] = df['ACTUAL_HOURLY'].round(2)
         df['ACTUAL_HOURLY'] = 'Period Avg Hourly: ' + df['ACTUAL_HOURLY'].astype(str)
 
-        # match gusto columns
-        # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
-        df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'EXP_ID',
-                'HOURS', 'OVERHRS', 'TOTALTIPS', 'DECTIPS', 'ACTUAL_HOURLY']]
-        df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
-                  'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note'}, inplace=True)
+        #drop interface employees
         for x in self.c.query("SETTINGS", "interface_employees", return_type='int_array'):
-            try:
-                df.drop([float(x)], inplace=True)
-            except:
-                pass
+             df.drop([float(x)], inplace=True, errors=False)
 
-        df.to_csv(self.c.query("SETTINGS", "company_name") + '-timesheet-' +
-                  datetime.datetime.now().strftime('%Y-%M-%d_%I%M') + '.csv')
+        if self.c.query("SETTINGS", "export_type") == 'gusto':
+            # match gusto columns
+            # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
+            df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
+                  'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note'}, inplace=True)
+            df = df[['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']]
+
+        df.to_csv(
+            (self.c.query("SETTINGS", "company_name") + '-timesheet-' + datetime.datetime.now().strftime('%Y-%M-%d_%I%M') + '.csv'),
+            index=False)
+        
         return 'exported'
 
 
