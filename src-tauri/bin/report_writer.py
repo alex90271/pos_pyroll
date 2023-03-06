@@ -392,7 +392,7 @@ class Payroll(ReportWriter):
         hr_df.index.rename('ID', inplace=True)
         df = df.join(hr_df,['ID'])
         df['ACTUAL_HOURLY'] = df['ACTUAL_HOURLY'].round(2)
-        df['ACTUAL_HOURLY'] = 'Average Hourly: ' + df['ACTUAL_HOURLY'].astype(str)
+        df['ACTUAL_HOURLY'] = 'Period Avg Hourly: ' + df['ACTUAL_HOURLY'].astype(str)
 
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
