@@ -242,7 +242,7 @@ class ReportWriter():
         elif rpt == 'labor_main':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE','EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
                               'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
@@ -257,7 +257,7 @@ class ReportWriter():
         elif rpt == 'labor_nightly':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE',
-                           'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD'],
+                           'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD','EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME',
                             'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
@@ -273,11 +273,11 @@ class ReportWriter():
         elif rpt == 'labor_total':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME'],
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME','EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
                               'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
-                addl_cols=['MEALS'],
+                addl_cols=[],
                 sum_only=True,
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
@@ -375,8 +375,6 @@ class Payroll(ReportWriter):
         self.c = ChipConfig()
 
     def process_payroll(self):
-        if (pd.date_range(self.first_day, periods=1, freq='SM').strftime("%Y%m%d") != self.last_day):
-            return 'day_error'
         super().__init__(first_day=self.first_day, last_day=self.last_day)
         df = self.labor_main(
             drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
@@ -404,12 +402,8 @@ class Payroll(ReportWriter):
             df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
                   'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note'}, inplace=True)
             df = df[['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']]
-
-        df.to_csv(
-            (self.c.query("SETTINGS", "company_name") + '-timesheet-' + datetime.datetime.now().strftime('%Y-%M-%d_%I%M') + '.csv'),
-            index=False)
         
-        return 'exported'
+        return df
 
 
 class WeeklyWriter(ReportWriter):
