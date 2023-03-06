@@ -12,9 +12,8 @@ const API = {
   },
 
   print(firstDay, lastDay, report, jobcodes = 0, employees = 0) {
-    var link = document.createElement('a');
-    link.href = (`${url}data/${firstDay}/${lastDay}/${report}/${jobcodes}/${employees}/html`)
-    link.dispatchEvent(new MouseEvent('click'));
+    return fetch(`${url}data/${firstDay}/${lastDay}/${report}/${jobcodes}/${employees}/html`)
+      .then(response => response.json());
   },
 
   export(firstDay, lastDay) {
