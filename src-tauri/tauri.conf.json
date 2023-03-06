@@ -7,7 +7,7 @@
     "distDir": "../build"
   },
   "package": {
-    "productName": "Aloha Report Helper",
+    "productName": "POS_Report_Helper",
     "version": "0.34.2023"
   },
   "tauri": {
