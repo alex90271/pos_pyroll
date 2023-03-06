@@ -29,7 +29,7 @@ class ChipConfig():
     def generate_config(self):
         '''generates the default config file, with default settings. To reset config file, just delete it'''
         data = {}
-        data['ver'] = {'ver': 1}
+        data['ver'] = {'ver': 2.3623}
         data['SETTINGS'] = {
             'tip_sales_percent': '0.03',  # float, 0 - 1 (decimal percent)
             'tip_amt_percent': '1',  # float, 0 - 1 (decimal percent)
