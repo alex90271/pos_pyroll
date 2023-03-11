@@ -32,6 +32,7 @@
     "webpack": "^5.73.0"
   },
   "scripts": {
+    "build_py": "pyinstaller -F py/server.py --add-data py/templates;templates --distpath src-tauri/bin/python --clean -n server-x86_64-pc-windows-msvc",
     "start": "react-scripts start",
     "dev": "react-scripts start",
     "build": "react-scripts build",

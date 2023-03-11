@@ -1,21 +1,28 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm run build",
-    "beforeDevCommand": "npm run dev",
-    "devPath": "http://localhost:3000",
-    "distDir": "../build"
+    "beforeDevCommand": {
+      "script": "npm run build_py",
+      "wait": true
+    },
+    "beforeBuildCommand": "",
+    "devPath": "../src",
+    "distDir": "../src",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "POS_Report_Helper",
-    "version": "0.34.2023"
+    "version": "0.310.2023"
   },
   "tauri": {
     "allowlist": {
+      "all": true,
       "shell": {
         "sidecar": true,
         "scope": [
-          { "name": "bin/server", "sidecar": true }
+          {
+            "name": "bin/python/server",
+            "sidecar": true
+          }
         ]
       }
     },
@@ -26,25 +33,10 @@
       "deb": {
         "depends": []
       },
-      "externalBin": [
-        "bin/server"
-      ],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "dev.alexalder.payroll",
+      "externalBin": ["bin/python/server"],
+      "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+      "identifier": "exports.alexalder.dev",
       "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
       "resources": [],
       "shortDescription": "",
       "targets": "all",
@@ -65,7 +57,7 @@
         "fullscreen": false,
         "height": 1000,
         "resizable": true,
-        "title": "payroll",
+        "title": "POS_Report_Helper 0.310.2023",
         "width": 1500
       }
     ]

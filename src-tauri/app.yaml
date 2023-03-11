@@ -1,4 +1,0 @@
-#google cloud app engine
-runtime: python38
-entrypoint: gunicorn -b :$PORT server:app
-

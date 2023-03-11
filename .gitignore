@@ -43,3 +43,4 @@ frontend/yarn-error.log*
 frontend/out/
 node_modules
 src-tauri/bin/__pycache__
+src-tauri/bin/python/server-x86_64-pc-windows-msvc.exe
