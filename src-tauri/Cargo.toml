@@ -1,6 +1,6 @@
 [package]
-name = "tauri-rust-py"
-version = "0.0.0"
+name = "report_helper"
+version = "0.34.2023"
 description = "A Tauri App"
 authors = ["you"]
 license = ""

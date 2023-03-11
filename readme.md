@@ -21,8 +21,9 @@ Tauri requires rust, and rust requires the windows APIs to be used on windows
 
     3. Run `npm install`
 
-    4. To launch, `npm run tauri dev`
-        note: this command will handle the compilation of the backend
+    4. Run `npm run build_py`
+
+    5. Finally, `npm run tauri dev`
 
 
 ### --- DIRECTORIES

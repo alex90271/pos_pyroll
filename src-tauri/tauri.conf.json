@@ -1,13 +1,9 @@
 {
   "build": {
-    "beforeDevCommand": {
-      "script": "npm run build_py",
-      "wait": true
-    },
-    "beforeBuildCommand": "",
-    "devPath": "../src",
-    "distDir": "../src",
-    "withGlobalTauri": true
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devPath": "http://localhost:3000",
+    "distDir": "../build"
   },
   "package": {
     "productName": "POS_Report_Helper",

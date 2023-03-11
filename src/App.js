@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import ConfigArea from './components/ConfigArea/ConfigArea';
 import DataTable from './components/DataTable/DataTable';
 
+
 function App() {
 
   // const [tableEdited, setTableEdited] = useState(false);
   const [editedTableData, setEditedTableData] = useState();
-
   const columnsToRound = ["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"];
   // const editableColumns = ["HOURS", "OVERHRS", "SRVTIPS", "TIPOUT", "DECTIPS", "MEALS"];
 
