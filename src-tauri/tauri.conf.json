@@ -61,8 +61,9 @@
     "windows": [
       {
         "fullscreen": false,
+        "center": true,
         "height": 1000,
-        "resizable": true,
+        "resizable": false,
         "title": "POS_Report_Helper 0.310.2023",
         "width": 1500
       }
