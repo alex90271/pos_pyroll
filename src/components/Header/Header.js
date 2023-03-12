@@ -10,15 +10,9 @@ async function ForcedRefresh_s() {
 function ServerEvent_s() {
     const cnd = Command.sidecar('bin/python/server')
     ForcedRefresh_s();
-    var srv = cnd.execute();
+    return cnd.spawn();
 
-    const kill = () => {
-        srv.kill();
-    }
-
-    return srv
 }
-
 
 
 export default function Header() {
@@ -27,7 +21,7 @@ export default function Header() {
             <button onClick={ServerEvent_s} className='ui light blue button'>
                 Connect
             </button>
-            <button onClick={ServerEvent_s.kill} className='ui light disabled red button'>
+            <button className='ui light disabled red button'>
                 Disconnect
             </button>
             <p>
