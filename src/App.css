@@ -1,7 +1,10 @@
 .App {
-  display: inline-flex;
   height: 100%;
   width: 100%
+}
+
+.AppBody {
+  display: flex;
 }
 
 .App-logo {

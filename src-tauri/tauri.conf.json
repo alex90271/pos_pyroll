@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "POS_Report_Helper",
-    "version": "0.310.2023"
+    "version": "0.0.0"
   },
   "tauri": {
     "allowlist": {

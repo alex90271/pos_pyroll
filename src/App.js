@@ -31,20 +31,21 @@ function App() {
 
   return (
     <div className="App">
-      <Header/>
-      <ConfigArea
-      setEditedTableData={setEditedTableData}
-      />
-      <DataTable
-        tableData={editedTableData}
-        roundNumbers={false}
-        columnsToRound={columnsToRound}
+      <Header />
+      <div className="AppBody">
+        <ConfigArea
+          setEditedTableData={setEditedTableData}
+        />
+        <DataTable
+          tableData={editedTableData}
+          roundNumbers={false}
+          columnsToRound={columnsToRound}
         // editableColumns={editableColumns}
         // editTable={editTable}
         // canEditTable={false}
         // tableEdited={tableEdited}
         //revertBackToOriginal={revertBackToOriginal}
-      />
+        /></div>
     </div>
   );
 }
