@@ -6,6 +6,8 @@
 
 # v01 Routes
 from datetime import datetime
+import os
+import signal
 
 import pandas as pd
 
@@ -147,6 +149,11 @@ def employee_list():
                    .process_db('employees')
                    .to_dict(orient='records'))
 
+@app.route('/v01/1365438ff5213531a63c246846814a')
+def shutdown():
+    os.kill(os.getpid(), signal.SIGSTOP)
+    return('attempting to stop')
+
 
 @app.route('/v01/jobcodes')
 def jobcode_list():
@@ -171,6 +178,5 @@ def update_data(employee_id, data):
 
 
 if __name__ == '__main__':
-    # webbrowser.open_new('http://localhost:5000/')
     from waitress import serve
     serve(app, host='localhost', port='5000')
