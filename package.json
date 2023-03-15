@@ -36,7 +36,7 @@
     "build_py": "pyinstaller -F py/server.py --add-data py/templates;templates --distpath src-tauri/bin/python --clean -n server-x86_64-pc-windows-msvc",
     "start": "react-scripts start",
     "dev": "react-scripts start",
-    "build": "build_py && update_ver && react-scripts build",
+    "build": "pyinstaller -F py/server.py --add-data py/templates;templates --distpath src-tauri/bin/python --clean -n server-x86_64-pc-windows-msvc && node build_helper.js && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "make": "react-scripts make",
