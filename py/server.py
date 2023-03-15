@@ -151,7 +151,7 @@ def employee_list():
 
 @app.route('/v01/1365438ff5213531a63c246846814a')
 def shutdown():
-    os.kill(os.getpid(), signal.SIGSTOP)
+    os.kill(os.getpid(), signal.SIGINT)
     return('attempting to stop')
 
 
