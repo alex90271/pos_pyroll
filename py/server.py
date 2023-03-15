@@ -5,12 +5,11 @@
 # date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
 
 # v01 Routes
+import asyncio
 from datetime import datetime
 import os
 import signal
-
 import pandas as pd
-
 from query_db import QueryDB
 from flask import Flask, redirect, render_template, url_for, request, jsonify
 from flask_cors import CORS, cross_origin
@@ -25,9 +24,9 @@ debug = False  # set to false to turn off print statements
 
 
 @cross_origin
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.errorhandler(404)
+def page_not_found(e):
+    return 'you cannot access this here'
 
 
 @cross_origin
@@ -178,5 +177,10 @@ def update_data(employee_id, data):
 
 
 if __name__ == '__main__':
-    from waitress import serve
+    from waitress import serve  
+    async def main():
+        #dont let the server run for more than an hour
+        await asyncio.sleep(3600)
+        shutdown()
+    asyncio.run(main())
     serve(app, host='localhost', port='5000')
