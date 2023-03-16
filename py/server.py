@@ -180,7 +180,8 @@ if __name__ == '__main__':
     from waitress import serve  
     async def main():
         #dont let the server run for more than an hour
-        await asyncio.sleep(3600)
+        await asyncio.sleep(60)
         shutdown()
-    asyncio.run(main())
     serve(app, host='localhost', port='5000')
+    asyncio.run(main())
+    

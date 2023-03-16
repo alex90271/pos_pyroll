@@ -2,7 +2,6 @@ import './App.css';
 import React, { useState } from 'react';
 import ConfigArea from './components/ConfigArea/ConfigArea';
 import DataTable from './components/DataTable/DataTable';
-import Header from './components/Header/Header';
 
 
 
@@ -31,7 +30,6 @@ function App() {
 
   return (
     <div className="App">
-      <Header />
       <div className="AppBody">
         <ConfigArea
           setEditedTableData={setEditedTableData}
