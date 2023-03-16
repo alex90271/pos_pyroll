@@ -5,7 +5,6 @@
 # date format YYYYMMDD (ex. July 4th, 2021 would be represented as: 20210704)
 
 # v01 Routes
-import asyncio
 from datetime import datetime
 import os
 import signal
@@ -178,10 +177,5 @@ def update_data(employee_id, data):
 
 if __name__ == '__main__':
     from waitress import serve  
-    async def main():
-        #dont let the server run for more than an hour
-        await asyncio.sleep(60)
-        shutdown()
     serve(app, host='localhost', port='5000')
-    asyncio.run(main())
     
