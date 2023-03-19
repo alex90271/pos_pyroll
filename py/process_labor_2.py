@@ -38,7 +38,15 @@ class ProcessLabor2():
         for pool in self.pools:
             print("processing " + pool)
             c = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["contribute"])].copy()
+            if self.pools[pool]["type"] == 'sales':
+                c['TIP_CONT'] = np.multiply(c['SALES'].values, (int(self.pools[pool]["percent"])/100))
+            elif self.pools[pool]["type"] == 'tips': 
+                c['TIP_CONT'] = np.add(c['CCTIPS'].values, c['DECTIPS'].values)
+
             r = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["receive"])].copy()
+            r_tiprate = np.divide(r['HOURS'].sum(),len(r))
+            print(r_tiprate)
+            r['TIPOUT'] = np.multiply(r['HOURS'].values, r_tiprate)
             print(c,r)
             
         
