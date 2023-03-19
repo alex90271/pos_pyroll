@@ -43,60 +43,6 @@ class ProcessLabor():
         day = datetime.datetime.strptime(self.day, "%Y%m%d") #20210101
         return day.strftime(fmt) #Mon Jan 1
 
-    def get_percent_sales(self):
-        '''returns tip share  total from server jobcodes'''
-        cur_df = self.calc_servtips()
-        total = np.sum(cur_df.loc[:,('TIP_CONT')].values)
-        
-        if self.verbose_debug:
-            print('tipshare ' + str(total))
-
-        return total
-
-    def get_percent_tips(self, decl=False, cctip=False):
-        '''returns tip share from register jobcodes
-           if decl=True, it will return declared tips. 
-           if cctip=true, it will return cctips
-           if BOTH are true, it will return a total
-        '''
-        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_tips_codes)].copy()
-        total = 0
-
-        if decl:
-            total += np.sum(cur_df['DECTIPS'].values)
-        if cctip:
-            total += np.sum(cur_df['CCTIPS'].values)
-            
-        if decl == False and cctip == False:
-            raise ValueError('function get_percent_tips returned 0 as no true args were passed')
-            
-        if self.verbose_debug:
-            print('reg tips ' + str(total))
-
-        return total
-
-    def get_tipped_hours(self):
-        '''returns total hours to be tipped'''
-        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.tipped_code)].copy()
-        total = np.add(np.sum(cur_df['HOURS'].values), np.sum(cur_df['OVERHRS'].values))
-            
-        if self.verbose_debug:
-            print('total hours ' + str(total))
-
-        return total
-
-    def get_tip_rate(self):
-        '''returns hourly rate'''
-        #if self.cached:
-           # return self.cached[2]
-        tipped_hours = self.get_tipped_hours()
-        total_pool = np.add(self.get_percent_sales(), self.get_percent_tips(decl=True, cctip=True))
-        with np.errstate(invalid='ignore'): #some days may return zero and thats okay (closed days)
-            rt = np.divide(total_pool, tipped_hours)
-            if self.verbose_debug:
-                print(self.day, rt)
-            return rt
-            
     def get_total_pay(self):
         '''returns total cost of labor'''
         cur_df = self.calc_labor_cost()
@@ -143,22 +89,6 @@ class ProcessLabor():
                 pass #skip that row if an am is already added
         df['DATE'] = self.get_day()
         return df
-    
-    def get_tips_totals(self, unused=False):
-        '''
-        returns any tips not allocated in the tip pool, or paid out to a server
-        '''
-        total = self.get_total_tips(include_declared=False) + self.get_percent_tips(decl=True)
-        if unused:
-            used = np.sum([np.sum(self.calc_servtips()[["SRVTIPS"]].values),
-                    np.sum(self.calc_tipout()[["TIPOUT"]].values),
-                    np.sum(self.calc_tipout()[["DECTIPS"]].values),
-                    np.sum(self.calc_nonsharedtips()[["UNALLOCTIPS"]].values)])
-        else:
-            used = 0 #just to avoid modifying the calculations below, we set the value to 0 instead
-        #print(used,total)
-         #save just the tipout from calc_tipout
-        return np.round(np.subtract(total,used),4)
 
     def get_labor_rate(self,return_nan=True):
         #if self.cached:
@@ -182,45 +112,6 @@ class ProcessLabor():
 
         if self.verbose_debug:
             cur_df.to_csv('debug/calc_hourly_rate' + self.day + '.csv')
-
-        return cur_df
-        
-
-    def calc_tipout(self):
-        '''calculates tipouts and returns a dataframe with added tipout values'''
-        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.tipped_code)].copy()
-        cur_df['TIPOUT'] = np.multiply(cur_df['HOURS'].values, self.get_tip_rate())
-
-        if self.verbose_debug:
-            cur_df.to_csv('debug/calc_tipout' + self.day + '.csv')
-
-        return cur_df
-
-    def calc_nonsharedtips(self):
-        '''calculates any tips for jobcodes who keeps the entire tip'''
-        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.nonsharedtip_code)].copy()
-        cur_df['UNALLOCTIPS'] = cur_df['CCTIPS']
-
-        if self.verbose_debug:
-            cur_df.to_csv('debug/calc_nonshared_tips' + self.day + '.csv')
-
-        return cur_df
-
-    def calc_servtips(self): 
-        '''calculates server tips and returns a dataframe with added values'''
-        cur_df = self.df.loc[self.df['JOBCODE'].isin(self.percent_sales_codes)].copy()
-
-        if self.use_aloha_tipshare:
-            cur_df['TIP_CONT'] = cur_df['TIPSHCON'].values
-        else:
-            cur_df['TIP_CONT'] = np.multiply(cur_df['SALES'].values, float(self.sales_percent))
-
-        cur_df['SRVTIPS'] = np.subtract(cur_df['CCTIPS'].values, cur_df['TIP_CONT'].values)
-
-
-        if self.verbose_debug:
-            cur_df.to_csv('debug/calc_srv_tips' + self.day + '.csv')
-
 
         return cur_df
 
