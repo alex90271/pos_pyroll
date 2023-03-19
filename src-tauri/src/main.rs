@@ -2,7 +2,8 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use std::process::Command as StdCommand;
+use std::{collections::HashMap};
+use std::error::Error;
 use tauri::{api::process::{Command, CommandChild}, RunEvent};
 
 #[derive(Default)]
@@ -27,11 +28,21 @@ fn main() {
             }
             RunEvent::ExitRequested { api, .. } => {
                 if let Some(child) = backend.0.take() {
+                    println!("tell it to kill itself");
+                    let _ = killsrv();
+                    println!("trying to kill it in case");
                     child.kill().expect("Failed to shutdown backend.");
-                    reqwest::get("http://127.0.0.1:5000/v01/1365438ff5213531a63c246846814a"); //tells the backend to kill itself
                     println!("Backend gracefully shutdown.");
                 }
             }      
             _ => {}
         });
+}
+
+
+fn killsrv() -> Result<(), Box<dyn Error>> {        
+    let resp = reqwest::blocking::get("http://127.0.0.1:5000/v01/1365438ff5213531a63c246846814a")?
+    .json::<HashMap<String, String>>()?;
+    println!("{:#?}", resp);
+    Ok(())
 }
