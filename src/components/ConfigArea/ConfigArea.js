@@ -13,6 +13,9 @@ export default function ConfigArea(props) {
 
     const [canProcess, setCanProcess] = useState(false);
     const [reports, setReports] = useState([]);
+    const [tips, setTips] = useState([]);
+    const [sales, setSales] = useState([]);
+    const [unusedtips, setUnusedtips] = useState([]);
     const [selectedReport, setSelcReport] = useState('labor_main');
     const [jobcodes, setJobcodes] = useState([]);
     const [jobcodeFilters, setJobcodeFilters] = useState({});
@@ -36,7 +39,7 @@ export default function ConfigArea(props) {
                     return employees;
                 }
             },
-        }, 
+        },
         {
             id: 2,
             displayName: "Only show employees active during the selected time frame",
@@ -76,8 +79,8 @@ export default function ConfigArea(props) {
     const maxDate = {
         year: today.getFullYear(),
         month: today.getMonth() + 1, //date returns month number 0-11, calendar needs 1-12, so add one
-        day: today.getDate()-1 //cannot process same day at this time, so select yesterday as max date
-      };
+        day: today.getDate() - 1 //cannot process same day at this time, so select yesterday as max date
+    };
 
     const [preflightReportData, setPreflightReportData] = useState();
 
@@ -129,8 +132,20 @@ export default function ConfigArea(props) {
 
     useEffect(() => {
         if (selectedDayRange.from && selectedDayRange.to) {
+            //console.log(reports)
+            API.tips(formatDate(selectedDayRange.from), formatDate(selectedDayRange.to), 'sales')
+                .then(data => {
+                    props.setSales(data);
+                });
+            API.tips(formatDate(selectedDayRange.from), formatDate(selectedDayRange.to), 'tips')
+                .then(data => {
+                    props.setTips(data);
+                });
+            API.tips(formatDate(selectedDayRange.from), formatDate(selectedDayRange.to), 'unused')
+                .then(data => {
+                    props.setUnusedtips(data);
+                });
             setCanProcess(true);
-            const range = selectedDayRange;
         } else {
             setCanProcess(false);
             //setPreflightReportData();
@@ -211,11 +226,11 @@ export default function ConfigArea(props) {
         });
     }
 
-    const changeReport = (e, {value}) => {
+    const changeReport = (e, { value }) => {
         setSelcReport(value);
     }
 
-    
+
     const toggleEmployee = (id, newValue) => {
         setEmployees((prevState) => {
             let output = [...prevState]
@@ -267,12 +282,12 @@ export default function ConfigArea(props) {
     }
 
     function handleSettingChange(newSetting) {
-        if (newSetting.displayName && newSetting.outputName && newSetting.dataType && (typeof(newSetting.value) !== 'undefined')) {
-          setSettings((prevSettings) => ({
-            ...prevSettings, [newSetting.outputName]: newSetting
-          }));
+        if (newSetting.displayName && newSetting.outputName && newSetting.dataType && (typeof (newSetting.value) !== 'undefined')) {
+            setSettings((prevSettings) => ({
+                ...prevSettings, [newSetting.outputName]: newSetting
+            }));
         } else {
-          throw Error("Something went wrong. (the newSetting object is not complete)");
+            throw Error("Something went wrong. (the newSetting object is not complete)");
         }
     }
 
@@ -291,7 +306,7 @@ export default function ConfigArea(props) {
     //converts the selectedDayRange(.from or .to) object into yyyymmdd format for use with the API.
     //1 is subtracted from range.month as the Date constructor uses a month index starting at 0 for January.
     const formatDate = (range) => {
-    return new Date(range.year, range.month - 1, range.day).toISOString().slice(0, 10).replace(/-/g, "");
+        return new Date(range.year, range.month - 1, range.day).toISOString().slice(0, 10).replace(/-/g, "");
     }
 
     const selectedToCSV = (inputArray) => {
@@ -369,7 +384,7 @@ export default function ConfigArea(props) {
         //console.log(reports)
         API.process(formatDate(range.from), formatDate(range.to), selectedReport, selectedToCSV(jobcodes), selectedToCSV(employees))
             .then(data => {
-            props.setEditedTableData(data);
+                props.setEditedTableData(data);
             });
     }
 
@@ -377,7 +392,7 @@ export default function ConfigArea(props) {
         const range = selectedDayRange;
         API.print(formatDate(range.from), formatDate(range.to), selectedReport, selectedToCSV(jobcodes), selectedToCSV(employees))
             .then(data => {
-            props.setEditedTableData(data);
+                props.setEditedTableData(data);
             });
     }
 
@@ -385,7 +400,7 @@ export default function ConfigArea(props) {
         const range = selectedDayRange;
         API.export(formatDate(range.from), formatDate(range.to), selectedReport, selectedToCSV(jobcodes), selectedToCSV(employees))
             .then(data => {
-            props.setEditedTableData(data);
+                props.setEditedTableData(data);
             });
     }
 
@@ -407,6 +422,21 @@ export default function ConfigArea(props) {
                 print={print}
                 displayedRange={displayedRange()}
             />
+            <div className='processInsight'>
+
+                <p>
+                    Total Sales: <br></br>
+                    {props.sales}
+                </p>
+                <p>
+                    Total Tips: <br></br>
+                    {props.tips}
+                </p>
+                <p>
+                    Unaccounted tips: <br></br>
+                    {props.unusedtips}
+                </p>
+            </div>
             <Settings
                 settings={settings}
                 handleSettingChange={handleSettingChange}
@@ -423,7 +453,7 @@ export default function ConfigArea(props) {
                 revertSettings={revertSettings}
                 settingsChanged={settingsChanged}
             />
-            
+
         </div>
     );
 }

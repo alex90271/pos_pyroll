@@ -144,15 +144,18 @@ class ProcessLabor():
         df['DATE'] = self.get_day()
         return df
     
-    def get_unallocated_tips(self):
+    def get_tips_totals(self, unused=False):
         '''
         returns any tips not allocated in the tip pool, or paid out to a server
         '''
         total = self.get_total_tips(include_declared=False) + self.get_percent_tips(decl=True)
-        used = np.sum([np.sum(self.calc_servtips()[["SRVTIPS"]].values),
-                      np.sum(self.calc_tipout()[["TIPOUT"]].values),
-                      np.sum(self.calc_tipout()[["DECTIPS"]].values),
-                      np.sum(self.calc_nonsharedtips()[["UNALLOCTIPS"]].values)])
+        if unused:
+            used = np.sum([np.sum(self.calc_servtips()[["SRVTIPS"]].values),
+                    np.sum(self.calc_tipout()[["TIPOUT"]].values),
+                    np.sum(self.calc_tipout()[["DECTIPS"]].values),
+                    np.sum(self.calc_nonsharedtips()[["UNALLOCTIPS"]].values)])
+        else:
+            used = 0 #just to avoid modifying the calculations below, we set the value to 0 instead
         #print(used,total)
          #save just the tipout from calc_tipout
         return np.round(np.subtract(total,used),4)

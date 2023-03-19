@@ -47,10 +47,13 @@ class ReportWriter():
         else:
             return _df
 
-    def unused_tip_in_period(self):
-        '''returns total amount of unallocated tips for the period'''
-        return (labor(day).get_unallocated_tips() for day in self.days)
-
+    def tip_in_period(self, unused=False
+                      ):
+        '''returns total amount of tips for the period
+            if unused=true then it will return the un-allocated tips for the period
+        '''
+        return (labor(day).get_tips_totals(unused=unused) for day in self.days)
+    
     def punctuality(self, selected_employees, selected_jobs):
         '''returns a clockin report with a date of the week'''
         a = (labor(day).get_clockin_time() for day in self.days)

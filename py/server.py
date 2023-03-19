@@ -8,6 +8,7 @@
 from datetime import datetime
 import os
 import signal
+import numpy as np
 import pandas as pd
 from query_db import QueryDB
 from flask import Flask, redirect, render_template, url_for, request, jsonify
@@ -117,6 +118,18 @@ def employees_in_period(day_one, day_two):
     print(result)
     return jsonify(result.to_dict(orient='index'))
 
+@app.route('/v01/totals/<day_one>/<day_two>/<rpt>')
+def totals(day_one, day_two, rpt):
+    rpt_writer = ReportWriter(day_one, day_two)
+    result = []
+    match rpt:
+        case 'sales':
+            result = rpt_writer.get_total_sales()
+        case 'tips':
+            result = rpt_writer.tip_in_period()
+        case 'unused':
+            result = rpt_writer.tip_in_period(unused=True)
+    return jsonify(str(np.sum(result)))
 
 @app.route('/v01/config/', methods=["GET"])
 def full_config():
@@ -150,7 +163,7 @@ def employee_list():
 @app.route('/v01/1365438ff5213531a63c246846814a')
 def shutdown():
     os.kill(os.getpid(), signal.SIGINT)
-    return('attempting to stop')
+    return('if you get this, the server did not stop')
 
 
 @app.route('/v01/jobcodes')
@@ -165,14 +178,15 @@ def report_list():
     return jsonify(
         ReportWriterReports().available_reports()
     )
+
 # Unfinished Requests
 # @app.route('/v01/data/post/<employee_id>/<data>', methods=["POST"])
 
 
-def update_data(employee_id, data):
+#def update_data(employee_id, data):
     # TODO Finish this. Accepts a json object from frontend {employee_ID : data}
     # data would be adjustments on the worksheet
-    pass
+   # pass
 
 
 if __name__ == '__main__':

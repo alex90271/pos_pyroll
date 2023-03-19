@@ -89,25 +89,25 @@ export default function DataTable(props) {
         return (
             <div className="empty-data-table">
                 <h1>To get Started: <br></br>Select the report type in dropdown, then report date range<br></br>(for a single day, click it twice)</h1>
-                    <h2>General Notes</h2>
-                        <p>-It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)</p>
-                        <p>-The data reported here is only as accurate as Aloha (ex. incorrect clockins)</p>
-                        <p>-Reports with an * can be filtered by Jobcode or Employee (export file is never filtered)</p>
-                    <h2>Report Info</h2>
-                    <h3>Cout_eod</h3>
-                        <p>-This report lists any clockins that were force closed by the end of day (3am)</p>
-                    <h3>Labor Rate</h3>
-                        <p>-Labor rate report pulls from pay rates set in Aloha</p>
-                    <h3>Hourly</h3>
-                        <p>-Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)</p>
-                    <h3>Labor Average Hours</h3>
-                        <p>-Labor Average shows the average hours and employee worked during the selected period</p>
-                    <h3>House Account</h3>
-                        <p>-House Acct report can only show transactions made between the selected dates (not a total balance)</p>
-                    <h3>Labor Reports</h3>
-                        <p>-Srvtips column accounts for removed tipshare (currently 4% of sales)</p>
-                        <p>-Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for a breakdown</p>
-                        <p>-Total Tips are both Srvtips and Tipout added together</p>
+                <h2>General Notes</h2>
+                <p>-It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)</p>
+                <p>-The data reported here is only as accurate as Aloha (ex. incorrect clockins)</p>
+                <p>-Reports with an * can be filtered by Jobcode or Employee (export file is never filtered)</p>
+                <h2>Report Info</h2>
+                <h3>Cout_eod</h3>
+                <p>-This report lists any clockins that were force closed by the end of day (3am)</p>
+                <h3>Labor Rate</h3>
+                <p>-Labor rate report pulls from pay rates set in Aloha</p>
+                <h3>Hourly</h3>
+                <p>-Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)</p>
+                <h3>Labor Average Hours</h3>
+                <p>-Labor Average shows the average hours and employee worked during the selected period</p>
+                <h3>House Account</h3>
+                <p>-House Acct report can only show transactions made between the selected dates (not a total balance)</p>
+                <h3>Labor Reports</h3>
+                <p>-Srvtips column accounts for removed tipshare (currently 4% of sales)</p>
+                <p>-Tipout is calculated on a per day, per hour basis, see the 'tip rate' report for a breakdown</p>
+                <p>-Total Tips are both Srvtips and Tipout added together</p>
             </div>
         )
     }
@@ -143,21 +143,21 @@ export default function DataTable(props) {
     }
 
     return (
-        <div className="DataTable">
-            <Table striped>
-                <Table.Header className={"TableHeader"} >
-                    {tableHeaderItems(props.tableData)}
-                </Table.Header>
-                <Table.Body className={"TableBody"}>
-                    {tableBodyItems(props.tableData)}
-                </Table.Body>
-            </Table>
-            <EditedTableWarning
-                tableEdited={props.tableEdited}
-            //revertBackToOriginal={props.revertBackToOriginal}
-            />
-        </div>
-        
+
+            <div className="DataTable">
+                <Table striped>
+                    <Table.Header className={"TableHeader"} >
+                        {tableHeaderItems(props.tableData)}
+                    </Table.Header>
+                    <Table.Body className={"TableBody"}>
+                        {tableBodyItems(props.tableData)}
+                    </Table.Body>
+                </Table>
+                <EditedTableWarning
+                    tableEdited={props.tableEdited}
+                //revertBackToOriginal={props.revertBackToOriginal}
+                />
+            </div>
 
     )
 }

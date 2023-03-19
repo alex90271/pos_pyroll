@@ -7,7 +7,6 @@ export default function ProcessArea(props) {
         if (props.canProcess) {
             return (
                 <div>
-                    <div></div>
                     <button onClick={props.process} className='ui light blue button'>
                         Process
                     </button>

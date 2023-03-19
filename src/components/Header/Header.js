@@ -37,7 +37,25 @@ export default function Header() {
         }
     }
 
-    
+    return (
+        <div className='header'>
+
+            <h2>
+                Total Sales: {}
+            </h2>
+            <h2>
+                Total Tips: {}
+            </h2>
+            <h2>
+                Unaccounted tips: {}
+            </h2>
+
+        </div>
+
+    )
+
+
+ /**   
     return (
         <div className='header'>
         <button ref={connect} onClick={ServerEvent_s} className='ui light blue button'>
@@ -50,3 +68,5 @@ export default function Header() {
         </div>
     )
 }
+
+ */

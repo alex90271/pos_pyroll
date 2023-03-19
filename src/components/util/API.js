@@ -43,6 +43,13 @@ const API = {
     return fetch(`${url}jobcodes`)
       .then(response => response.json());
   },
+
+  tips(firstDay, lastDay, report) {
+    return fetch(`${url}/v01/totals/${firstDay}/${lastDay}/${report}`)
+      .then(response => response.json());
+  },
+
+
   saveSettings(newSettings) {
     const formattedSettings = formatSettingsForExport(newSettings);
     fetch(`${url}config/SETTINGS${formattedSettings}`, {
