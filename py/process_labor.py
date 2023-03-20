@@ -6,6 +6,7 @@ import os
 from chip_config import ChipConfig
 from query_db import QueryDB
 from database import DatabaseHandler
+from process_pools import ProcessPools as pools
 
 class ProcessLabor():
     '''
@@ -23,16 +24,9 @@ class ProcessLabor():
 
         #config options
         c = ChipConfig()
-        self.percent_tips_codes = c.query('SETTINGS','percent_tip_codes', return_type='int_array') #jobcodes that contribute based on a percentage of tips
-        self.percent_sales_codes = c.query('SETTINGS','percent_sale_codes', return_type='int_array') #jobcodes that contribute based on a percentage of sales
-        self.tipped_code = c.query('SETTINGS','tipped_codes', return_type='int_array') #jobcodes that receive
-        self.sales_percent = c.query('SETTINGS','tip_sales_percent', return_type='float')
-        self.use_aloha_tipshare = c.query('SETTINGS','use_aloha_tipshare', return_type='bool')
         self.tracked_labor = c.query('SETTINGS','tracked_labor', return_type='int_array')
         self.pay_period = c.query('SETTINGS','pay_period_days', return_type='int_array')[0] #used for calculating labor costs for salaried employees
-        self.nonsharedtip_code = c.query('SETTINGS','nonshared_tip_codes', return_type='int_array') 
         self.verbose_debug = c.query('SETTINGS','verbose_debug', return_type='bool')
-        self.salary = False #TODO Remove this temp fix
 
         if self.verbose_debug:
             if not os.path.exists('debug'):
@@ -104,11 +98,11 @@ class ProcessLabor():
         '''calculates the individual employee hourly rate, including any tips earned'''
         cur_df = self.df.copy()
         labor = self.calc_labor_cost(total=True, salary=False)[['TOTAL_PAY']],
-        tips = self.calc_payroll()[['TOTALTIPS']],
+        tips = pools(self.day).pooler()[['TTL_TIP']],
         cur_df = cur_df.join(labor)
         cur_df = cur_df.join(tips)
         cur_df.drop(columns=['INVALID','COUTBYEOD'], axis=1, inplace=True)
-        cur_df['ACTUAL_HOURLY'] = np.divide(np.add(cur_df['TOTALTIPS'], cur_df['TOTAL_PAY']), np.add(cur_df['HOURS'], cur_df['OVERHRS']))
+        cur_df['ACTUAL_HOURLY'] = np.divide(np.add(cur_df['TTL_TIP'], cur_df['TOTAL_PAY']), np.add(cur_df['HOURS'], cur_df['OVERHRS']))
 
         if self.verbose_debug:
             cur_df.to_csv('debug/calc_hourly_rate' + self.day + '.csv')
@@ -190,36 +184,6 @@ class ProcessLabor():
             names[7]: [self.get_total_hours(reg=True, over=True)]
             })
         return df
-    
-    def calc_tiprate_df(self):
-        '''returns a dataframe with a daily summary report'''
-        names = ChipConfig().query('RPT_TIP_RATE', 'col_names')
-        df = pd.DataFrame(data={
-            names[0]: [self.get_day()], #date
-            names[1]: [self.get_tip_rate()], #Tip Hourly
-            names[2]: [self.get_percent_tips(decl=True)], #Cash Tips
-            names[3]: [self.get_percent_tips(cctip=True)], #Takeout CC Tips
-            names[4]: [self.get_percent_sales()], # Server Tipshare
-            names[5]: [np.add(self.get_percent_sales(),self.get_percent_tips(decl=True,cctip=True))], #Total Tip Pool
-            names[6]: [self.get_tipped_hours()] #Total Tipped Hours
-            })
-        return df
-
-    def calc_payroll(self):
-        '''appends serving tips and tipout to the main dataframe, and returns the resulting dataframe'''
-        s = self.calc_servtips()[["TIP_CONT", "SRVTIPS"]] #save just those columns from calc_serve_tips
-        t = self.calc_tipout()[["TIPOUT"]] #save just the tipout from calc_tipout
-        n = self.calc_nonsharedtips()[["UNALLOCTIPS"]]
-        df = self.df
-        tdf = df.join([s,t,n])
-        tdf['TOTALTIPS'] = tdf[["SRVTIPS","TIPOUT"]].sum(axis=1)
-        a = tdf.loc[tdf['JOBCODE'].isin(self.percent_tips_codes)]['DECTIPS'] #remove tips from jobcodes that contribute all their tips
-        tdf.update(a.where(a<0, 0))
-
-        if self.verbose_debug:
-            tdf.to_csv('debug/calc_payroll' + self.day + '.csv')
-
-        return tdf
 
     def calc_emps_in_day(self):
         return self.df['EMPLOYEE']

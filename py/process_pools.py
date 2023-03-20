@@ -35,40 +35,33 @@ class ProcessPools():
         with open('data/pools.json') as jsonfile:
             return json.load(jsonfile)
         
-    def get_deductions(self):
-        try:
-            deductions = pd.read_csv('data/_Takeout Mistakes_ - Sheet1.csv', skiprows=[1])
-        except:
-            print('invalid format or not found')
-        deductions = deductions[['EMPLOYEE','COST']]
-        return deductions
-        
-        
     def pooler(self):
         return_df = self.df.copy()
-        return_df['TOTAL_TIP'] = 0
+        return_df['c_'] = pd.DataFrame
         for pool in self.pools:
             print("processing " + pool)
             c = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["contribute"])].copy()
             if self.pools[pool]["type"] == 'sales':
-                c['TIP_CONT'] = np.multiply(c['SALES'].values, (int(self.pools[pool]["percent"])/100))
+                c['c_'+pool] = np.multiply(c['SALES'].values, (int(self.pools[pool]["percent"])/100))
                 #return the rest of the tips after the tip pool
-                c['SRV_TIP'] = c['CCTIPS'] - c['TIP_CONT']
-                return_df = return_df.join(c['SRV_TIP'])
-                return_df['TOTAL_TIP'] = return_df['TOTAL_TIP'] + return_df['SRV_TIP'] 
+                c['SRV_TIP'] = c['CCTIPS'] - c['c_'+pool]
+                return_df['SRV_TIP'] = c['SRV_TIP']
             elif self.pools[pool]["type"] == 'tips': 
-                c['TIP_CONT'] = np.add(c['CCTIPS'].values, c['DECTIPS'].values)
-            #c.to_csv('c_' + pool + '.csv')
-            total_pool = c['TIP_CONT'].sum()
+                c['c_'+pool] = np.add(c['CCTIPS'].values, c['DECTIPS'].values)
+            return_df['c_'+pool] = c['c_'+pool]
+            total_pool = c['c_'+pool].sum()
 
             r = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["receive"])].copy()
-            r_tiprate = np.divide(total_pool,r['HOURS'].sum())
+            with np.errstate(divide='ignore'):
+                r_tiprate = np.divide(total_pool,r['HOURS'].sum(),)
             r[pool] = np.multiply(r['HOURS'].values, r_tiprate)
-            return_df = return_df.join(r[pool])
-            return_df['TOTAL_TIP'] = return_df[pool]
+            return_df[pool] = r[pool]
+
+        return_df['TTL_TIP'] = return_df[self.pools].sum(axis=1)
+        return_df['TTL_CONT'] = return_df[['c_' + pool for pool in self.pools]].sum(axis=1)
         return return_df
         
 if __name__ == '__main__':
     print("loading ProcessPools.py")
-    print(ProcessPools('20230301').get_deductions())
+    print(ProcessPools('20230303').pooler())
  

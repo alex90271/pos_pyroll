@@ -1,6 +1,7 @@
 import json
 from re import A
 from process_labor import ProcessLabor as labor
+from process_pools import ProcessPools as pools
 from process_transactions import ProcessTransactions as transactions
 from query_db import QueryDB as query_db
 from chip_config import ChipConfig
@@ -174,7 +175,7 @@ class ReportWriter():
         append_totals=True
     ):
         '''this is the main labor report'''
-        a = (labor(day).calc_payroll() for day in self.days)
+        a = (pools(day).pooler() for day in self.days)
         df = pd.concat(a)
         # if any filter options are provided, fliter the data now.
         # While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data
@@ -209,6 +210,14 @@ class ReportWriter():
                 _df[col] = np.NaN
 
         return _df
+            
+    def get_deductions(self):
+        try:
+            deductions = pd.read_csv('data/_Takeout Mistakes_ - Sheet1.csv', skiprows=[1])
+        except:
+            print('invalid format or not found')
+        deductions = deductions[['EMPLOYEE','COST']]
+        return deductions
 
     def employees_in_dates(self):
         a = [labor(day).calc_emps_in_day() for day in self.days]
@@ -244,7 +253,7 @@ class ReportWriter():
 
         elif rpt == 'labor_main':
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
+                drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS',
                            'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE','EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
@@ -259,7 +268,7 @@ class ReportWriter():
 
         elif rpt == 'labor_nightly':
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE',
+                drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE',
                            'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD','EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME',
                             'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
@@ -275,7 +284,7 @@ class ReportWriter():
 
         elif rpt == 'labor_total':
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
+                drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS',
                            'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME','EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
@@ -380,7 +389,7 @@ class Payroll(ReportWriter):
     def process_payroll(self):
         super().__init__(first_day=self.first_day, last_day=self.last_day)
         df = self.labor_main(
-            drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS',
+            drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS',
                        'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
             index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
             totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
@@ -403,7 +412,7 @@ class Payroll(ReportWriter):
             # match gusto columns
             # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
             df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
-                  'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TOTALTIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note'}, inplace=True)
+                  'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note'}, inplace=True)
             df = df[['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']]
         
         return df
@@ -424,7 +433,7 @@ class WeeklyWriter(ReportWriter):
         for date in date_ranges:
             super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
                              last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
-            t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TIP_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
+            t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                                 index_cols=['EMPLOYEE', 'LASTNAME',
                                             'FIRSTNAME', 'JOB_NAME'],
                                 totaled_cols=['HOURS', 'OVERHRS',
@@ -463,7 +472,7 @@ if __name__ == '__main__':
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20220107','20220107').print_to_json('labor_main'))
         # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        print(Payroll('20220501', '20220515').process_payroll())
+        print(Payroll('20230301', '20230315').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)

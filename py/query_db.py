@@ -61,7 +61,7 @@ class QueryDB():
         try:
             dbf_list = DBF(path + self.data + dbf, char_decode_errors='ignore', load=False)
         except:
-            print(path + self.data + dbf + ' could not be accessed or does not exist')
+            raise ValueError(path + self.data + dbf + ' could not be accessed or does not exist')
     
         return dbf_list
 
