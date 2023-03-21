@@ -19,7 +19,7 @@ class ProcessLabor():
     def __init__(self, day):
         #instantiate a single day to process data
         self.db = QueryDB(day)
-        self.df = self.db.process_db('labor')
+        self.df = pools(self.day).pooler()['df'].copy()
         self.day = day
 
         #config options
@@ -45,7 +45,7 @@ class ProcessLabor():
 
     def get_total_hours(self, over=False, reg=False):
         '''returns total hours tracked on the labor tracker'''
-        cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tracked_labor)].copy()
+        cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(self.tracked_labor)]
         total = 0
         if reg:
             total += np.sum(cur_df.loc[:, ('HOURS')])
@@ -70,7 +70,7 @@ class ProcessLabor():
         return cc
 
     def get_clockin_time(self):
-        df = self.df[['EMPLOYEE','JOBCODE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']].copy()
+        df = self.df[['EMPLOYEE','JOBCODE','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE']]
         for col in ['INHOUR', 'OUTHOUR']:
             df[col] = np.where(df[col].astype(int) < 12, df[col].astype(str) + 'am', df[col]) #any hours that are am, add am
             try:
@@ -96,11 +96,9 @@ class ProcessLabor():
 
     def calc_hourly_pay_rate(self):
         '''calculates the individual employee hourly rate, including any tips earned'''
-        cur_df = self.df.copy()
+        cur_df = self.df
         labor = self.calc_labor_cost(total=True, salary=False)[['TOTAL_PAY']],
-        tips = pools(self.day).pooler()[['TTL_TIP']],
         cur_df = cur_df.join(labor)
-        cur_df = cur_df.join(tips)
         cur_df.drop(columns=['INVALID','COUTBYEOD'], axis=1, inplace=True)
         cur_df['ACTUAL_HOURLY'] = np.divide(np.add(cur_df['TTL_TIP'], cur_df['TOTAL_PAY']), np.add(cur_df['HOURS'], cur_df['OVERHRS']))
 
@@ -193,7 +191,7 @@ if __name__ == '__main__':
     def main():
         #print("loading ProcessTips.py")
         #print(ProcessLabor("20220107").calc_emps_in_day())
-        print(ProcessLabor("20220501").calc_hourly_pay_rate())
+        print(ProcessLabor("20230303").calc_hourly_pay_rate())
     r=1
     f = timeit.repeat("main()", "from __main__ import main", number=1, repeat=r)
     print("completed with an average of " + str(np.round(np.mean(f),2)) + " seconds over " + str(r) + " tries \n total time: " + str(np.round(np.sum(f),2)) + "s")

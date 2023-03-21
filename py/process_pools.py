@@ -37,31 +37,40 @@ class ProcessPools():
         
     def pooler(self):
         return_df = self.df.copy()
-        return_df['c_'] = pd.DataFrame
+        pool_rates = []
+        cash_contributions = []
         for pool in self.pools:
             print("processing " + pool)
             c = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["contribute"])].copy()
             if self.pools[pool]["type"] == 'sales':
                 c['c_'+pool] = np.multiply(c['SALES'].values, (int(self.pools[pool]["percent"])/100))
                 #return the rest of the tips after the tip pool
-                c['SRV_TIP'] = c['CCTIPS'] - c['c_'+pool]
-                return_df['SRV_TIP'] = c['SRV_TIP']
+                c['CCTIP_'+pool] = c['CCTIPS'] - c['c_'+pool]
+                return_df['CCTIP_'+pool] = c['CCTIP_'+pool]
             elif self.pools[pool]["type"] == 'tips': 
-                c['c_'+pool] = np.add(c['CCTIPS'].values, c['DECTIPS'].values)
+                c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values, c['DECTIPS'].values),(int(self.pools[pool]["percent"])/100))
+                cash_contributions.append(c['DECTIPS'].sum())
+                return_df['CCTIP_'+pool] = 0
             return_df['c_'+pool] = c['c_'+pool]
             total_pool = c['c_'+pool].sum()
 
             r = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["receive"])].copy()
-            with np.errstate(divide='ignore'):
-                r_tiprate = np.divide(total_pool,r['HOURS'].sum(),)
+            r_tiprate = np.divide(total_pool,r['HOURS'].sum(),)
+            pool_rates.append(r_tiprate)
             r[pool] = np.multiply(r['HOURS'].values, r_tiprate)
             return_df[pool] = r[pool]
-
-        return_df['TTL_TIP'] = return_df[self.pools].sum(axis=1)
+        return_df['TTL_TIP'] = np.add(return_df[self.pools].sum(axis=1), return_df[['CCTIP_' + pool for pool in self.pools]].sum(axis=1))
         return_df['TTL_CONT'] = return_df[['c_' + pool for pool in self.pools]].sum(axis=1)
-        return return_df
+        #c_ prefix means contribution, CCTIPS_ prefix means tip after a sales type contribution
+
+        return {
+            'df':return_df, 
+            'pools':self.pools, 
+            'pool_rates':pool_rates, 
+            'cash_contributions': cash_contributions
+                }
         
 if __name__ == '__main__':
     print("loading ProcessPools.py")
-    print(ProcessPools('20230303').pooler())
+    ProcessPools('20230304').pooler()['df'].to_csv('out.csv')
  

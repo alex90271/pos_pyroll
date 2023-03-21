@@ -175,7 +175,7 @@ class ReportWriter():
         append_totals=True
     ):
         '''this is the main labor report'''
-        a = (pools(day).pooler() for day in self.days)
+        a = (pools(day).pooler()['df'] for day in self.days)
         df = pd.concat(a)
         # if any filter options are provided, fliter the data now.
         # While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data
@@ -470,9 +470,9 @@ if __name__ == '__main__':
 
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
-        # print(ReportWriter('20220107','20220107').print_to_json('labor_main'))
+        # print(ReportWriter('20230301', '20230315').print_to_json('tip_rate'))
         # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        print(Payroll('20230301', '20230315').process_payroll())
+         print(Payroll('20230301', '20230315').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)
