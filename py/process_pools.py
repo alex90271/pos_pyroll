@@ -1,13 +1,8 @@
-import csv
 import datetime
 import json
 import numpy as np
 import pandas as pd
-import timeit
-import os
-from chip_config import ChipConfig
 from query_db import QueryDB
-from database import DatabaseHandler
 
 
 class ProcessPools():
@@ -24,53 +19,125 @@ class ProcessPools():
         self.db = QueryDB(day)
         self.df = self.db.process_db('labor').copy()
         self.day = day
-        self.pools = self.get_pools()
+        self.pool_rates = {}
+        self.cash_contributions = {}
+        self.total_contributions = {}
+        self.total_hours = {}
+        self.pool_names = self.get_pool_names()
+        self.pool_out = self.pooler()
 
     def get_day(self, fmt="%a %b %e"):
         '''returns the current day for the process labor object'''
         day = datetime.datetime.strptime(self.day, "%Y%m%d")  # 20210101
         return day.strftime(fmt)  # Mon Jan 1
 
-    def get_pools(self):
+    def get_cash_contribution(self):
+        return self.cash_contributions
+
+    def get_total_hours(self):
+        return self.total_hours
+
+    def get_total_contribution(self):
+        return self.total_contributions
+
+    def get_tip_rate(self):
+        return self.pool_rates
+
+    def get_pool_data(self):
+        return self.pool_out
+
+    def get_pool_names(self):
         with open('data/pools.json') as jsonfile:
             return json.load(jsonfile)
-        
+
     def pooler(self):
         return_df = self.df.copy()
-        pool_rates = []
-        cash_contributions = []
-        for pool in self.pools:
+        for pool in self.pool_names:
             print("processing " + pool)
-            c = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["contribute"])].copy()
-            if self.pools[pool]["type"] == 'sales':
-                c['c_'+pool] = np.multiply(c['SALES'].values, (int(self.pools[pool]["percent"])/100))
-                #return the rest of the tips after the tip pool
+            c = self.df.loc[self.df['JOBCODE'].isin(
+                self.pool_names[pool]["contribute"])].copy()
+            if self.pool_names[pool]["type"] == 'sales':
+                c['c_'+pool] = np.multiply(c['SALES'].values,
+                                           (int(self.pool_names[pool]["percent"])/100))
+                self.cash_contributions[pool] = 0
+                # return the rest of the tips after the tip pool
                 c['CCTIP_'+pool] = c['CCTIPS'] - c['c_'+pool]
                 return_df['CCTIP_'+pool] = c['CCTIP_'+pool]
-            elif self.pools[pool]["type"] == 'tips': 
-                c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values, c['DECTIPS'].values),(int(self.pools[pool]["percent"])/100))
-                cash_contributions.append(c['DECTIPS'].sum())
+            elif self.pool_names[pool]["type"] == 'tips':
+                c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values, c['DECTIPS'].values),
+                                           (int(self.pool_names[pool]["percent"])/100))
+                self.cash_contributions[pool] = c['DECTIPS'].sum()
                 return_df['CCTIP_'+pool] = 0
             return_df['c_'+pool] = c['c_'+pool]
-            total_pool = c['c_'+pool].sum()
 
-            r = self.df.loc[self.df['JOBCODE'].isin(self.pools[pool]["receive"])].copy()
-            r_tiprate = np.divide(total_pool,r['HOURS'].sum(),)
-            pool_rates.append(r_tiprate)
+            r = self.df.loc[self.df['JOBCODE'].isin(
+                self.pool_names[pool]["receive"])].copy()
+            hr_sum = r['HOURS'].sum()
+            cont_sum = c['c_'+pool].sum()
+            r_tiprate = np.divide(cont_sum, hr_sum)
             r[pool] = np.multiply(r['HOURS'].values, r_tiprate)
             return_df[pool] = r[pool]
-        return_df['TTL_TIP'] = np.add(return_df[self.pools].sum(axis=1), return_df[['CCTIP_' + pool for pool in self.pools]].sum(axis=1))
-        return_df['TTL_CONT'] = return_df[['c_' + pool for pool in self.pools]].sum(axis=1)
-        #c_ prefix means contribution, CCTIPS_ prefix means tip after a sales type contribution
+            self.total_contributions[pool] = cont_sum
+            self.total_hours[pool] = hr_sum
+            self.pool_rates[pool] = r_tiprate
 
-        return {
-            'df':return_df, 
-            'pools':self.pools, 
-            'pool_rates':pool_rates, 
-            'cash_contributions': cash_contributions
-                }
-        
+        return_df['TTL_TIP'] = np.add(return_df[self.pool_names].sum(
+            axis=1), return_df[['CCTIP_' + pool for pool in self.pool_names]].sum(axis=1))
+        return_df['TTL_CONT'] = return_df[[
+            'c_' + pool for pool in self.pool_names]].sum(axis=1)
+        # c_ prefix means contribution, CCTIPS_ prefix means tip after a sales type contribution
+
+        return return_df
+
+    def generate_pooler(self):
+        '''generates the default pools file, with default settings. To reset config file, just delete it'''
+        data = {}
+        data['sever_pool'] = {
+            "contribute": [
+                1
+            ],
+            "receive": [
+                2,
+                3,
+                5,
+                10,
+                11,
+                12,
+                13,
+                14
+            ],
+            "type": "sales",
+            "percent": "4"
+        }
+        data['takeout_pool'] = {
+            "contribute": [
+                4
+            ],
+            "receive": [
+                2,
+                3,
+                5,
+                10,
+                11,
+                12,
+                13,
+                14
+            ],
+            "type": "tips",
+            "percent": "100"
+        }
+
+        data['luncheon_pool'] = {
+            "contribute": [
+                40
+            ],
+            "receive": [
+                40
+            ],
+            "type": "tips",
+            "percent": "100"
+        }
+
 if __name__ == '__main__':
-    print("loading ProcessPools.py")
-    ProcessPools('20230304').pooler()['df'].to_csv('out.csv')
- 
+    print("loading Processpool_names.py")
+    ProcessPools('20230304').get_pool_data().to_csv('out.csv')
