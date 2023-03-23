@@ -1,10 +1,9 @@
 .DataTable {
-    width: 1000px;
     overflow: scroll;
 }
 
 .empty-data-table {
-    width: 1000px;
+    width: 50%;
 }
 
 .TableHeader {
