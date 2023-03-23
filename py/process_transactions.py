@@ -57,11 +57,10 @@ class ProcessTransactions():
 
     def get_total_byhouseid(self):
         df = self.get_transactions_bytype(id=25)
-        df = df.drop(['EMPLOYEE','CHECK'])
-        df = df.groupby(['HOUSEID']).sum(numeric_only=True) #sum up duplicates
-        return df
+        df = df.groupby(['HOUSEID']).sum() #sum up duplicates
+        return df[['AMOUNT']]
 
 
 
 if __name__ == '__main__':
-    print(ProcessTransactions('20220502').get_total_byhouseid())
+    print(ProcessTransactions('2023').get_total_byhouseid())

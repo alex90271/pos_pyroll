@@ -229,7 +229,8 @@ class ReportWriter():
     def house_accounts(self):
         a = [transactions(day).get_total_byhouseid() for day in self.days]
         df = pd.DataFrame(pd.concat(a))
-        return df
+        _df = df.pivot_table(index=['HOUSEID'], aggfunc=np.sum)
+        return _df
 
     def print_to_json(
         self,
@@ -472,7 +473,7 @@ if __name__ == '__main__':
 
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
-        print(ReportWriter('20230301', '20230315').print_to_json('labor_main'))
+        print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
         # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
         # print(Payroll('20230301', '20230315').process_payroll())
     r = 1
