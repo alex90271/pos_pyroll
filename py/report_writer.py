@@ -171,7 +171,7 @@ class ReportWriter():
         selected_jobs=None,
         sum_only=False,
         nightly=False,
-        append_totals=True
+        append_totals=True,
     ):
         '''this is the main labor report'''
         a = (labor(day).get_pool_data() for day in self.days)
@@ -208,15 +208,6 @@ class ReportWriter():
                 _df[col] = np.NaN
 
         return _df
-
-    def get_deductions(self):
-        try:
-            deductions = pd.read_csv(
-                'data/_Takeout Mistakes_ - Sheet1.csv', skiprows=[1])
-        except:
-            print('invalid format or not found')
-        deductions = deductions[['EMPLOYEE', 'COST']]
-        return deductions
 
     def employees_in_dates(self):
         a = [labor(day).calc_emps_in_day() for day in self.days]
@@ -389,6 +380,26 @@ class Payroll(ReportWriter):
 
         self.c = ChipConfig()
 
+    def get_deductions(self):
+        try:
+            d = pd.read_csv('data/deductions.csv', skiprows=[1])
+        except:
+            print('no deductions.csv')
+            d = pd.DataFrame(columns=['COST'],index=['ID'])
+        d.rename(columns={'EMPLOYEE':'ID'}, inplace=True)
+        d.set_index('ID', inplace=True)
+        d = d[['COST']]
+        print(d)
+
+        # deduc_empl_list = [x for x in deductions.index.values.tolist() if str(x) != 'nan']
+        # for empl in deduc_empl_list:
+           # _df = df.reset_index()
+           # _df = _df.loc[_df.loc[:,('ID')] == empl]
+           # _deduc = deductions.reset_index()
+           # _df.loc[_df.loc[:,('TTL_TIP')] > 10].head(1).join(_deduc.loc[_deduc.loc[:,('ID')] == empl], on='ID')
+           # print(_df.loc[_df.loc[:,('TTL_TIP')] > 10].head(1).join(_deduc.loc[_deduc.loc[:,('ID')] == empl], on='ID'))
+        return d
+
     def process_payroll(self):
         super().__init__(first_day=self.first_day, last_day=self.last_day)
         df = self.labor_main(
@@ -398,14 +409,9 @@ class Payroll(ReportWriter):
                           'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
             addl_cols=[],
             append_totals=False)
-
-        hr_df = self.hourly_pay_rate()
-        hr_df.index.rename('ID', inplace=True)
-        df = df.join(hr_df, ['ID'])
-        df['ACTUAL_HOURLY'] = df['ACTUAL_HOURLY'].round(2)
-        df['ACTUAL_HOURLY'] = 'Period Avg Hourly: ' + \
-            df['ACTUAL_HOURLY'].astype(str)
-
+        
+        df['COST'] = np.nan
+        df.to_csv('out.csv')
         # drop interface employees
         for x in self.c.query("SETTINGS", "interface_employees", return_type='int_array'):
             df.drop([float(x)], inplace=True, errors=False)
@@ -414,7 +420,7 @@ class Payroll(ReportWriter):
             # match gusto columns
             # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
             df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME': 'title', 'EXP_ID': 'gusto_employee_id',
-                               'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY': 'personal_note'}, inplace=True)
+                               'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'COST': 'personal_note'}, inplace=True)
             df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
                      'overtime_hours', 'paycheck_tips', 'cash_tips', 'personal_note']]
 
@@ -473,9 +479,9 @@ if __name__ == '__main__':
 
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
-        print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
+        # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
         # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        # print(Payroll('20230301', '20230315').process_payroll())
+         print(Payroll('20230301', '20230315').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)
