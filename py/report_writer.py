@@ -381,25 +381,8 @@ class Payroll(ReportWriter):
         self.c = ChipConfig()
         self.primary = query_db(last_day).primary_jobcodes().set_index('ID')
 
-    def get_deductions(self):
-        try:
-            d = pd.read_csv('data/deductions.csv', skiprows=[1])
-        except:
-            print('no deductions.csv')
-            d = pd.DataFrame(columns=['COST'], index=['ID'])
-        d.rename(columns={'EMPLOYEE': 'ID'}, inplace=True)
-        d.set_index('ID', inplace=True)
-        d = d[['COST']]
-        # deduc_empl_list = [x for x in deductions.index.values.tolist() if str(x) != 'nan']
-        # for empl in deduc_empl_list:
-        # _df = df.reset_index()
-        # _df = _df.loc[_df.loc[:,('ID')] == empl]
-        # _deduc = deductions.reset_index()
-        # _df.loc[_df.loc[:,('TTL_TIP')] > 10].head(1).join(_deduc.loc[_deduc.loc[:,('ID')] == empl], on='ID')
-        # print(_df.loc[_df.loc[:,('TTL_TIP')] > 10].head(1).join(_deduc.loc[_deduc.loc[:,('ID')] == empl], on='ID'))
-        return d
-
     def process_payroll(self):
+        '''PROCESSES PAYROLL EXPORT FOR GUSTO INTEGRATION'''
         super().__init__(first_day=self.first_day, last_day=self.last_day)
         df = self.labor_main(
             drop_cols=[],
@@ -433,14 +416,13 @@ class Payroll(ReportWriter):
             except:
                 pass
 
-        if self.c.query("SETTINGS", "export_type") == 'gusto':
-            # match gusto columns
-            # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
-            df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
-                               'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
-            df = df.sort_values(by='ID')
-            df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
-                     'overtime_hours', 'paycheck_tips', 'cash_tips']]
+        # match gusto columns
+        # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
+        df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
+                            'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
+        df = df.sort_values(by='ID')
+        df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
+                    'overtime_hours', 'paycheck_tips', 'cash_tips']]
 
         return df
 
