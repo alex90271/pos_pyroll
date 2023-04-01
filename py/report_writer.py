@@ -290,6 +290,18 @@ class ReportWriter():
             df = df[['LASTNAME', 'FIRSTNAME', 'HOURS',
                      'OVERHRS', 'TTL_TIP', 'DECTIPS']]
 
+        elif rpt == 'tipshare_detail':
+            df = self.labor_main(
+                drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS',
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID','HOURS','OVERHRS','TTL_CONT','TTL_TIP'],
+                index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
+                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS'],
+                addl_cols=[],
+                sum_only=True,
+                selected_employees=selected_employees,
+                selected_jobs=selected_jobs,
+                nightly=False)
+
         elif rpt == 'labor_rate':
             df = self.rate_rpt(
                 rpt='Labor',
@@ -345,28 +357,29 @@ class ReportWriterReports():
     def available_reports(self):
         return (
             {'key': 'labor_main', 'text': 'labor_main', 'value': 'labor_main',
-                "description": '*',
-             },
+                "description": '*'},
             {'key': 'labor_total', 'text': 'labor_total', 'value': 'labor_total',
                 "description": '*'},
             {'key': 'labor_nightly', 'text': 'labor_nightly', 'value': 'labor_nightly',
-                "description": '*', },
+                "description": '*'},
             {'key': 'labor_weekly', 'text': 'labor_weekly', 'value': 'labor_weekly',
-                "description": '*', },
+                "description": '*'},
+            {'key': 'tipshare_detail', 'text': 'tipshare_detail', 'value': 'tipshare_detail',
+                "description": '*'},
             {'key': 'punctuality', 'text': 'punctuality', 'value': 'punctuality',
-                "description": '*', },
+                "description": '*'},
             {'key': 'hourly', 'text': 'hourly', 'value': 'hourly',
-                "description": '*', },
+                "description": '*'},
             {'key': 'tip_rate', 'text': 'tip_rate', 'value': 'tip_rate',
-                "description": '', },
+                "description": ''},
             {'key': 'labor_rate', 'text': 'labor_rate', 'value': 'labor_rate',
-                "description": '', },
+                "description": ''},
             {'key': 'cout_eod', 'text': 'cout_eod', 'value': 'cout_eod',
-                "description": '*', },
+                "description": '*'},
             {'key': 'labor_avg_hours', 'text': 'labor_avg_hours', 'value': 'labor_avg_hours',
-                "description": '*', },
+                "description": '*'},
             {'key': 'house_acct', 'text': 'house_acct', 'value': 'house_acct',
-             "description": '*', }
+             "description": ''}
         )
 
 
@@ -480,7 +493,8 @@ if __name__ == '__main__':
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
         # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        print(Payroll('20230301', '20230315').process_payroll().to_csv('out.csv'))
+        print(ReportWriter('20230301', '20230315').print_to_json(
+            rpt='tipshare_detail'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)
