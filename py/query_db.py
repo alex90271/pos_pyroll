@@ -188,7 +188,7 @@ class QueryDB():
         ''''returns a list of employees from the latest data'''
         return self.process_db('employees')
 
-    def primary_jobocdes(self):
+    def primary_jobcodes(self):
         df = self.process_db('employees')[[
             'ID',
             'JOBCODE1'
@@ -196,6 +196,7 @@ class QueryDB():
         print(df)
         df.rename(columns={'JOBCODE1': 'JOBCODE'}, inplace=True)
         df = self.process_names(df, emp_bool=False)
+        df['JOB_NAME'] = df['JOB_NAME'].astype(str) + ' (Primary)'
         return df
 
 
@@ -204,7 +205,7 @@ if __name__ == '__main__':
 
     def main():
         # print("loading process_tips.py")
-        result = QueryDB("20230303").primary_jobocdes()
+        result = QueryDB("20230303").primary_jobcodes()
         print(result)
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
