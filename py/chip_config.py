@@ -5,25 +5,30 @@ from pathlib import Path
 
 class ChipConfig():
 
-    def __init__(self, json_name='chip.json'):
-        self.json_name = 'data/'+json_name
+    def __init__(self, config_name='chip.json',pooler_name='pools.json'):
+        self.config_name = 'data/'+config_name
+        self.pooler_name = 'data/'+pooler_name
 
         Path('data').mkdir(exist_ok=True)
         Path('debug').mkdir(exist_ok=True)
         Path('exports').mkdir(exist_ok=True)
 
-        if not os.path.isfile(self.json_name):
+        if not os.path.isfile(self.config_name):
             print('generating new default config')
-            self.save_json(self.generate_config())
+            self.save_json(self.generate_config(),self.config_name)
 
-        self.data = self.read_json()
+        if not os.path.isfile(self.pooler_name):
+            print('generating new default pooler')
+            self.save_json(self.generate_pooler(),self.pooler_name)
 
-    def save_json(self, data):
-        with open(self.json_name, 'w') as jsonfile:
+        self.data = self.read_json(self.config_name)
+
+    def save_json(self, data, name):
+        with open(name, 'w') as jsonfile:
             json.dump(data, jsonfile, indent=4)
 
-    def read_json(self):
-        with open(self.json_name) as jsonfile:
+    def read_json(self,name):
+        with open(name) as jsonfile:
             return json.load(jsonfile)
 
     def generate_config(self):
@@ -38,11 +43,60 @@ class ChipConfig():
             'verbose_debug': False,  # bool
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
             'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999', 
-            'company_name': '',
-            'export_type': 'gusto'
+            'company_name': ''
         }
     
 
+        return data
+    
+    def generate_pooler(self):
+        '''generates the default pools file, with default settings. To reset config file, just delete it'''
+        data = {}
+        data['sever_pool'] = {
+            "contribute": [
+                1
+            ],
+            "receive": [
+                2,
+                3,
+                5,
+                10,
+                11,
+                12,
+                13,
+                14
+            ],
+            "type": "sales",
+            "percent": "4"
+        }
+        data['takeout_pool'] = {
+            "contribute": [
+                4
+            ],
+            "receive": [
+                2,
+                3,
+                5,
+                10,
+                11,
+                12,
+                13,
+                14
+            ],
+            "type": "tips",
+            "percent": "100"
+        }
+
+        data['luncheon_pool'] = {
+            "contribute": [
+                40
+            ],
+            "receive": [
+                40
+            ],
+            "type": "tips",
+            "percent": "100"
+        }
         return data
 
     def query(self, config, query=None, return_type='default', updated_result=None):

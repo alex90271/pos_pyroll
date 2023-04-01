@@ -89,55 +89,6 @@ class ProcessPools():
 
         return return_df
 
-    def generate_pooler(self):
-        '''generates the default pools file, with default settings. To reset config file, just delete it'''
-        data = {}
-        data['sever_pool'] = {
-            "contribute": [
-                1
-            ],
-            "receive": [
-                2,
-                3,
-                5,
-                10,
-                11,
-                12,
-                13,
-                14
-            ],
-            "type": "sales",
-            "percent": "4"
-        }
-        data['takeout_pool'] = {
-            "contribute": [
-                4
-            ],
-            "receive": [
-                2,
-                3,
-                5,
-                10,
-                11,
-                12,
-                13,
-                14
-            ],
-            "type": "tips",
-            "percent": "100"
-        }
-
-        data['luncheon_pool'] = {
-            "contribute": [
-                40
-            ],
-            "receive": [
-                40
-            ],
-            "type": "tips",
-            "percent": "100"
-        }
-
 if __name__ == '__main__':
     print("loading Processpool_names.py")
     ProcessPools('20230304').get_pool_data().to_csv('out.csv')
