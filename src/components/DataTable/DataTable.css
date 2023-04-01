@@ -1,5 +1,7 @@
 .DataTable {
     overflow: scroll;
+    max-width: 1600px;
+    min-width: 1400px;
 }
 
 .empty-data-table {
