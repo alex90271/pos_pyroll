@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 
 
 class ChipConfig():
@@ -7,14 +8,12 @@ class ChipConfig():
     def __init__(self, json_name='chip.json'):
         self.json_name = 'data/'+json_name
 
+        Path('data').mkdir(exist_ok=True)
+        Path('debug').mkdir(exist_ok=True)
+        Path('exports').mkdir(exist_ok=True)
+
         if not os.path.isfile(self.json_name):
             print('generating new default config')
-            try:
-                os.mkdir('data')
-                os.mkdir('debug')
-                os.mkdir('exports')
-            except:
-                pass
             self.save_json(self.generate_config())
 
         self.data = self.read_json()
