@@ -52,7 +52,7 @@ class ChipConfig():
     def generate_pooler(self):
         '''generates the default pools file, with default settings. To reset config file, just delete it'''
         data = {}
-        data['sever_pool'] = {
+        data['server_pool'] = {
             "contribute": [
                 1
             ],
