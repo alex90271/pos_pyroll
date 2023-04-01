@@ -248,8 +248,7 @@ class ReportWriter():
         elif rpt == 'labor_main':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EXP_ID',
-                           'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
                               'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
@@ -258,13 +257,12 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=False)
             # sort the columns
-            # df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS',
-            # 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS']]
+            df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS',
+                     'OVERHRS', 'DECTIPS', 'TTL_CONT', 'TTL_TIP']]
 
         elif rpt == 'labor_nightly':
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE',
-                           'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'TERMINATED', 'INVALID', 'COUTBYEOD', 'EXP_ID'],
+                drop_cols=[],
                 index_cols=['EMPLOYEE', 'LASTNAME',
                             'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
@@ -274,13 +272,12 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=True)
             # sort the columns
-            # df = df[['SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'HOURS',
-            # 'OVERHRS', 'SRVTIPS', 'TIPOUT', 'DECTIPS', 'UNALLOCTIPS']]
+            df = df[['SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'HOURS',
+                     'OVERHRS', 'TTL_CONT', 'TTL_TIP', 'DECTIPS']]
 
         elif rpt == 'labor_total':
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOB_NAME', 'EXP_ID', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                drop_cols=[],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
                               'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
@@ -290,8 +287,8 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=False)
             # sort the columns
-            # df = df[['LASTNAME', 'FIRSTNAME', 'HOURS', 'OVERHRS',
-            # 'DECTIPS', 'TOTALTIPS', 'DECTIPS', 'UNALLOCTIPS']]
+            df = df[['LASTNAME', 'FIRSTNAME', 'HOURS',
+                     'OVERHRS', 'TTL_TIP', 'DECTIPS']]
 
         elif rpt == 'labor_rate':
             df = self.rate_rpt(
@@ -400,14 +397,16 @@ class Payroll(ReportWriter):
         df_tips = df[['LASTNAME', 'FIRSTNAME',
                       'DECTIPS', 'TTL_TIP']]
         df_tips = pd.pivot_table(df_tips,
-                                 index=['ID','LASTNAME', 'FIRSTNAME'],
+                                 index=['ID', 'LASTNAME', 'FIRSTNAME'],
                                  aggfunc=np.sum,
                                  fill_value=np.NaN).reset_index().set_index('ID')
-        
-        #some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
+
+        # some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
         df = self.primary.merge(df_tips, how='inner', on='ID')
-        df = df_hours.merge(df, how='outer',on=['ID','JOBCODE','FIRSTNAME','LASTNAME'])
-        df['JOB_NAME_y'] = np.where(df['JOB_NAME_y'].astype(str) == 'nan', df['JOB_NAME_x'].astype(str), df['JOB_NAME_y'].astype(str))
+        df = df_hours.merge(df, how='outer', on=[
+                            'ID', 'JOBCODE', 'FIRSTNAME', 'LASTNAME'])
+        df['JOB_NAME_y'] = np.where(df['JOB_NAME_y'].astype(
+            str) == 'nan', df['JOB_NAME_x'].astype(str), df['JOB_NAME_y'].astype(str))
 
         # drop interface employees
         for x in self.c.query("SETTINGS", "interface_employees", return_type='int_array'):
@@ -419,10 +418,10 @@ class Payroll(ReportWriter):
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
-                            'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
+                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
         df = df.sort_values(by='ID')
         df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
-                    'overtime_hours', 'paycheck_tips', 'cash_tips']]
+                 'overtime_hours', 'paycheck_tips', 'cash_tips']]
 
         return df
 
