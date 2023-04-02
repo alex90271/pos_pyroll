@@ -427,7 +427,7 @@ class Payroll(ReportWriter):
         hr_df.index.rename('ID', inplace=True)
         self.primary = self.primary.join(hr_df, ['ID'])
         self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
-        self.primary['ACTUAL_HOURLY'] = '**based on aloha** Period Average Hourly: ' + \
+        self.primary['ACTUAL_HOURLY'] = '**see paystub for actual rates** Period Average Hourly: ' + \
             self.primary['ACTUAL_HOURLY'].astype(str)
         df = self.primary.merge(df_tips, how='inner', on='ID')
         df = df_hours.merge(df, how='outer', on=[
