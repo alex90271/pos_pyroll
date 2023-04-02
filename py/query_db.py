@@ -100,7 +100,7 @@ class QueryDB():
                 db_type = db_type + self.data
                 df = pd.DataFrame(a, columns=['SYSDATEIN', 'INVALID', 'JOBCODE', 'EMPLOYEE', 'HOURS', 'OVERHRS',
                                               'CCTIPS', 'DECTIPS', 'COUTBYEOD', 'SALES', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE',
-                                              'RATE', 'TIPSHCON', 'EXP_ID'])
+                                              'RATE', 'TIPSHCON', 'EXP_ID', 'AUTGRTTOT'])
                 # get rid of any invalid shifts (deleted or shifts that have been edited)
                 df = df.loc[np.where(df['INVALID'] == 'N')]
                 # when the data is pulled in and HOURS includes OVERHRS

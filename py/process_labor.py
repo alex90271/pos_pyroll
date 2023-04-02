@@ -26,7 +26,6 @@ class ProcessLabor():
         self.pool_names = self.pooler.get_pool_names()
 
         self.day = day
-
         # config options
         c = ChipConfig()
         self.tracked_labor = c.query(
@@ -239,7 +238,7 @@ if __name__ == '__main__':
     def main():
         # print("loading ProcessTips.py")
         # print(ProcessLabor("20220107").calc_emps_in_day())
-        print(ProcessLabor("20230303").calc_tiprate_df())
+        print(ProcessLabor("20230304").calc_tiprate_df())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)

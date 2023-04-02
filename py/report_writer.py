@@ -251,7 +251,7 @@ class ReportWriter():
                            'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
-                              'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
+                              'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
                 addl_cols=[],
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
@@ -266,7 +266,7 @@ class ReportWriter():
                 index_cols=['EMPLOYEE', 'LASTNAME',
                             'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
-                              'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
+                              'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
                 addl_cols=[],
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
@@ -280,7 +280,7 @@ class ReportWriter():
                 drop_cols=[],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
-                              'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
+                              'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
                 addl_cols=[],
                 sum_only=True,
                 selected_employees=selected_employees,
@@ -291,11 +291,17 @@ class ReportWriter():
                      'OVERHRS', 'TTL_TIP', 'DECTIPS']]
 
         elif rpt == 'tipshare_detail':
+            ttlrs = ['HOURS', 'OVERHRS']
+            for pool in ['luncheon_pool', 'server_pool', 'takeout_pool']:
+                ttlrs.append('CCTIP_' + pool)
+                ttlrs.append('c_' + pool)
+                ttlrs.append(pool)
+
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID','HOURS','OVERHRS','TTL_CONT','TTL_TIP'],
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID', 'HOURS', 'OVERHRS', 'TTL_CONT', 'TTL_TIP'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS'],
+                totaled_cols=ttlrs,
                 addl_cols=[],
                 sum_only=True,
                 selected_employees=selected_employees,
@@ -398,23 +404,31 @@ class Payroll(ReportWriter):
             drop_cols=[],
             index_cols=['EMPLOYEE', 'LASTNAME',
                         'FIRSTNAME', 'JOB_NAME', 'JOBCODE'],
-            totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
-                          'TIPOUT', 'DECTIPS', 'UNALLOCTIPS', 'TOTALTIPS'],
+            totaled_cols=[],
             addl_cols=[],
             append_totals=False)
+        
+        df['TTL_TIP'] = df['TTL_TIP'] - df['AUTGRTTOT']
 
         # need hours by jobcode, but total tips
         df_hours = df[['LASTNAME', 'FIRSTNAME',
                        'JOB_NAME', 'JOBCODE', 'HOURS', 'OVERHRS', 'EXP_ID']]
 
         df_tips = df[['LASTNAME', 'FIRSTNAME',
-                      'DECTIPS', 'TTL_TIP']]
+                      'DECTIPS', 'TTL_TIP',
+                      'AUTGRTTOT']]
         df_tips = pd.pivot_table(df_tips,
                                  index=['ID', 'LASTNAME', 'FIRSTNAME'],
                                  aggfunc=np.sum,
                                  fill_value=np.NaN).reset_index().set_index('ID')
 
         # some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
+        hr_df = self.hourly_pay_rate()
+        hr_df.index.rename('ID', inplace=True)
+        self.primary = self.primary.join(hr_df, ['ID'])
+        self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
+        self.primary['ACTUAL_HOURLY'] = '**based on aloha** Period Average Hourly: ' + \
+            self.primary['ACTUAL_HOURLY'].astype(str)
         df = self.primary.merge(df_tips, how='inner', on='ID')
         df = df_hours.merge(df, how='outer', on=[
                             'ID', 'JOBCODE', 'FIRSTNAME', 'LASTNAME'])
@@ -431,10 +445,10 @@ class Payroll(ReportWriter):
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
-                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips'}, inplace=True)
+                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
         df = df.sort_values(by='ID')
         df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
-                 'overtime_hours', 'paycheck_tips', 'cash_tips']]
+                 'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity', 'personal_note']]
 
         return df
 
@@ -493,8 +507,7 @@ if __name__ == '__main__':
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
         # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        print(ReportWriter('20230301', '20230315').print_to_json(
-            rpt='tipshare_detail'))
+        print(Payroll('20230301', '20230315').process_payroll().to_csv('out.csv'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)
