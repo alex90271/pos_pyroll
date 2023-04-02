@@ -422,21 +422,6 @@ export default function ConfigArea(props) {
                 print={print}
                 displayedRange={displayedRange()}
             />
-            <div className='processInsight'>
-
-                <p>
-                    Total Sales: <br></br>
-                    {props.sales}
-                </p>
-                <p>
-                    Total Tips: <br></br>
-                    {props.tips}
-                </p>
-                <p>
-                    Unaccounted tips: <br></br>
-                    {props.unusedtips}
-                </p>
-            </div>
             <Settings
                 settings={settings}
                 handleSettingChange={handleSettingChange}
