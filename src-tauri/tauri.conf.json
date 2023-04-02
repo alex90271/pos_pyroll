@@ -62,10 +62,10 @@
             {
                 "fullscreen": false,
                 "center": true,
-                "height": 1000,
-                "resizable": false,
-                "title": "POS_Report_Helper 0.310.2023",
-                "width": 1900
+                "height": 800,
+                "resizable": true,
+                "title": "POS_Report_Helper 0.402.2023",
+                "width": 1200
             }
         ]
     }
