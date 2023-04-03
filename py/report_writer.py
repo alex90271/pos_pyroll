@@ -100,13 +100,11 @@ class ReportWriter():
         averaged_cols: list,
         labor_main=False
     ):
-        try:
-            for col in totaled_cols:
-                df.loc['TTL', col] = np.sum(df[col])
-            for col in averaged_cols:
-                df.loc['TTL', col] = np.mean(df[col])
-        except:
-            pass
+        for col in totaled_cols:
+            df.loc['TTL', col] = np.sum(df[col])
+        for col in averaged_cols:
+            df.loc['TTL', col] = np.mean(df[col])
+        
 
         # the employee column will be turned into the INDEX later
         if labor_main:
@@ -250,7 +248,7 @@ class ReportWriter():
                 drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS',
                            'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
+                totaled_cols=['HOURS', 'OVERHRS',
                               'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
                 addl_cols=[],
                 selected_employees=selected_employees,
@@ -265,7 +263,7 @@ class ReportWriter():
                 drop_cols=[],
                 index_cols=['EMPLOYEE', 'LASTNAME',
                             'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
+                totaled_cols=['HOURS', 'OVERHRS',
                               'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
                 addl_cols=[],
                 selected_employees=selected_employees,
@@ -279,7 +277,7 @@ class ReportWriter():
             df = self.labor_main(
                 drop_cols=[],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
-                totaled_cols=['HOURS', 'OVERHRS', 'SRVTIPS',
+                totaled_cols=['HOURS', 'OVERHRS',
                               'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
                 addl_cols=[],
                 sum_only=True,
@@ -299,7 +297,7 @@ class ReportWriter():
 
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID', 'HOURS', 'OVERHRS', 'TTL_CONT', 'TTL_TIP'],
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID', 'TTL_CONT', 'TTL_TIP'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=ttlrs,
                 addl_cols=[],
@@ -427,7 +425,7 @@ class Payroll(ReportWriter):
         hr_df.index.rename('ID', inplace=True)
         self.primary = self.primary.join(hr_df, ['ID'])
         self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
-        self.primary['ACTUAL_HOURLY'] = '**see paystub for actual rates** Period Average Hourly: ' + \
+        self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
             self.primary['ACTUAL_HOURLY'].astype(str)
         df = self.primary.merge(df_tips, how='inner', on='ID')
         df = df_hours.merge(df, how='outer', on=[
