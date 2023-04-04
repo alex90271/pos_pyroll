@@ -76,7 +76,7 @@ class ReportWriter():
         a = [labor(day).calc_hourly_pay_rate() for day in self.days]
         reg_df = pd.concat(a)
         reg_df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR',
-                            'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE', 'SYSDATEIN', 'EXP_ID'], axis=1, inplace=True)
+                            'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE', 'SYSDATEIN'], axis=1, inplace=True)
 
         _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY']],
                              index=['EMPLOYEE'],
@@ -181,12 +181,14 @@ class ReportWriter():
             df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")
         # add employee names before generating report
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df)
+        
         # if there any any columns passed in to drop, drop them
         _df.drop(drop_cols, axis=1, inplace=True)
         _df = pd.pivot_table(_df,
                              index=index_cols,
                              aggfunc=np.sum,
                              fill_value=np.NaN)
+        
         # this block of code sets the index to employee numbers, sorts by last name, and adds totals
         _df.reset_index(inplace=True)
         if nightly:
@@ -204,7 +206,6 @@ class ReportWriter():
         if addl_cols is not None:
             for col in addl_cols:
                 _df[col] = np.NaN
-
         return _df
 
     def employees_in_dates(self):
@@ -401,7 +402,7 @@ class Payroll(ReportWriter):
         df = self.labor_main(
             drop_cols=[],
             index_cols=['EMPLOYEE', 'LASTNAME',
-                        'FIRSTNAME', 'JOB_NAME', 'JOBCODE'],
+                        'FIRSTNAME', 'JOB_NAME', 'JOBCODE', 'EXP_ID'],
             totaled_cols=[],
             addl_cols=[],
             append_totals=False)
@@ -414,9 +415,9 @@ class Payroll(ReportWriter):
 
         df_tips = df[['LASTNAME', 'FIRSTNAME',
                       'DECTIPS', 'TTL_TIP',
-                      'AUTGRTTOT']]
+                      'AUTGRTTOT', 'EXP_ID']]
         df_tips = pd.pivot_table(df_tips,
-                                 index=['ID', 'LASTNAME', 'FIRSTNAME'],
+                                 index=['ID', 'LASTNAME', 'FIRSTNAME', 'EXP_ID'],
                                  aggfunc=np.sum,
                                  fill_value=np.NaN).reset_index().set_index('ID')
 
@@ -427,9 +428,10 @@ class Payroll(ReportWriter):
         self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
         self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
             self.primary['ACTUAL_HOURLY'].astype(str)
+
         df = self.primary.merge(df_tips, how='inner', on='ID')
         df = df_hours.merge(df, how='outer', on=[
-                            'ID', 'JOBCODE', 'FIRSTNAME', 'LASTNAME'])
+                            'ID', 'JOBCODE', 'FIRSTNAME', 'LASTNAME', 'EXP_ID'])
         df['JOB_NAME_y'] = np.where(df['JOB_NAME_y'].astype(
             str) == 'nan', df['JOB_NAME_x'].astype(str), df['JOB_NAME_y'].astype(str))
 
@@ -439,7 +441,6 @@ class Payroll(ReportWriter):
                 df.drop([float(x)], inplace=True, errors=False)
             except:
                 pass
-
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
@@ -505,7 +506,7 @@ if __name__ == '__main__':
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
         # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        print(Payroll('20230301', '20230315').process_payroll().to_csv('out.csv'))
+        print(Payroll('20230401', '20230401').process_payroll().to_csv('out.csv'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)

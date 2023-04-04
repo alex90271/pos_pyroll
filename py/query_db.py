@@ -79,7 +79,7 @@ class QueryDB():
             if ChipConfig().query('SETTINGS', 'debug'):
                 d = pd.DataFrame(a)
             else:
-                d = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED', 'JOBCODE1']).sort_values(by='ID')
+                d = pd.DataFrame(a, columns=['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED', 'JOBCODE1', 'EXP_ID']).sort_values(by='ID')
             return d.copy()
         elif db_type == 'jobcodes':
             a = self.dbf_to_list('/JOB.Dbf')
@@ -100,7 +100,7 @@ class QueryDB():
                 db_type = db_type + self.data
                 df = pd.DataFrame(a, columns=['SYSDATEIN', 'INVALID', 'JOBCODE', 'EMPLOYEE', 'HOURS', 'OVERHRS',
                                               'CCTIPS', 'DECTIPS', 'COUTBYEOD', 'SALES', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE',
-                                              'RATE', 'TIPSHCON', 'EXP_ID', 'AUTGRTTOT'])
+                                              'RATE', 'TIPSHCON', 'AUTGRTTOT'])
                 # get rid of any invalid shifts (deleted or shifts that have been edited)
                 df = df.loc[np.where(df['INVALID'] == 'N')]
                 # when the data is pulled in and HOURS includes OVERHRS
@@ -193,7 +193,6 @@ class QueryDB():
             'ID',
             'JOBCODE1'
         ]]
-        print(df)
         df.rename(columns={'JOBCODE1': 'JOBCODE'}, inplace=True)
         df = self.process_names(df, emp_bool=False)
         df['JOB_NAME'] = df['JOB_NAME'].astype(str) + ' (Primary)'
@@ -205,7 +204,7 @@ if __name__ == '__main__':
 
     def main():
         # print("loading process_tips.py")
-        result = QueryDB("20230303").primary_jobcodes()
+        result = QueryDB("20230401").process_db('labor')
         print(result)
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
