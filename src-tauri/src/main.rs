@@ -13,18 +13,19 @@ struct Backend(Option<CommandChild>);
 
 fn main() {
     let mut backend = Backend::default();
+    let (_, child) = Command::new_sidecar("server")
+                    .expect("Failed to create `backend_server` binary command")
+                    .spawn()
+                    .expect("Failed to spawn backend sidecar");
+
+                _ = backend.0.insert(child);
 
     tauri::Builder::default()
         .build(tauri::generate_context!())
         .expect("Error building app")
         .run(move |app_handle, event| match event {
             RunEvent::Ready => {
-                let (_, child) = Command::new_sidecar("server")
-                    .expect("Failed to create `backend_server` binary command")
-                    .spawn()
-                    .expect("Failed to spawn backend sidecar");
-
-                _ = backend.0.insert(child);
+                println!("ui is ready")
             }
             RunEvent::ExitRequested { api, .. } => {
                 if let Some(child) = backend.0.take() {
