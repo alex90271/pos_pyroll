@@ -1,6 +1,6 @@
 {
     "name": "report_helper",
-    "version": "0.4.24",
+    "version": "0.4.16",
     "private": true,
     "dependencies": {
         "@semantic-ui-react/css-patch": "^1.0.0",
