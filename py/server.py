@@ -77,8 +77,7 @@ def print_rpt(day_one, day_two, rpt_type, select_jobs, select_emps, opt_print='j
                               ],
                               rpttp=rpt_type,
                               select_emps=select_emps, select_jobs=select_jobs)
-        name_string = rpt_type + '-report-' + \
-            datetime.now().strftime('%Y-%m-%d')
+        name_string = rpt_type + '-' + day_one[-6:]  + '-' + day_two[-6:]
         export = open("exports/" + name_string + ".html", "w")
         export.write(pdf)
         export.close()
