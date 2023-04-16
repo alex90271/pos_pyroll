@@ -128,8 +128,10 @@ class ReportWriter():
             print('no proper data provided the following report is blank:')
             return pd.DataFrame({})  # returns a blank dataframe
         df = pd.concat(a).reset_index(drop=True)
-        df
 
+        if rpt == 'Tip':
+            df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
+            df = df.sort_values(by='index').drop(columns='index')
         self.append_totals(df,
                            totaled_cols=totaled_cols,
                            averaged_cols=averaged_cols
@@ -505,8 +507,8 @@ if __name__ == '__main__':
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
-        # print(ReportWriter('20220216','20220228').print_to_json(rpt='punctuality'))
-        print(Payroll('20230401', '20230401').process_payroll().to_csv('out.csv'))
+         print(ReportWriter('20230301','20230315').print_to_json(rpt='tip_rate'))
+        # print(Payroll('20230401', '20230401').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)

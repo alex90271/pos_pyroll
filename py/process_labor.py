@@ -208,7 +208,6 @@ class ProcessLabor():
             names[4]: [total_tips[pool]],  # Total Tip Pool
             names[5]: [total_hours[pool]]  # Total Tipped Hours
         }) for pool in self.pool_names])
-        df['Hourly_Sum'] = df['Hourly'].sum()
         return df
 
     def calc_laborrate_df(self):
