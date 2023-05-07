@@ -37,11 +37,12 @@ class Debugger():
 
     def generate_debug_db(self, datestr):
         '''generates the default config file, with default settings. To reset config file, just delete it'''
-        header = ['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE','TIPSHCON', 'EXP_ID']
+        header = ['SYSDATEIN','INVALID','JOBCODE','JOBCODE1','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE','TIPSHCON', 'EXP_ID']
         data = []
         for i in range (0,5):
             data.append([datestr, #sysdate
                     'N', #invalid
+                    self.gen_int(1,5), # 5 jobcodes
                     self.gen_int(1,5), # 5 jobcodes
                     self.gen_int(1001,1010), #10 employee numbers
                     self.gen_int(6,10), #hours
