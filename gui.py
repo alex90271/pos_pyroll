@@ -1,25 +1,24 @@
 from datetime import date, datetime, timedelta
 import tkinter as tk
+import jinja2
 from tkcalendar import DateEntry
-from flask import app, jsonify, render_template
 import pandas as pd
 from query_db import QueryDB
 from report_writer import Payroll, ReportWriter, ReportWriterReports
 from chip_config import ChipConfig
 from pandastable import Table
 
-employee_df = QueryDB().process_db('employees')
-jobcode_df = QueryDB().process_db('jobcodes')
+employee_df = QueryDB().process_db('employees').set_index('ID')
+jobcode_df = QueryDB().process_db('jobcodes').set_index('ID')
 employee_df['NAME'] = employee_df['FIRSTNAME'] + ' ' + employee_df['LASTNAME']
 
-jobcode_list = jobcode_df['SHORTNAME'].to_list()
-employee_list = employee_df['NAME'].to_list()
+print(jobcode_df['SHORTNAME'],employee_df['NAME'])
 reports = ReportWriterReports().available_reports()
 
 if __name__ == '__main__':
     # Create a window
     root = tk.Tk()
-    root.geometry("1600x800")
+    root.geometry("1600x900")
 
     day_one = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
     day_two = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
@@ -27,18 +26,27 @@ if __name__ == '__main__':
     select_jobs = []
     select_emps = []
 
-    l_frame = tk.Frame(root, width=250, height=800)
-    l_frame.pack(side='left', padx=50, pady=5)
+    t_frame = tk.Frame(root)
+    t_frame.pack(side='top', pady=10)
 
-    r_frame = tk.Frame(root, width=1200, height=800)
-    r_frame.pack(side='right', padx=50, pady=5)
+    c_frame = tk.Frame(root)
+    c_frame.pack(pady=5)
 
-    b_frame = tk.Frame(l_frame, width=250, height=800)
-    b_frame.pack(side='bottom', pady=20)
+    l_frame = tk.Frame(c_frame, width=250 )
+    l_frame.pack(side='left', padx=10)
+
+    r_frame = tk.Frame(c_frame, width=1200)
+    r_frame.pack(side='right', padx=10)
+
+    b_frame = tk.Frame(root)
+    b_frame.pack(side='bottom', pady=10)
 
     # Create a label
     label = tk.Label(l_frame, text="Select report days\n(for one day, enter in both)")
     label.pack(padx=10, pady=5)
+
+    info_label = tk.Label(t_frame, text="No Report Selected")
+    info_label.pack()
 
     # Create two date pickers
     start_date_picker = DateEntry(l_frame, width=12, background='darkblue', foreground='white', borderwidth=2,
@@ -81,13 +89,13 @@ if __name__ == '__main__':
 
     # Create a list box
     employee_listbox = tk.Listbox(
-        l_frame, listvariable=tk.StringVar(l_frame, value=employee_list), selectmode='multiple')
+        l_frame, listvariable=tk.StringVar(l_frame, value=employee_df["NAME"].to_list()), selectmode='multiple')
     employee_listbox.pack()
 
     # Set the callback function
     def on_employee_changed(event):
         global select_emps
-        select_emps = [employee_listbox.get(i) for i in employee_listbox.curselection()]
+        select_emps = [employee_df.index[i] for i in employee_listbox.curselection()]
         print(select_emps)
 
     employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
@@ -98,65 +106,72 @@ if __name__ == '__main__':
 
     # Create a list box
     jobcode_listbox = tk.Listbox(
-        l_frame, listvariable=tk.StringVar(l_frame, value=jobcode_list), selectmode='multiple')
+        l_frame, listvariable=tk.StringVar(l_frame, value=jobcode_df["SHORTNAME"].to_list()), selectmode='multiple')
     jobcode_listbox.pack()
 
     # Set the callback function
     def on_jobcode_changed(event):
         global select_jobs
-        select_jobs = [jobcode_listbox.get(i) for i in jobcode_listbox.curselection()]
+        select_jobs = [jobcode_df.index[i] for i in jobcode_listbox.curselection()]
         print(select_jobs)
 
     jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
 
-    def view_rpt():
-        df = ReportWriter(day_one, day_two).print_to_json(
-            rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
-        df.reset_index(inplace=True)
-        df.to_dict(orient='index')
-        pt = Table(r_frame, dataframe=df, width=1000, height=600,
-                   showstatusbar=True, editable=False)
-        pt.show()
-
     def export_rpt():
+        print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
         df = ReportWriter(day_one, day_two).print_to_json(
             rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
+        if type(df) == 'empty':
+            info_label.config(text="No rows to export")
         result = df.fillna('')
-        with app:
-            pdf = render_template('render.html',
-                            tables=[result.to_html(
-                                table_id="table", classes="ui striped table")],
-                            titles=result.columns.values,
-                            timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
-                            dates=[
-                                datetime.strptime(day_one, "%Y%m%d").strftime(
-                                    '%a, %b %d, %Y'),
-                                datetime.strptime(day_two, "%Y%m%d").strftime(
-                                    '%a, %b %d, %Y')
-                            ],
-                            rpttp=rpt_type,
-                            select_emps=select_emps, select_jobs=select_jobs)
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath="templates/"))
+        template = env.get_template('render.html').render(
+                    tables=[result.to_html(
+                        table_id="table", classes="ui striped table")],
+                    titles=result.columns.values,
+                    timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
+                    dates=[
+                        datetime.strptime(day_one, "%Y%m%d").strftime(
+                            '%a, %b %d, %Y'),
+                        datetime.strptime(day_two, "%Y%m%d").strftime(
+                            '%a, %b %d, %Y')
+                    ],
+                    rpttp=rpt_type,
+                    select_emps=select_emps, select_jobs=select_jobs)
         name_string = rpt_type + '-' + day_one[-6:]  + '-' + day_two[-6:]
         export = open("exports/" + name_string + ".html", "w")
-        export.write(pdf)
+        export.write(template)
         export.close()
+        info_label.config(text="Check the exports folder")
 
     def gusto_rpt():
+        print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
         '''exports payroll to gusto'''
         if (pd.date_range(day_one, periods=1, freq='SM').strftime("%Y%m%d") != day_two):
-                return jsonify('day_error')
+                info_label.config(text='Must select a payroll interval to export payroll')
         result = Payroll(day_one, day_two).process_payroll()
         if type(result) == 'empty':
-            return result
+                info_label.config(text="No data to export")
         else:
             name_string = ChipConfig().query("SETTINGS", "company_name") + '-timesheet-' + \
                 datetime.now().strftime('%Y-%m-%d')
             result.to_csv(
                 ("exports/" + name_string + '.csv'),
                 index=False)
-            return 'exported'
+            info_label.config(text="Please check exports folder")
 
-
+    def view_rpt():
+        print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
+        df = ReportWriter(day_one, day_two).print_to_json(
+            rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
+        if type(df) == 'empty':
+                info_label.config(text="No data to display")
+        df.reset_index(inplace=True)
+        df.to_dict(orient='index')
+        pt = Table(r_frame, dataframe=df, width=1000, height=600,
+                   showstatusbar=True, editable=False)
+        pt.show()
+        info_label.config(text="displaying")
 
     view_button = tk.Button(b_frame, text="View", command=view_rpt)
     view_button.pack()
