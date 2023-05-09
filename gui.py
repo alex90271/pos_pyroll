@@ -96,7 +96,6 @@ if __name__ == '__main__':
     def on_employee_changed(event):
         global select_emps
         select_emps = [employee_df.index[i] for i in employee_listbox.curselection()]
-        print(select_emps)
 
     employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
 
@@ -113,7 +112,6 @@ if __name__ == '__main__':
     def on_jobcode_changed(event):
         global select_jobs
         select_jobs = [jobcode_df.index[i] for i in jobcode_listbox.curselection()]
-        print(select_jobs)
 
     jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
 
