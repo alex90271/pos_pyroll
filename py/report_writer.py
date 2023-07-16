@@ -427,9 +427,10 @@ class Payroll(ReportWriter):
         hr_df = self.hourly_pay_rate()
         hr_df.index.rename('ID', inplace=True)
         self.primary = self.primary.join(hr_df, ['ID'])
-        self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
-        self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
-            self.primary['ACTUAL_HOURLY'].astype(str)
+        #TODO add config option
+        #self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
+        #self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
+            #self.primary['ACTUAL_HOURLY'].astype(str)
 
         df = self.primary.merge(df_tips, how='inner', on='ID')
         df = df_hours.merge(df, how='outer', on=[
@@ -466,30 +467,45 @@ class WeeklyWriter(ReportWriter):
             start=self.first_day, end=self.last_day, freq='w-mon')
         # print(date_ranges)
         data = []
-        for date in date_ranges:
-            super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
-                             last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
-            t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
-                                index_cols=['EMPLOYEE', 'LASTNAME',
-                                            'FIRSTNAME', 'JOB_NAME'],
-                                totaled_cols=['HOURS', 'OVERHRS',
-                                              'SRVTIPS', 'TIPOUT', 'DECTIPS'],
-                                addl_cols=['DATE', 'SALES', 'RATE'],
-                                sum_only=True,
-                                append_totals=False,
-                                selected_jobs=selected_jobs,
-                                selected_employees=selected_employees)
-            if type(t) != str:
-                data.append(t)
-                t['WEEK'] = date  # .strftime('%b, %d, %a, %Y')
-                t['SALES'] = np.sum(self.get_total_sales())
-                t['RATE'] = (np.sum(self.labor_hourly_rate())/6)
-        tmp_df = pd.concat(data)
-        df = pd.DataFrame(tmp_df)
-
         if avg_hrs:
-            rtn_df = df.pivot_table(index=['FIRSTNAME'], values=['HOURS'])
+            for date in date_ranges:
+                super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
+                                last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
+                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                                    index_cols=['EMPLOYEE', 'LASTNAME',
+                                                'FIRSTNAME'],
+                                    totaled_cols=[],
+                                    addl_cols=[],
+                                    sum_only=True,
+                                    append_totals=False).reset_index()
+                if type(t) != str:
+                    data.append(t)
+            df = pd.concat(data)
+            print(df)
+            rtn_df = df.pivot_table(index=['FIRSTNAME'], values=['HOURS', 'OVERHRS'], aggfunc=np.average)
+
             return rtn_df
+        else:
+            for date in date_ranges:
+                super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
+                                last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
+                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                                    index_cols=['EMPLOYEE', 'LASTNAME',
+                                                'FIRSTNAME','JOB_NAME'],
+                                    totaled_cols=['HOURS', 'OVERHRS',
+                                                'SRVTIPS', 'TIPOUT', 'DECTIPS'],
+                                    addl_cols=['DATE', 'SALES', 'RATE'],
+                                    sum_only=True,
+                                    append_totals=False,
+                                    selected_jobs=selected_jobs,
+                                    selected_employees=selected_employees)
+                if type(t) != str:
+                    data.append(t)
+                    t['WEEK'] = date  # .strftime('%b, %d, %a, %Y')
+                    t['SALES'] = np.sum(self.get_total_sales())
+                    t['RATE'] = (np.sum(self.labor_hourly_rate())/6)
+
+            df = pd.concat(data)
 
         if json_fmt:
             rtn_df = df.pivot_table(
@@ -497,6 +513,7 @@ class WeeklyWriter(ReportWriter):
         else:
             rtn_df = df.pivot_table(index=['WEEK', 'SALES', 'RATE'], columns=[
                                     'FIRSTNAME'], values=['HOURS'])
+            
         rtn_df.sort_values(by=['WEEK'], inplace=True)
         return rtn_df
 
