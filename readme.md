@@ -1,60 +1,17 @@
-### --- NOTES:
 
-    At the moment, tauri does not correctly despawn the server instance, must be killed manually
+### --- NOTES
 
-### --- REQUIREMENTS
-
-Tauri requires rust, and rust requires the windows APIs to be used on windows
-
-    rust-lang.org
-
-    1. download: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-
-    2. download: https://rustup.rs/
-
+    This branch is testing a new tkinter UI for easier updating
 
 ### --- INSTALL INSTRUCTIONS
 
-    1. First see requirements above
-
-    2. Run `python -m pip install -r "requirements.txt"`
-
-    3. Run `npm install`
-
-    4. Run `npm run build_py`
-
-    5. Finally, `npm run tauri dev`
-
+    1. Run `python -m pip install -r "requirements.txt"`
 
 ### --- DIRECTORIES
 
-    1. src-tauri : tauri directory
-        a. src-tauri/bin : python source code
-    2. src : react source code
 
 ### ---FRONTEND:
 
-The frontend is written in react, and controlled with tauri
-
-    dependency install: `npm install`
-
-In the project directory, you can run:
-
-     `npm start`
-
-        Runs the app in the development mode.\
-        Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-        The page will reload if you make edits.\
-        You will also see any lint errors in the console.
-
-    `npm run tauri dev`
-
-        Launches tauri dev server
-
-    `npm run tauri build`
-
-        Build tauri output, see tauri documentation
 
 ### ---BACKEND:
 
