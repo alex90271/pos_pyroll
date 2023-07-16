@@ -68,6 +68,11 @@ class ProcessPools():
                                            (int(self.pool_names[pool]["percent"])/100))
                 self.cash_contributions[pool] = c['DECTIPS'].sum()
                 return_df['CCTIP_'+pool] = 0
+            elif self.pool_names[pool]["type"] == 'equal':
+                c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values, c['DECTIPS'].values),
+                                           len(c.index)-1)
+                self.cash_contributions[pool] = c['DECTIPS'].sum()
+                return_df['CCTIP_'+pool] = 0
             return_df['c_'+pool] = c['c_'+pool]
 
             r = self.df.loc[self.df['JOBCODE'].isin(
