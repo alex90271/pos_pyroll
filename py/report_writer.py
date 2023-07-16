@@ -17,6 +17,7 @@ class ReportWriter():
         self.last_day = last_day
         self.days = []
         self.FILEPATH = 'data/'
+        self.c = ChipConfig()
 
         if self.last_day == None:
             self.last_day = self.first_day
@@ -129,9 +130,10 @@ class ReportWriter():
             return pd.DataFrame({})  # returns a blank dataframe
         df = pd.concat(a).reset_index(drop=True)
 
-        if rpt == 'Tip':
+        if self.c.query("SETTINGS", "totals_tiprate_rpt"):
             df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
             df = df.sort_values(by='index').drop(columns='index')
+            
         self.append_totals(df,
                            totaled_cols=totaled_cols,
                            averaged_cols=averaged_cols
