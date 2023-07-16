@@ -16,6 +16,7 @@ src-tauri/build
 src-tauri/bin/build
 src-tauri/bin/dist
 src-tauri/bin/*.exe
+src-tauri/target/*
 
 
 # testing db
