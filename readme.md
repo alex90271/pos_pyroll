@@ -4,6 +4,10 @@
 
 ### --- REQUIREMENTS
 
+The backend uses Python 3.10
+
+The frontend uses React, and Tauri
+
 Tauri requires rust, and rust requires the windows APIs to be used on windows
 
     rust-lang.org

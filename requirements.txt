@@ -4,4 +4,5 @@ dbfread==2.0.7
 pandas
 numpy
 waitress
+dearpygui
 
