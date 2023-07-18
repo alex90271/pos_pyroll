@@ -129,9 +129,11 @@ class ReportWriter():
             return pd.DataFrame({})  # returns a blank dataframe
         df = pd.concat(a).reset_index(drop=True)
 
-        if rpt == 'Tip':
-            df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
-            df = df.sort_values(by='index').drop(columns='index')
+        #turns the tiprate report into a sum, vs broken down by tip pool
+        #if rpt == 'Tip':
+            #df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
+            #df = df.sort_values(by='index').drop(columns='index')
+
         self.append_totals(df,
                            totaled_cols=totaled_cols,
                            averaged_cols=averaged_cols
@@ -404,6 +406,7 @@ class Payroll(ReportWriter):
         df_tips = df[['LASTNAME', 'FIRSTNAME',
                       'DECTIPS', 'TTL_TIP',
                       'AUTGRTTOT', 'EXP_ID']]
+        
         df_tips = pd.pivot_table(df_tips,
                                  index=['ID', 'LASTNAME', 'FIRSTNAME', 'EXP_ID'],
                                  aggfunc=np.sum,
@@ -412,7 +415,7 @@ class Payroll(ReportWriter):
         #hr_df = self.hourly_pay_rate()
         #hr_df.index.rename('ID', inplace=True)
         #self.primary = self.primary.join(hr_df, ['ID'])
-        #self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
+        self.primary['ACTUAL_HOURLY'] = ''
         #self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
             #self.primary['ACTUAL_HOURLY'].astype(str)
         
