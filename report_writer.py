@@ -409,14 +409,14 @@ class Payroll(ReportWriter):
                                  aggfunc=np.sum,
                                  fill_value=np.NaN).reset_index().set_index('ID')
 
+        #hr_df = self.hourly_pay_rate()
+        #hr_df.index.rename('ID', inplace=True)
+        #self.primary = self.primary.join(hr_df, ['ID'])
+        #self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
+        #self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
+            #self.primary['ACTUAL_HOURLY'].astype(str)
+        
         # some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
-        hr_df = self.hourly_pay_rate()
-        hr_df.index.rename('ID', inplace=True)
-        self.primary = self.primary.join(hr_df, ['ID'])
-        self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
-        self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
-            self.primary['ACTUAL_HOURLY'].astype(str)
-
         df = self.primary.merge(df_tips, how='inner', on='ID')
         df = df_hours.merge(df, how='outer', on=[
                             'ID', 'JOBCODE', 'FIRSTNAME', 'LASTNAME', 'EXP_ID'])
