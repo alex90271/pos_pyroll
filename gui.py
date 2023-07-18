@@ -41,8 +41,15 @@ if __name__ == '__main__':
     b_frame = tk.Frame(root)
     b_frame.pack(side='bottom', pady=10)
 
+    b_l_frame = tk.Frame(b_frame)
+    b_l_frame.pack(side='left', pady=10)
+
+
+    b_r_frame = tk.Frame(b_frame)
+    b_r_frame.pack(side='left', pady=10)
+
     # Create a label
-    label = tk.Label(l_frame, text="Select report days\n(for one day, enter in both)")
+    label = tk.Label(l_frame, text="Select report days\n(for one day, select it in both)")
     label.pack(padx=10, pady=5)
 
     info_label = tk.Label(t_frame, text="No Report Selected")
@@ -71,7 +78,7 @@ if __name__ == '__main__':
     end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
 
     dropdown_val = tk.StringVar(root)
-    dropdown_val.set("Select an Option")
+    dropdown_val.set("labor_main")
     label = tk.Label(l_frame, text="Select a report:")
     label.pack(pady=5)
 
@@ -84,7 +91,7 @@ if __name__ == '__main__':
     report_dropdown.pack(pady=5)
 
     # Create a label
-    label = tk.Label(l_frame, text="Select an employee:")
+    label = tk.Label(l_frame, text="OPTIONAL\nSelect an employee:")
     label.pack(pady=5)
 
     # Create a list box
@@ -100,7 +107,7 @@ if __name__ == '__main__':
     employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
 
     # Create a label
-    label = tk.Label(l_frame, text="Select a job code:")
+    label = tk.Label(l_frame, text="OPTIONAL\nSelect a job code:")
     label.pack(pady=5)
 
     # Create a list box
@@ -140,23 +147,27 @@ if __name__ == '__main__':
         export = open("exports/" + name_string + ".html", "w")
         export.write(template)
         export.close()
-        info_label.config(text="Check the exports folder")
+        info_label.config(text=(datetime.now().strftime("%H:%M:%S") +"\nCheck the exports folder for the report"))
+        for widget in r_frame.winfo_children():
+            widget.destroy()
 
     def gusto_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
         '''exports payroll to gusto'''
-        if (pd.date_range(day_one, periods=1, freq='SM').strftime("%Y%m%d") != day_two):
-                info_label.config(text='Must select a payroll interval to export payroll')
-        result = Payroll(day_one, day_two).process_payroll()
-        if type(result) == 'empty':
+        if (pd.date_range(day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] == day_two):
+            result = Payroll(day_one, day_two).process_payroll()
+            if type(result) == 'empty':
                 info_label.config(text="No data to export")
-        else:
-            name_string = ChipConfig().query("SETTINGS", "company_name") + '-timesheet-' + \
-                datetime.now().strftime('%Y-%m-%d')
+            name_string = ChipConfig().query("SETTINGS", "company_name") + '-payroll_export-' + 'f-' + day_one + '_' + 'l-'+ day_two
             result.to_csv(
                 ("exports/" + name_string + '.csv'),
                 index=False)
-            info_label.config(text="Please check exports folder")
+            info_label.config(text=(datetime.now().strftime("%H:%M:%S") +"\nCheck the exports folder for the payroll CSV"))
+        else: 
+            info_label.config(text="There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st")
+
+        for widget in r_frame.winfo_children():
+            widget.destroy()
 
     def view_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
@@ -169,16 +180,16 @@ if __name__ == '__main__':
         pt = Table(r_frame, dataframe=df, width=1000, height=600,
                    showstatusbar=True, editable=False)
         pt.show()
-        info_label.config(text="displaying")
+        info_label.config(text=(datetime.now().strftime("%H:%M:%S") +"\ndisplaying"))
 
-    view_button = tk.Button(b_frame, text="View", command=view_rpt)
-    view_button.pack()
+    view_button = tk.Button(b_l_frame, text="View", command=view_rpt)
+    view_button.pack(padx=5)
 
-    export_button = tk.Button(b_frame, text="Export", command=export_rpt)
-    export_button.pack()
+    export_button = tk.Button(b_l_frame, text="Export", command=export_rpt)
+    export_button.pack(padx=5)
 
-    payroll_button = tk.Button(b_frame, text="Payroll Export", command=gusto_rpt)
-    payroll_button.pack()
+    payroll_button = tk.Button(b_r_frame, text="Process\nPayroll CSV", command=gusto_rpt)
+    payroll_button.pack(padx=5)
 
     # Show the window
     root.mainloop()
