@@ -14,11 +14,11 @@ class Debugger():
         data = []
         if db_type == 'EMP': #needs 10 employees
             names = [
-                    ('Alex','Alder'),('Colby','Baker'),
-                    ('John','Snow'),('Abigail','Smith'),
-                    ('Adam','Abraham'),('David','Bell'),
-                    ('Zoe','Ball'),('Charlie','Duncan'),
-                    ('David','Davidson'),('Harry','Jones')
+                    ('Daenerys','Targaryen'),('Cersei','Lannister'),
+                    ('Robert','Baratheon'),('Tyrion','Lannister'),
+                    ('Samwell','Tarly'),('Jeor','Mormont'),
+                    ('Brienne','of Tarth'),('Sansa','Stark'),
+                    ('Ed','Stark'),('John','Snow')
                     ]
             data_header = ['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED', 'JOBCODE1']
             for i in range(1001,1011):

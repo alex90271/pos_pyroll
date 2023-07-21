@@ -50,25 +50,25 @@ if __name__ == '__main__':
             Then select the desired report from the dropdown (default: labor_main)
 
             General Notes:
-                It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)
-                The data reported here is only as accurate as Aloha (ex. incorrect clockins)
-                Reports with an * can be filtered by Jobcode or Employee (payroll export file is never filtered)
+                        It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)
+                        The data reported here is only as accurate as Aloha (ex. incorrect clockins)
+                        Reports with an * can be filtered by Jobcode or Employee (payroll export file is never filtered)
 
             Report Info:
-            Cout_eod
-               This report lists any clockins that were force closed by the end of day (3am)
-            Labor Rate
-               Labor rate report pulls from pay rates set in Aloha
-            Hourly
-               Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)
-            Labor Average Hours
-               requires 2+ weeks; Labor Average shows the average hours and employee worked during the selected period
-            Labor Reports:
-                Shows a breakdown of tips, and hours
-                TTL_TIP are tips paid out on check
-                TTL_CONT are tip contributions (4% of sales for servers)
-                DECTIPS are declared cash tips
-    """)
+                Cout_eod
+                        This report lists any clockins that were force closed by the end of day (3am)
+                Labor Rate
+                        Labor rate report pulls from pay rates set in Aloha
+                Hourly
+                        Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)
+                Labor Average Hours
+                        requires 2+ weeks; Labor Average shows the average hours and employee worked during the selected period
+                Labor Reports:
+                        Shows a breakdown of tips, and hours
+                        TTL_TIP are tips paid out on check
+                        TTL_CONT are tip contributions (4% of sales for servers)
+                        DECTIPS are declared cash tips
+    """, justify="left")
     strt_label.pack()
 
     b_frame = tk.Frame(root)
@@ -191,13 +191,17 @@ if __name__ == '__main__':
         try:
             printer_name = win32print.GetDefaultPrinter()
             print("trying: " + printer_name)
-            win32api.ShellExecute(
-                0,
-                "printto",
-                export_path,
-                '"%s"' % win32print.GetDefaultPrinter(),
-                ".",
-                0
+            win32api.ShellExecute (
+            0,
+            "print",
+            export_path,
+            #
+            # If this is None, the default printer will
+            # be used anyway.
+            #
+            '/d:"%s"' % printer_name,
+            ".",
+            0
             )                          
             info_label.config(text=(datetime.now().strftime(
                 "%H:%M:%S") + "\nThe report has been printed\nCheck Printer: " + printer_name))
