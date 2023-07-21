@@ -7,12 +7,16 @@ from query_db import QueryDB
 from report_writer import Payroll, ReportWriter, ReportWriterReports
 from chip_config import ChipConfig
 from pandastable import Table
+import pdfkit
+import win32api
+import win32print
+import os
 
 employee_df = QueryDB().process_db('employees').set_index('ID')
 jobcode_df = QueryDB().process_db('jobcodes').set_index('ID')
 employee_df['NAME'] = employee_df['FIRSTNAME'] + ' ' + employee_df['LASTNAME']
 
-print(jobcode_df['SHORTNAME'],employee_df['NAME'])
+print(jobcode_df['SHORTNAME'], employee_df['NAME'])
 reports = ReportWriterReports().available_reports()
 
 if __name__ == '__main__':
@@ -32,7 +36,7 @@ if __name__ == '__main__':
     c_frame = tk.Frame(root)
     c_frame.pack(pady=5)
 
-    l_frame = tk.Frame(c_frame, width=250 )
+    l_frame = tk.Frame(c_frame, width=250)
     l_frame.pack(side='left', padx=10)
 
     r_frame = tk.Frame(c_frame, width=1200)
@@ -44,12 +48,12 @@ if __name__ == '__main__':
     b_l_frame = tk.Frame(b_frame)
     b_l_frame.pack(side='left', pady=10)
 
-
     b_r_frame = tk.Frame(b_frame)
     b_r_frame.pack(side='left', pady=10)
 
     # Create a label
-    label = tk.Label(l_frame, text="Select report days\n(for one day, select it in both)")
+    label = tk.Label(
+        l_frame, text="Select report days\n(for one day, select it in both)")
     label.pack(padx=10, pady=5)
 
     info_label = tk.Label(t_frame, text="No Report Selected")
@@ -102,7 +106,8 @@ if __name__ == '__main__':
     # Set the callback function
     def on_employee_changed(event):
         global select_emps
-        select_emps = [employee_df.index[i] for i in employee_listbox.curselection()]
+        select_emps = [employee_df.index[i]
+                       for i in employee_listbox.curselection()]
 
     employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
 
@@ -118,7 +123,8 @@ if __name__ == '__main__':
     # Set the callback function
     def on_jobcode_changed(event):
         global select_jobs
-        select_jobs = [jobcode_df.index[i] for i in jobcode_listbox.curselection()]
+        select_jobs = [jobcode_df.index[i]
+                       for i in jobcode_listbox.curselection()]
 
     jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
 
@@ -129,25 +135,39 @@ if __name__ == '__main__':
         if type(df) == 'empty':
             info_label.config(text="No rows to export")
         result = df.fillna('')
-        env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath="templates/"))
+        env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(searchpath="templates/"))
         template = env.get_template('render.html').render(
-                    tables=[result.to_html(
-                        table_id="table", classes="ui striped table")],
-                    titles=result.columns.values,
-                    timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
-                    dates=[
-                        datetime.strptime(day_one, "%Y%m%d").strftime(
-                            '%a, %b %d, %Y'),
-                        datetime.strptime(day_two, "%Y%m%d").strftime(
-                            '%a, %b %d, %Y')
-                    ],
-                    rpttp=rpt_type,
-                    select_emps=select_emps, select_jobs=select_jobs)
-        name_string = rpt_type + '-' + day_one[-6:]  + '-' + day_two[-6:]
-        export = open("exports/" + name_string + ".html", "w")
-        export.write(template)
-        export.close()
-        info_label.config(text=(datetime.now().strftime("%H:%M:%S") +"\nCheck the exports folder for the report"))
+            tables=[result.to_html(
+                table_id="table", classes="ui striped table")],
+            titles=result.columns.values,
+            timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
+            dates=[
+                datetime.strptime(day_one, "%Y%m%d").strftime(
+                    '%a, %b %d, %Y'),
+                datetime.strptime(day_two, "%Y%m%d").strftime(
+                    '%a, %b %d, %Y')
+            ],
+            rpttp=rpt_type,
+            select_emps=select_emps, select_jobs=select_jobs)
+        export_dir = "/exports/"
+        name_string = rpt_type + '-' + day_one[-6:] + '-' + day_two[-6:]
+        cur_directory = os.path.abspath(os.getcwd())
+        extention = ".pdf"
+        export_path = cur_directory + export_dir + name_string + extention
+        pdfkit.from_string(input=template,
+                           output_path=(export_path),
+                           configuration=pdfkit.configuration(wkhtmltopdf=cur_directory+"/wkhtmltox/bin/wkhtmltopdf.exe"))
+        try:
+            printer_name = win32print.GetDefaultPrinter()
+            print("trying: " + printer_name)
+            win32api.ShellExecute(0, "print", export_path, None, ".", 0)
+            info_label.config(text=(datetime.now().strftime(
+                "%H:%M:%S") + "\nThe report has been printed\nCheck Printer: " + printer_name))
+        except:
+            print('there was a printer error; file was only exported')
+            info_label.config(text=(datetime.now().strftime(
+                "%H:%M:%S") + "\nThere was a printer error\nCheck the exports folder for the report"))
         for widget in r_frame.winfo_children():
             widget.destroy()
 
@@ -158,13 +178,16 @@ if __name__ == '__main__':
             result = Payroll(day_one, day_two).process_payroll()
             if type(result) == 'empty':
                 info_label.config(text="No data to export")
-            name_string = ChipConfig().query("SETTINGS", "company_name") + '-payroll_export-' + 'f-' + day_one + '_' + 'l-'+ day_two
+            name_string = ChipConfig().query("SETTINGS", "company_name") + \
+                '-payroll_export-' + 'F' + day_one + '-' + 'L' + day_two
             result.to_csv(
                 ("exports/" + name_string + '.csv'),
                 index=False)
-            info_label.config(text=(datetime.now().strftime("%H:%M:%S") +"\nCheck the exports folder for the payroll CSV"))
-        else: 
-            info_label.config(text="There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st")
+            info_label.config(text=(datetime.now().strftime(
+                "%H:%M:%S") + "\nCheck the exports folder for the payroll CSV"))
+        else:
+            info_label.config(
+                text="There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st")
 
         for widget in r_frame.winfo_children():
             widget.destroy()
@@ -174,21 +197,23 @@ if __name__ == '__main__':
         df = ReportWriter(day_one, day_two).print_to_json(
             rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
         if type(df) == 'empty':
-                info_label.config(text="No data to display")
+            info_label.config(text="No data to display")
         df.reset_index(inplace=True)
         df.to_dict(orient='index')
         pt = Table(r_frame, dataframe=df, width=1000, height=600,
                    showstatusbar=True, editable=False)
         pt.show()
-        info_label.config(text=(datetime.now().strftime("%H:%M:%S") +"\ndisplaying"))
+        info_label.config(
+            text=(datetime.now().strftime("%H:%M:%S") + "\ndisplaying"))
 
     view_button = tk.Button(b_l_frame, text="View", command=view_rpt)
     view_button.pack(padx=5)
 
-    export_button = tk.Button(b_l_frame, text="Export", command=export_rpt)
+    export_button = tk.Button(b_l_frame, text="Print", command=export_rpt)
     export_button.pack(padx=5)
 
-    payroll_button = tk.Button(b_r_frame, text="Process\nPayroll CSV", command=gusto_rpt)
+    payroll_button = tk.Button(
+        b_r_frame, text="Process\nPayroll CSV", command=gusto_rpt)
     payroll_button.pack(padx=5)
 
     # Show the window
