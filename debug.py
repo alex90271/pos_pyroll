@@ -45,10 +45,10 @@ class Debugger():
                     self.gen_int(1,5), # 5 jobcodes
                     self.gen_int(1001,1010), #10 employee numbers
                     self.gen_int(6,10), #hours
-                    self.gen_int(1,3), #overtime
-                    self.gen_int(75,175), #CCtips
+                    self.gen_int(0,5), #overtime
+                    self.gen_int(75,150), #CCtips
                     self.gen_int(0,25), #auto gratuity
-                    self.gen_int(0,50), #decl tips
+                    self.gen_int(0,5), #decl tips
                     'N', #coutbyeod
                     self.gen_int(400,1700), #sales
                     '8', #inhour
