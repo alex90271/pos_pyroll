@@ -365,17 +365,16 @@ class ReportWriterReports():
 
     def available_reports(self):
         return ['labor_main',
-            'labor_total',
-            'labor_nightly',
-            'labor_weekly',
-            'tipshare_detail',
-            'punctuality',
-            'hourly',
+            '* labor_total',
+            '* labor_nightly',
+            '* labor_weekly',
+            '* tipshare_detail',
+            '* punctuality',
+            '* hourly',
             'tip_rate',
             'labor_rate',
             'cout_eod',
-            'labor_avg_hours',
-            'house_acct']
+            '* labor_avg_hours']
 
 
 class Payroll(ReportWriter):
