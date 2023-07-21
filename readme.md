@@ -5,7 +5,7 @@
 
     1. Run `python -m pip install -r "requirements.txt"`
 
-### ---FRONTEND:
+### --- FRONTEND:
 
     Using tkinter
 
@@ -13,7 +13,9 @@
 
     Download binaries, and unzip the wkhtmltox to the source directory
 
-### ---BACKEND:
+### --- BACKEND:
 
     Pyinstaller Compile Command: 
-        pyinstaller gui.py --onefile --hidden-import babel.numbers --add-data "templates;templates" --add-data "wkhtmltox;wkhtmltox" 
+        pyinstaller gui.py --noconsole --hidden-import babel.numbers --add-data "templates/*;templates" --add-data "wkhtmltox/bin/*;wkhtmltox/bin" --add-data "wkhtmltox/include/*;wkhtmltox/include"
+
+    NOTE: If using --onefile arg, templates and wkhtmltox must be added separately
