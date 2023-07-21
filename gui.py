@@ -42,6 +42,35 @@ if __name__ == '__main__':
     r_frame = tk.Frame(c_frame, width=1200)
     r_frame.pack(side='right', padx=10)
 
+    strt_label = tk.Label(r_frame, text="""
+            To get Started:
+            Select the report dates in the dropdown
+            (for a single day, enter it twice)
+            
+            Then select the desired report from the dropdown (default: labor_main)
+
+            General Notes:
+                It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)
+                The data reported here is only as accurate as Aloha (ex. incorrect clockins)
+                Reports with an * can be filtered by Jobcode or Employee (payroll export file is never filtered)
+
+            Report Info:
+            Cout_eod
+               This report lists any clockins that were force closed by the end of day (3am)
+            Labor Rate
+               Labor rate report pulls from pay rates set in Aloha
+            Hourly
+               Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)
+            Labor Average Hours
+               requires 2+ weeks; Labor Average shows the average hours and employee worked during the selected period
+            Labor Reports:
+                Shows a breakdown of tips, and hours
+                TTL_TIP are tips paid out on check
+                TTL_CONT are tip contributions (4% of sales for servers)
+                DECTIPS are declared cash tips
+    """)
+    strt_label.pack()
+
     b_frame = tk.Frame(root)
     b_frame.pack(side='bottom', pady=10)
 
@@ -130,6 +159,7 @@ if __name__ == '__main__':
 
     def export_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
+        strt_label.destroy()
         df = ReportWriter(day_one, day_two).print_to_json(
             rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
         if type(df) == 'empty':
@@ -180,6 +210,7 @@ if __name__ == '__main__':
 
     def gusto_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
+        strt_label.destroy()
         '''exports payroll to gusto'''
         if (pd.date_range(day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] == day_two):
             result = Payroll(day_one, day_two).process_payroll()
@@ -201,6 +232,7 @@ if __name__ == '__main__':
 
     def view_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
+        strt_label.destroy()
         df = ReportWriter(day_one, day_two).print_to_json(
             rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
         if type(df) == 'empty':
