@@ -16,4 +16,4 @@
 ### ---BACKEND:
 
     Pyinstaller Compile Command: 
-        pyinstaller server.py --onefile --add-data "templates;templates" --add-data "wkhtmltox;wkhtmltox" 
+        pyinstaller gui.py --onefile --hidden-import babel.numbers --add-data "templates;templates" --add-data "wkhtmltox;wkhtmltox" 
