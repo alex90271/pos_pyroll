@@ -141,7 +141,7 @@ if __name__ == '__main__':
             tables=[result.to_html(
                 table_id="table", classes="ui striped table")],
             titles=result.columns.values,
-            timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p)'),
+            timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p %Z)'),
             dates=[
                 datetime.strptime(day_one, "%Y%m%d").strftime(
                     '%a, %b %d, %Y'),
@@ -161,7 +161,14 @@ if __name__ == '__main__':
         try:
             printer_name = win32print.GetDefaultPrinter()
             print("trying: " + printer_name)
-            win32api.ShellExecute(0, "print", export_path, None, ".", 0)
+            win32api.ShellExecute(
+                0,
+                "printto",
+                export_path,
+                '"%s"' % win32print.GetDefaultPrinter(),
+                ".",
+                0
+            )                          
             info_label.config(text=(datetime.now().strftime(
                 "%H:%M:%S") + "\nThe report has been printed\nCheck Printer: " + printer_name))
         except:
