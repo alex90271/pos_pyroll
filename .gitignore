@@ -4,6 +4,9 @@
 frontend/.pnp.js
 /frontend/semantic
 
+#wkhtml
+/wkhtmltox/*
+
 # testing
 /frontend/coverage
 
