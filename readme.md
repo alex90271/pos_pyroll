@@ -16,7 +16,7 @@
 ### ---BACKEND:
 
 Pyinstaller Compile Command: 
-pyinstaller server.py --onefile --add-data "templates;templates" --add-data "static;static"  
+pyinstaller server.py --onefile --add-data "templates;templates" --add-data "static;static" --add-data "wkhtmltox;wkhtmltox" 
 
     Compiled file must be renamed to `server-x86_64-pc-windows-msvc.exe`
 
