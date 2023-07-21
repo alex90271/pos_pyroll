@@ -12,6 +12,11 @@
 
 ### ---FRONTEND:
 
+    Using tkinter
+
+    Requires you install https://wkhtmltopdf.org/
+
+    Download binaries, and unzip the wkhtmltox to the source directory
 
 ### ---BACKEND:
 
