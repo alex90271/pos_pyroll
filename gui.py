@@ -22,7 +22,7 @@ reports = ReportWriterReports().available_reports()
 if __name__ == '__main__':
     # Create a window
     root = tk.Tk()
-    root.geometry("1600x900")
+    root.geometry("800x800")
 
     day_one = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
     day_two = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
@@ -30,14 +30,14 @@ if __name__ == '__main__':
     select_jobs = []
     select_emps = []
 
-    t_frame = tk.Frame(root)
-    t_frame.pack(side='top', pady=10)
-
     c_frame = tk.Frame(root)
     c_frame.pack(pady=5)
 
     l_frame = tk.Frame(c_frame, width=250)
     l_frame.pack(side='left', padx=10)
+
+    t_frame = tk.Frame(l_frame)
+    t_frame.pack(side='top', pady=10)
 
     r_frame = tk.Frame(c_frame, width=1200)
     r_frame.pack(side='right', padx=10)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     """, justify="left")
     strt_label.pack()
 
-    b_frame = tk.Frame(root)
+    b_frame = tk.Frame(t_frame)
     b_frame.pack(side='bottom', pady=10)
 
     b_l_frame = tk.Frame(b_frame)
@@ -160,6 +160,8 @@ if __name__ == '__main__':
     def export_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
         strt_label.destroy()
+        for widget in r_frame.winfo_children():
+            widget.destroy()
         df = ReportWriter(day_one, day_two).print_to_json(
             rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
         if type(df) == 'empty':
@@ -215,6 +217,8 @@ if __name__ == '__main__':
     def gusto_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
         strt_label.destroy()
+        for widget in r_frame.winfo_children():
+            widget.destroy()
         '''exports payroll to gusto'''
         if (pd.date_range(day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] == day_two):
             result = Payroll(day_one, day_two).process_payroll()
@@ -231,12 +235,11 @@ if __name__ == '__main__':
             info_label.config(
                 text="There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st")
 
-        for widget in r_frame.winfo_children():
-            widget.destroy()
-
     def view_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
         strt_label.destroy()
+        for widget in r_frame.winfo_children():
+            widget.destroy()
         df = ReportWriter(day_one, day_two).print_to_json(
             rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
         if type(df) == 'empty':

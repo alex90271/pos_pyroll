@@ -19,3 +19,4 @@
         pyinstaller gui.py --noconsole --hidden-import babel.numbers --add-data "templates/*;templates" --add-data "wkhtmltox/bin/*;wkhtmltox/bin" --add-data "wkhtmltox/include/*;wkhtmltox/include"
 
     NOTE: If using --onefile arg, templates and wkhtmltox must be added separately
+        gui.py --onefile --noconsole --hidden-import babel.numbers
