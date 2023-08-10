@@ -159,9 +159,11 @@ if __name__ == '__main__':
 
     def export_rpt():
         print('PROCESSING: ' + ' ' + day_one + ' ' + day_two + ' ' + rpt_type)
-        strt_label.destroy()
-        for widget in r_frame.winfo_children():
-            widget.destroy()
+        if strt_label:
+            strt_label.destroy()
+        if r_frame.winfo_children():
+            for widget in r_frame.winfo_children():
+                widget.pack_forget()
         df = ReportWriter(day_one, day_two).print_to_json(
             rpt_type, selected_employees=select_emps, selected_jobs=select_jobs, json_fmt=True)
         if type(df) == 'empty':
