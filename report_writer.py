@@ -129,11 +129,6 @@ class ReportWriter():
             return pd.DataFrame({})  # returns a blank dataframe
         df = pd.concat(a).reset_index(drop=True)
 
-        #turns the tiprate report into a sum, vs broken down by tip pool
-        #if rpt == 'Tip':
-            #df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
-            #df = df.sort_values(by='index').drop(columns='index')
-
         self.append_totals(df,
                            totaled_cols=totaled_cols,
                            averaged_cols=averaged_cols
@@ -238,8 +233,7 @@ class ReportWriter():
                 rpt='Tip',
                 totaled_cols=[
                     "Cash",
-                    "Total_Pool",
-                    "Total_Hours"
+                    "Total_Pool"
                 ],
                 averaged_cols=["Hourly"])
 

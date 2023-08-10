@@ -196,6 +196,8 @@ class ProcessLabor():
             "Total_Pool",
             "Total_Hours"
         ]
+        #temp_names = self.pool_names
+        #del temp_names['luncheon_pool']
         tip_rate = self.pooler.get_tip_rate()
         cash_tips = self.pooler.get_cash_contribution()
         total_tips = self.pooler.get_total_contribution()
@@ -208,6 +210,16 @@ class ProcessLabor():
             names[4]: [total_tips[pool]],  # Total Tip Pool
             names[5]: [total_hours[pool]]  # Total Tipped Hours
         }) for pool in self.pool_names])
+        
+        #turns the tiprate report into a sum, vs broken down by tip pool
+        totals_tiprate=False
+        if totals_tiprate:
+            _df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
+            _df = _df.sort_values(by='index').drop(columns='index')
+            _df['Date'] = self.get_day()
+            _df['Pool'] = 'DAILY SUM'
+            return _df
+
         return df
 
     def calc_laborrate_df(self):
