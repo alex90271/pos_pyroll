@@ -52,7 +52,7 @@ if __name__ == '__main__':
             General Notes:
                         It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)
                         The data reported here is only as accurate as Aloha (ex. incorrect clockins)
-                        Reports with an * can be filtered by Jobcode or Employee (payroll export file is never filtered)
+                        Some reports can be filtered by Jobcode or Employee (payroll export file is never filtered)
 
             Report Info:
                 Cout_eod
