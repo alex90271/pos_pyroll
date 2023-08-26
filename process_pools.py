@@ -23,7 +23,8 @@ class ProcessPools():
         self.cash_contributions = {}
         self.total_contributions = {}
         self.total_hours = {}
-        self.pool_names = self.get_pool_names()
+        self.pool_info = self.get_pool_info()
+        self.pool_names = list(self.pool_info)
         self.pool_out = self.pooler()
 
     def get_day(self, fmt="%a %b %e"):
@@ -46,7 +47,7 @@ class ProcessPools():
     def get_pool_data(self):
         return self.pool_out
 
-    def get_pool_names(self):
+    def get_pool_info(self):
         with open('data/pools.json') as jsonfile:
             return json.load(jsonfile)
 
@@ -55,17 +56,17 @@ class ProcessPools():
         for pool in self.pool_names:
             print("processing " + pool)
             c = self.df.loc[self.df['JOBCODE'].isin(
-                self.pool_names[pool]["contribute"])].copy()
-            if self.pool_names[pool]["type"] == 'sales':
+                self.pool_info[pool]["contribute"])].copy()
+            if self.pool_info[pool]["type"] == 'sales':
                 c['c_'+pool] = np.multiply(c['SALES'].values,
-                                           (int(self.pool_names[pool]["percent"])/100))
+                                           (int(self.pool_info[pool]["percent"])/100))
                 self.cash_contributions[pool] = 0
                 # return the rest of the tips after the tip pool
                 c['CCTIP_'+pool] = c['CCTIPS'] - c['c_'+pool]
                 return_df['CCTIP_'+pool] = c['CCTIP_'+pool]
-            elif self.pool_names[pool]["type"] == 'tips':
+            elif self.pool_info[pool]["type"] == 'tips':
                 c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values, c['DECTIPS'].values),
-                                           (int(self.pool_names[pool]["percent"])/100))
+                                           (int(self.pool_info[pool]["percent"])/100))
                 self.cash_contributions[pool] = c['DECTIPS'].sum()
                 return_df['CCTIP_'+pool] = 0
             elif self.pool_names[pool]["type"] == 'equal':
@@ -76,7 +77,7 @@ class ProcessPools():
             return_df['c_'+pool] = c['c_'+pool]
 
             r = self.df.loc[self.df['JOBCODE'].isin(
-                self.pool_names[pool]["receive"])].copy()
+                self.pool_info[pool]["receive"])].copy()
             hr_sum = r['HOURS'].sum()
             cont_sum = c['c_'+pool].sum()
             r_tiprate = np.divide(cont_sum, hr_sum)
@@ -85,7 +86,7 @@ class ProcessPools():
             self.total_contributions[pool] = cont_sum
             self.total_hours[pool] = hr_sum
             self.pool_rates[pool] = r_tiprate
-
+            
         return_df['TTL_TIP'] = np.add(return_df[self.pool_names].sum(
             axis=1), return_df[['CCTIP_' + pool for pool in self.pool_names]].sum(axis=1))
         return_df['TTL_CONT'] = return_df[[
@@ -95,5 +96,5 @@ class ProcessPools():
         return return_df
 
 if __name__ == '__main__':
-    print("loading Processpool_names.py")
+    print("loading Processpool_info.py")
     ProcessPools('20230304').get_pool_data().to_csv('out.csv')

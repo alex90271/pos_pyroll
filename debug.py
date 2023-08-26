@@ -14,16 +14,16 @@ class Debugger():
         data = []
         if db_type == 'EMP': #needs 10 employees
             names = [
-                    ('Alex','Alder'),('Colby','Baker'),
-                    ('John','Snow'),('Abigail','Smith'),
-                    ('Adam','Abraham'),('David','Bell'),
-                    ('Zoe','Ball'),('Charlie','Duncan'),
-                    ('David','Davidson'),('Harry','Jones')
+                    ('Daenerys','Targaryen'),('Cersei','Lannister'),
+                    ('Robert','Baratheon'),('Tyrion','Lannister'),
+                    ('Samwell','Tarly'),('Jeor','Mormont'),
+                    ('Brienne','of Tarth'),('Sansa','Stark'),
+                    ('Ed','Stark'),('John','Snow')
                     ]
-            data_header = ['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED']
+            data_header = ['ID', 'FIRSTNAME', 'LASTNAME', 'TERMINATED', 'JOBCODE1']
             for i in range(1001,1011):
-                data.append([i,names[i-1001][0],names[i-1001][1],'N'])
-            data.append([2001,'Harold','Terminated','Y'])
+                data.append([i,names[i-1001][0],names[i-1001][1],'N', self.gen_int(1,5)])
+            data.append([2001,'Harold','Terminated','Y', 1])
 
         elif db_type == 'JOBCODES': #needs 5 jobcodes
             names=['Server','Host','Kitchen','Dish','Takeout'] #1,2,3,4,5
@@ -37,7 +37,7 @@ class Debugger():
 
     def generate_debug_db(self, datestr):
         '''generates the default config file, with default settings. To reset config file, just delete it'''
-        header = ['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE','TIPSHCON', 'EXP_ID']
+        header = ['SYSDATEIN','INVALID','JOBCODE','EMPLOYEE','HOURS','OVERHRS','CCTIPS','AUTGRTTOT','DECTIPS','COUTBYEOD','SALES','INHOUR','INMINUTE','OUTHOUR','OUTMINUTE','RATE','TIPSHCON','EXP_ID']
         data = []
         for i in range (0,5):
             data.append([datestr, #sysdate
@@ -45,9 +45,10 @@ class Debugger():
                     self.gen_int(1,5), # 5 jobcodes
                     self.gen_int(1001,1010), #10 employee numbers
                     self.gen_int(6,10), #hours
-                    self.gen_int(1,3), #overtime
-                    self.gen_int(75,175), #CCtips
-                    self.gen_int(0,50), #decl tips
+                    self.gen_int(0,5), #overtime
+                    self.gen_int(75,150), #CCtips
+                    self.gen_int(0,25), #auto gratuity
+                    self.gen_int(0,5), #decl tips
                     'N', #coutbyeod
                     self.gen_int(400,1700), #sales
                     '8', #inhour

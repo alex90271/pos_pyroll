@@ -63,23 +63,16 @@
 </style>
 
 <body>
-  <div class="">
-    <p>Selected Dates: {{dates[0]}} - {{dates[1]}}</p>
-
+  <div class="" style="display: flex; flex-direction: row;">
+    <p>Report Dates: {{dates[0]}} - {{dates[1]}}</p>
     <p>Report Type: {{rpttp}}</p>
-
-    <p>Selected Employee Codes: {{select_emps}}</p>
-
-    <p>Selected Job Codes: {{select_jobs}}</p>
-    <div class="">
-      <p>Generated: {{timestamp}}</p>
-      <p class="noprint">Support: <a herf="mailto:alex@alderautomations.com">alex@alderautomations.com</a></p>
-    </div>
+    <p>Employee Filters: {{select_emps}}</p>
+    <p>Job Filters: {{select_jobs}}</p>
+    <p>Report Run: {{timestamp}}</p>
   </div>
   {% for table in tables %}
   {{ table|safe }}
   {% endfor %}
 
 </body>
-
 </html>

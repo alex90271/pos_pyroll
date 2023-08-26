@@ -130,10 +130,6 @@ class ReportWriter():
             return pd.DataFrame({})  # returns a blank dataframe
         df = pd.concat(a).reset_index(drop=True)
 
-        if self.c.query("SETTINGS", "totals_tiprate_rpt"):
-            df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
-            df = df.sort_values(by='index').drop(columns='index')
-            
         self.append_totals(df,
                            totaled_cols=totaled_cols,
                            averaged_cols=averaged_cols
@@ -238,8 +234,7 @@ class ReportWriter():
                 rpt='Tip',
                 totaled_cols=[
                     "Cash",
-                    "Total_Pool",
-                    "Total_Hours"
+                    "Total_Pool"
                 ],
                 averaged_cols=["Hourly"])
 
@@ -251,7 +246,7 @@ class ReportWriter():
         elif rpt == 'labor_main':
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID'],
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS',
                               'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
@@ -364,32 +359,17 @@ class ReportWriter():
 class ReportWriterReports():
 
     def available_reports(self):
-        return (
-            {'key': 'labor_main', 'text': 'labor_main', 'value': 'labor_main',
-                "description": '*'},
-            {'key': 'labor_total', 'text': 'labor_total', 'value': 'labor_total',
-                "description": '*'},
-            {'key': 'labor_nightly', 'text': 'labor_nightly', 'value': 'labor_nightly',
-                "description": '*'},
-            {'key': 'labor_weekly', 'text': 'labor_weekly', 'value': 'labor_weekly',
-                "description": '*'},
-            {'key': 'tipshare_detail', 'text': 'tipshare_detail', 'value': 'tipshare_detail',
-                "description": '*'},
-            {'key': 'punctuality', 'text': 'punctuality', 'value': 'punctuality',
-                "description": '*'},
-            {'key': 'hourly', 'text': 'hourly', 'value': 'hourly',
-                "description": '*'},
-            {'key': 'tip_rate', 'text': 'tip_rate', 'value': 'tip_rate',
-                "description": ''},
-            {'key': 'labor_rate', 'text': 'labor_rate', 'value': 'labor_rate',
-                "description": ''},
-            {'key': 'cout_eod', 'text': 'cout_eod', 'value': 'cout_eod',
-                "description": '*'},
-            {'key': 'labor_avg_hours', 'text': 'labor_avg_hours', 'value': 'labor_avg_hours',
-                "description": '*'},
-            {'key': 'house_acct', 'text': 'house_acct', 'value': 'house_acct',
-             "description": ''}
-        )
+        return ['labor_main',
+            'labor_total',
+            'labor_nightly',
+            'labor_weekly',
+            'tipshare_detail',
+            'punctuality',
+            'hourly',
+            'tip_rate',
+            'labor_rate',
+            'cout_eod',
+            'labor_avg_hours']
 
 
 class Payroll(ReportWriter):
@@ -420,20 +400,20 @@ class Payroll(ReportWriter):
         df_tips = df[['LASTNAME', 'FIRSTNAME',
                       'DECTIPS', 'TTL_TIP',
                       'AUTGRTTOT', 'EXP_ID']]
+        
         df_tips = pd.pivot_table(df_tips,
                                  index=['ID', 'LASTNAME', 'FIRSTNAME', 'EXP_ID'],
                                  aggfunc=np.sum,
                                  fill_value=np.NaN).reset_index().set_index('ID')
 
-        # some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
-        # hr_df = self.hourly_pay_rate()
-        # hr_df.index.rename('ID', inplace=True)
-        # self.primary = self.primary.join(hr_df, ['ID'])
-        #TODO add config option
-        #self.primary['ACTUAL_HOURLY'] = self.primary['ACTUAL_HOURLY'].round(2)
+        #hr_df = self.hourly_pay_rate()
+        #hr_df.index.rename('ID', inplace=True)
+        #self.primary = self.primary.join(hr_df, ['ID'])
+        self.primary['ACTUAL_HOURLY'] = ''
         #self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
             #self.primary['ACTUAL_HOURLY'].astype(str)
-
+        
+        # some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
         df = self.primary.merge(df_tips, how='inner', on='ID')
         df = df_hours.merge(df, how='outer', on=[
                             'ID', 'JOBCODE', 'FIRSTNAME', 'LASTNAME', 'EXP_ID'])

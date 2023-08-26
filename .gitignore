@@ -4,6 +4,9 @@
 frontend/.pnp.js
 /frontend/semantic
 
+#wkhtml
+/wkhtmltox/*
+
 # testing
 /frontend/coverage
 
@@ -16,6 +19,7 @@ src-tauri/build
 src-tauri/bin/build
 src-tauri/bin/dist
 src-tauri/bin/*.exe
+src-tauri/target/*
 
 
 # testing db
@@ -45,4 +49,12 @@ frontend/out/
 node_modules
 src-tauri/bin/__pycache__
 src-tauri/bin/python/server-x86_64-pc-windows-msvc.exe
+<<<<<<< HEAD
 __pycache__/*
+=======
+
+build/*
+dist/*
+__pycache__/*
+*.spec
+>>>>>>> tkinter
