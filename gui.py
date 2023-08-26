@@ -23,6 +23,8 @@ if __name__ == '__main__':
     # Create a window
     root = tk.Tk()
     root.geometry("800x800")
+    root.iconbitmap("pyroll_ico.ico")
+    root.wm_title("Payroll and Tipshare report tool")
 
     day_one = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
     day_two = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
