@@ -23,7 +23,7 @@ class ProcessLabor():
         self.db = QueryDB(day)
         self.pooler = pools(day)
         self.df = self.pooler.get_pool_data().copy()
-        self.pool_names = self.pooler.get_pool_names()
+        self.pool_names = self.pooler.get_pool_info()
 
         self.day = day
         # config options
