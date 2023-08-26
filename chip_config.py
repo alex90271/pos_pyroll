@@ -50,6 +50,7 @@ class ChipConfig():
             'tracked_labor': '8',  # array
             'pay_period_days': '15',  # array
             'count_salary': True,  # bool
+            'totals_tiprate_rpt': True, # bool
             'debug': False, #bool
             'verbose_debug': False,  # bool
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
