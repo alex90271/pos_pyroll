@@ -1,5 +1,4 @@
-import json
-from re import A
+import matplotlib.pyplot as plt
 from process_labor import ProcessLabor as labor
 from process_transactions import ProcessTransactions as transactions
 from query_db import QueryDB as query_db
@@ -129,17 +128,39 @@ class ReportWriter():
             print('no proper data provided the following report is blank:')
             return pd.DataFrame({})  # returns a blank dataframe
         df = pd.concat(a).reset_index(drop=True)
-
-        self.append_totals(df,
-                           totaled_cols=totaled_cols,
-                           averaged_cols=averaged_cols
-                           )
+        
+        if ((totaled_cols!=[]) & (averaged_cols!=[])):
+            self.append_totals(df,
+                totaled_cols=totaled_cols,
+                averaged_cols=averaged_cols
+        )  
 
         return df
+    
+    def rate_rpt_plot(
+            self,
+            rpt: str,
+    ):
+        df = self.rate_rpt(rpt=rpt, totaled_cols=[],averaged_cols=[])
+        #df['Date'] = df['Date'].str[4:]
+        plt.figure(figsize=(12, 9))
+        df.pivot(index='Date', columns='Pool', values='Hourly')
+        _df = df[['Hourly','Date']].pivot_table(index=['Date'], aggfunc=np.sum).reset_index()
+        _df['Pool'] = 'Sum'
+        _df.sort_values(by=['Date'][4:],inplace=True)
+        df.sort_values(by=['Date'][4:],inplace=True)
+        df = pd.concat([df,_df]).reset_index(drop=True)[['Pool','Date','Hourly']]
+        print(df)
+        plt.plot(df.pivot(index='Date', columns='Pool', values='Hourly'))
+        plt.hlines(y=7.25, xmin=0, xmax=15, linewidth=2, color='r',label='Min Wage Threshold')
+        plt.xticks(df['Date'], rotation=45, ha="right")
+        plt.tight_layout()  # Adjust layout for better label display
+        plt.savefig('foo.png')
 
     def cout_by_eod(
         self,
         cols: list,
+
         cout_col: str
     ):
         '''returns a report listing all employees that have the 'CLOCKED OUT AT END OF DAY flag. (anyone who forgot to clock out)'''
@@ -506,7 +527,7 @@ if __name__ == '__main__':
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
-         print(ReportWriter('20230301','20230315').print_to_json(rpt='tip_rate'))
+         ReportWriter('20230301','20230315').rate_rpt_plot(rpt='Tip')
         # print(Payroll('20230401', '20230401').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",

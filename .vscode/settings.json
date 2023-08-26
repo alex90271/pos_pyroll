@@ -1,9 +1,6 @@
 {
-"python.autoComplete.extraPaths": [
-    "./bin"
-],
 "python.analysis.extraPaths": [
-    "./bin"
+    "./ux"
 ],
 "[python]": {
     "editor.defaultFormatter": "ms-python.python"
