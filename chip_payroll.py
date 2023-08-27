@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from gui import MainGui
 
 if __name__ == "__main__":
@@ -9,18 +10,22 @@ if __name__ == "__main__":
     title = "Payroll and Tipshare report tool"
     window.iconbitmap(icon)
     window.wm_title(title)
-    # Create an animated loading symbol
-    loading_symbol = tk.Label(image=tk.PhotoImage(file="assets\cog.gif"))
-    loading_symbol.pack()
-
-    # Create a "please wait" message
-    please_wait_message = tk.Label(text="Loading.. This will take a moment", font=("Arial", 10))
-    please_wait_message.pack()
-
-    #after 5 seconds, close the window
-    window.after(5000, window.destroy)
+    
+    please_wait_message = tk.Label(window, text="Loading.. This will take a moment", font=("Arial", 10))
+    please_wait_message.pack(padx=5)
+    pb = ttk.Progressbar(
+        window,
+        orient='horizontal',
+        mode='indeterminate',
+        length=160
+    )
+    pb.pack(padx=5)
+    pb.start()
 
     #launch the main GUI
-    MainGui(icon=icon, title=title).launch()
+    gui = MainGui(icon=icon, title=title)
+    gui.main_window()
+    gui.kill_launch_window(window)
 
     window.mainloop()
+
