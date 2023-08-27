@@ -365,8 +365,13 @@ class ReportWriter():
             )
             df = df[['FIRSTNAME', 'LASTNAME', 'ACTUAL_HOURLY']]
 
+        elif rpt == 'tip_rate_plot':
+            df = self.rate_rpt_plot()
+            raise ValueError("BETA REPORT\nReport was exported\nThere are no guarantees of accuracy of this report")
+
         elif rpt == 'house_acct':
             df = self.house_accounts()
+            raise ValueError("BETA REPORT\nReport was exported\nThere are no guarantees of accuracy of this report")
         else:
             raise ValueError(
                 '' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')
