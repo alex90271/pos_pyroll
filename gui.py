@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 import time
 from tkinter import Listbox, StringVar, Tk, Label, OptionMenu, Frame
 from tkinter.messagebox import showinfo
-from tkinter.ttk import Button, Frame
+from tkinter.ttk import Button, Combobox, Frame
 import jinja2
 from tkcalendar import DateEntry
 import pandas as pd
@@ -112,9 +112,6 @@ class MainGui():
             self.day_two = datetime.strptime(end_date, '%m/%d/%y').strftime('%Y%m%d')
             print(self.day_one, self.day_two)
 
-        start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
-        end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
-
         label = Label(self.root, text="Select an employee:\n(to select all, leave blank)")
         label.grid(row=5, column=2, padx=2, pady=2)
 
@@ -123,13 +120,14 @@ class MainGui():
         label = Label(self.root, text="Select a report:")
         label.grid(row=3, column=2, padx=2, pady=2, columnspan=2)
 
-        def on_report_changed(e):
-            self.rpt_type = dropdown_val.get()
-        report_dropdown = OptionMenu(self.root, dropdown_val, *self.reports, command=on_report_changed)
-        report_dropdown.grid(row=4, column=2, padx=2, pady=2)
-
+        report_combo = Combobox(self.root, values=self.reports, width=14, textvariable="labor_main")
+        report_combo.allowCustomValue = False
+        report_combo.grid(row=4, column=2, padx=2, pady=2)
         report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
         report_help.grid(row=4, column=3, padx=2, pady=2)
+
+        def on_report_changed(e):
+            self.rpt_type = report_combo.get()
 
         # Create a list box
         employee_listbox = Listbox(self.root, listvariable=StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
@@ -140,7 +138,6 @@ class MainGui():
             self.select_emps = [self.employee_df.index[i]
                         for i in employee_listbox.curselection()]
 
-        employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
         label = Label(self.root, text="Select a job code:\n(to select all, leave blank)")
         label.grid(row=5, column=3, padx=2, pady=2)
 
@@ -153,7 +150,11 @@ class MainGui():
             self.select_jobs = [self.jobcode_df.index[i]
                         for i in jobcode_listbox.curselection()]
 
+        start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
+        end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)        
+        report_combo.bind("<<ComboboxSelected>>", on_report_changed)
         jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
+        employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
 
         label = Label(self.root, text="\nProcess Reports")
         label.grid(row=7, column=2, padx=2, pady=2, columnspan=2)
