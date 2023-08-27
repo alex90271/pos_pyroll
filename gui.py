@@ -1,8 +1,8 @@
 from datetime import date, datetime, timedelta
 import time
-import tkinter as tk
-from tkinter import ttk
+from tkinter import Listbox, StringVar, Tk, Label, OptionMenu, Frame
 from tkinter.messagebox import showinfo
+from tkinter.ttk import Button, Frame
 import jinja2
 from tkcalendar import DateEntry
 import pandas as pd
@@ -28,7 +28,7 @@ class MainGui():
         self.title = title
 
         #window setup
-        self.root = tk.Tk()
+        self.root = Tk()
         self.icon = icon 
         self.title = title
         self.root.iconbitmap(icon)
@@ -42,7 +42,7 @@ class MainGui():
         self.select_emps = []
         self.select_jobs = []
 
-        self.info_label = tk.Label(self.root, text="""
+        self.info_label = Label(self.root, text="""
                 To Run a Report:
                 Select the report dates in the dropdown
                 (for a single day, enter it twice)
@@ -77,6 +77,8 @@ class MainGui():
             TTL_CONT are tip contributions
             DECTIPS are declared cash tips
         """)
+        #pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
+        print((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
 
     def main_window(self):
         self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
@@ -84,19 +86,19 @@ class MainGui():
         self.select_jobs = []
         self.select_emps = []
 
-        label = tk.Label(self.root, text="")
+        label = Label(self.root, text="")
         label.grid(row=0, column=1, padx=2, pady=2)
 
-        label = tk.Label(self.root, text="\nReport Options")
+        label = Label(self.root, text="\nReport Options")
         label.grid(row=0, column=2, padx=2, pady=2, columnspan=2)
 
         # Create two date pickers
-        label = tk.Label(self.root, text="First day")
+        label = Label(self.root, text="First day")
         label.grid(row=1, column=2, padx=2, pady=2)
         start_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
+                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=365)))
         start_date_picker.grid(row=2, column=2, padx=2, pady=2)
-        label = tk.Label(self.root, text="Second day")
+        label = Label(self.root, text="Second day")
         label.grid(row=1, column=3)
         end_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
                                     showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
@@ -113,25 +115,24 @@ class MainGui():
         start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
         end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
 
-        label = tk.Label(self.root, text="Select an employee:\n(to select all, leave blank)")
+        label = Label(self.root, text="Select an employee:\n(to select all, leave blank)")
         label.grid(row=5, column=2, padx=2, pady=2)
 
-        dropdown_val = tk.StringVar(self.root)
+        dropdown_val = StringVar(self.root)
         dropdown_val.set("labor_main")
-        label = tk.Label(self.root, text="Select a report:")
+        label = Label(self.root, text="Select a report:")
         label.grid(row=3, column=2, padx=2, pady=2, columnspan=2)
 
         def on_report_changed(e):
             self.rpt_type = dropdown_val.get()
-        report_dropdown = tk.OptionMenu(self.root, dropdown_val, *self.reports, command=on_report_changed)
+        report_dropdown = OptionMenu(self.root, dropdown_val, *self.reports, command=on_report_changed)
         report_dropdown.grid(row=4, column=2, padx=2, pady=2)
 
-        report_help = tk.Button(self.root, text="Report Help", command=self.rpt_help_window)
+        report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
         report_help.grid(row=4, column=3, padx=2, pady=2)
 
         # Create a list box
-        employee_listbox = tk.Listbox(
-            self.root, listvariable=tk.StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
+        employee_listbox = Listbox(self.root, listvariable=StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
         employee_listbox.grid(row=6, column=2, padx=2, pady=2)
 
         # Set the callback function
@@ -140,12 +141,12 @@ class MainGui():
                         for i in employee_listbox.curselection()]
 
         employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
-        label = tk.Label(self.root, text="Select a job code:\n(to select all, leave blank)")
+        label = Label(self.root, text="Select a job code:\n(to select all, leave blank)")
         label.grid(row=5, column=3, padx=2, pady=2)
 
         # Create a list box
-        jobcode_listbox = tk.Listbox(
-            self.root, listvariable=tk.StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
+        jobcode_listbox = Listbox(
+            self.root, listvariable=StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
         jobcode_listbox.grid(row=6, column=3, padx=2, pady=2)
         # Set the callback function
         def on_jobcode_changed(e):
@@ -154,34 +155,34 @@ class MainGui():
 
         jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
 
-        label = tk.Label(self.root, text="\nProcess Reports")
+        label = Label(self.root, text="\nProcess Reports")
         label.grid(row=7, column=2, padx=2, pady=2, columnspan=2)
 
-        view_button = tk.Button(self.root, text="View", command=self.view_rpt, padx=15)
+        view_button = Button(self.root, text="View", command=self.view_rpt)
         view_button.grid(row=8, column=2, padx=2, pady=2)
 
-        export_button = tk.Button(self.root, text="Print", command=self.export_rpt, padx=15)
+        export_button = Button(self.root, text="Print", command=self.export_rpt)
         export_button.grid(row=8, column=3, padx=2, pady=2)
 
-        label = tk.Label(self.root, text="")
+        label = Label(self.root, text="")
         label.grid(row=9, column=2)
 
-        payroll_button = tk.Button(
-            self.root, text="Payroll CSV Export", command=self.gusto_rpt, padx=15)
+        payroll_button = Button(
+            self.root, text="Payroll CSV Export", command=self.gusto_rpt)
         payroll_button.grid(row=10, column=2, padx=2, pady=2, columnspan=2)
 
         # Create a button that will open the popup box
         testing_adjust_button = False
         if testing_adjust_button:
-            add_adjustment_button = tk.Button(self.root, text="Adjustments", command=self.adjustments_window, padx=15)
+            add_adjustment_button = Button(self.root, text="Adjustments", command=self.adjustments_window)
             add_adjustment_button.grid(row=11, column=3, padx=2, pady=2)
 
     def view_rpt(self):
-        report_window = tk.Tk()
+        report_window = Tk()
         #report_window.geometry("800x800")
         report_window.iconbitmap(self.icon)
         report_window.wm_title(self.title)
-        report_frame = tk.Frame(report_window)
+        report_frame = Frame(report_window)
         report_frame.grid()
         print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
         df = ReportWriter(self.day_one, self.day_two).print_to_json(
@@ -271,11 +272,11 @@ class MainGui():
 
     def adjustments_window(self):
         # Create the popup box
-        adjust_window = tk.Tk()
+        adjust_window = Tk()
         adjust_window.geometry("300x400")
         adjust_window.iconbitmap(self.icon)
         adjust_window.wm_title(self.title)
-        adjust_frame = tk.Frame(adjust_window)
+        adjust_frame = Frame(adjust_window)
         adjust_frame.grid()
         today = datetime.today()
 
@@ -288,22 +289,22 @@ class MainGui():
         def on_multiple_selection_changed(e):
             second_mods = [self.employee_df.index[i] for i in multiple_selection_listbox.curselection()]
 
-        dl = tk.Label(adjust_frame, text="Date")
+        dl = Label(adjust_frame, text="Date")
         dl.grid()
         # Create a list of dates from the previous 15th or end of month date, to today
         date_list = [today - timedelta(days=x) for x in range(15)]
-        date_dropdown = tk.OptionMenu(adjust_frame, "", *date_list)
+        date_dropdown = OptionMenu(adjust_frame, "", *date_list)
         date_dropdown.grid(padx=2, pady=2)
 
-        psl = tk.Label(adjust_frame, text="Primary Server")
+        psl = Label(adjust_frame, text="Primary Server")
         psl.grid()
-        dropdown_val = tk.StringVar(adjust_frame)
-        primary_selection_dropdown = tk.OptionMenu(adjust_frame, dropdown_val, *self.employee_df["NAME"].to_list(), command=on_primary_selection_changed)
+        dropdown_val = StringVar(adjust_frame)
+        primary_selection_dropdown = OptionMenu(adjust_frame, dropdown_val, *self.employee_df["NAME"].to_list(), command=on_primary_selection_changed)
         primary_selection_dropdown.grid(padx=2, pady=2)
 
-        msl = tk.Label(adjust_frame, text="Secondary Servers")
+        msl = Label(adjust_frame, text="Secondary Servers")
         msl.grid()
-        multiple_selection_listbox = tk.Listbox(adjust_frame,listvariable=tk.StringVar(value=self.employee_df["NAME"].to_list()), selectmode="multiple", exportselection=False)
+        multiple_selection_listbox = Listbox(adjust_frame,listvariable=StringVar(value=self.employee_df["NAME"].to_list()), selectmode="multiple", exportselection=False)
         multiple_selection_listbox.grid(padx=2, pady=2)
 
         # Bind the <<ListboxSelect>> event to the second list box
