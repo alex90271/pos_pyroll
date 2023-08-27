@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 import time
 import tkinter as tk
 from tkinter import ttk
+from tkinter.messagebox import showinfo
 import jinja2
 from tkcalendar import DateEntry
 import pandas as pd
@@ -28,13 +29,11 @@ class MainGui():
 
         #window setup
         self.root = tk.Tk()
-        self.info_label = tk.Label(self.root, text="No Report Selected")
-        self.info_label.pack()
         self.icon = icon 
         self.title = title
         self.root.iconbitmap(icon)
         self.root.wm_title(title)
-        self.root.geometry("800x800")
+        self.root.geometry("800x500")
 
         #selections
         self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
@@ -43,122 +42,166 @@ class MainGui():
         self.select_emps = []
         self.select_jobs = []
 
-        #frames
-        #left
-        self.l_frame = tk.Frame(self.root, width=250)
-        self.l_frame.pack(side='left', padx=5, pady=2.5) 
-        #right
-        self.r_frame = tk.Frame(self.root)
-        self.r_frame.pack(side='right', padx=5)
-        #top
-        self.t_frame = tk.Frame(self.l_frame)
-        self.t_frame.pack(side='top', pady=2.5)
-        #bottom
-        self.b_frame = tk.Frame(self.l_frame)
-        self.b_frame.pack(side='bottom', pady=2.5)
-
-        self.strt_label = tk.Label(self.r_frame, text="""
-                To get Started:
+        self.info_label = tk.Label(self.root, text="""
+                To Run a Report:
                 Select the report dates in the dropdown
                 (for a single day, enter it twice)
-                
-                Then select the desired report from the dropdown (default: labor_main)
-
-                General Notes:
-                            It is important to verify totals against Aloha (total tips paid out should equal total tips on aloha)
-                            The data reported here is only as accurate as Aloha (ex. incorrect clockins)
-                            Some reports can be filtered by Jobcode or Employee (payroll export file is never filtered)
-
-                Report Info:
-                    Cout_eod
-                            This report lists any clockins that were force closed by the end of day (3am)
-                    Labor Rate
-                            Labor rate report pulls from pay rates set in Aloha
-                    Hourly
-                            Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)
-                    Labor Average Hours
-                            requires 2+ weeks; Labor Average shows the average hours and employee worked during the selected period
-                    Labor Reports:
-                            Shows a breakdown of tips, and hours
-                            TTL_TIP are tips paid out on check
-                            TTL_CONT are tip contributions (4% of sales for servers)
-                            DECTIPS are declared cash tips
+                                   
+                Important Notes:
+                It is important to verify totals against Aloha 
+                    Total tips paid out should equal total tips reported on Aloha
+                The data reported here is only as accurate as Aloha 
+                    Ex. incorrect clockins
+                                   
+                Click "Report Help" for details on what each report does
         """, justify="left")
+        self.info_label.grid(row=1,column=4, rowspan=8)
 
-    def kill_launch_window(self, window):
-        while self.root.state() != 'normal':
-                time.sleep(1)
-                print('loading')
-        window.destroy()
+    def rpt_help_window(self):
+        showinfo('Note', """
+            1.Cout_eod:
+            This report lists any clockins that were force closed by the end of day (3am)
 
-    def adjustments_window(self):
-        # Create the popup box
-        popup_window = tk.Toplevel()
-        popup_window.geometry("300x400")
-        popup_window.iconbitmap(self.icon)
-        popup_window.wm_title(self.title)
-        today = datetime.today()
+            2.Labor Rate:
+            Labor rate report pulls from pay rates set in Aloha
+                 
+            3.Hourly:
+            Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)
 
-        dl = tk.Label(popup_window, text="Date")
-        dl.pack(pady=3.5)
+            4.Labor Average Hours:
+            Requires 2+ weeks; Labor Average shows the average hours and employee worked during the selected period
+                 
+            5.Labor Reports:
+            Shows a breakdown of tips, and hours
+            TTL_TIP are tips paid out on check
+            TTL_CONT are tip contributions
+            DECTIPS are declared cash tips
+        """)
 
-        # Create a list of dates from the previous 15th or end of month date, to today
-        date_list = [today - timedelta(days=x) for x in range(15)]
+    def main_window(self):
+        self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
+        self.day_two = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
+        self.select_jobs = []
+        self.select_emps = []
 
+        label = tk.Label(self.root, text="")
+        label.grid(row=0, column=1, padx=2, pady=2)
 
-        date_dropdown = tk.OptionMenu(popup_window, "", *date_list)
-        date_dropdown.pack()
+        label = tk.Label(self.root, text="\nReport Options")
+        label.grid(row=0, column=2, padx=2, pady=2, columnspan=2)
 
-        psl = tk.Label(popup_window, text="Primary Server")
-        psl.pack(pady=3.5)
-        primary_selection_listbox = tk.Listbox(popup_window,listvariable=tk.StringVar(value=self.employee_df["NAME"].to_list()), selectmode="single", exportselection=False)
-        primary_selection_listbox.pack()
+        # Create two date pickers
+        label = tk.Label(self.root, text="First day")
+        label.grid(row=1, column=2, padx=2, pady=2)
+        start_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
+                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
+        start_date_picker.grid(row=2, column=2, padx=2, pady=2)
+        label = tk.Label(self.root, text="Second day")
+        label.grid(row=1, column=3)
+        end_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
+                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
+        end_date_picker.grid(row=2, column=3, padx=2, pady=2)
 
-        msl = tk.Label(popup_window, text="Secondary Servers")
-        msl.pack(pady=3.5)
-        multiple_selection_listbox = tk.Listbox(popup_window,listvariable=tk.StringVar(value=self.employee_df["NAME"].to_list()), selectmode="multiple", exportselection=False)
-        multiple_selection_listbox.pack()
+        def on_date_changed(e):
+            # Get the dates from both date pickers
+            start_date = start_date_picker.get()
+            end_date = end_date_picker.get()
+            self.day_one = datetime.strptime(start_date, '%m/%d/%y').strftime('%Y%m%d')
+            self.day_two = datetime.strptime(end_date, '%m/%d/%y').strftime('%Y%m%d')
+            print(self.day_one, self.day_two)
 
-        primary_mods = []
-        def on_primary_selection_changed(e):
-            primary_mods = self.employee_df.index[primary_selection_listbox.curselection()[0]]
-        # Do something when the primary selection is changed
+        start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
+        end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
 
-        second_mods = []
-        def on_multiple_selection_changed(e):
-            second_mods = [self.employee_df.index[i] for i in multiple_selection_listbox.curselection()]
-        
-        # Bind the <<ListboxSelect>> event to the first list box
-        primary_selection_listbox.bind("<<ListboxSelect>>", on_primary_selection_changed)
+        label = tk.Label(self.root, text="Select an employee:\n(to select all, leave blank)")
+        label.grid(row=5, column=2, padx=2, pady=2)
 
-        # Bind the <<ListboxSelect>> event to the second list box
-        multiple_selection_listbox.bind("<<ListboxSelect>>", on_multiple_selection_changed)
+        dropdown_val = tk.StringVar(self.root)
+        dropdown_val.set("labor_main")
+        label = tk.Label(self.root, text="Select a report:")
+        label.grid(row=3, column=2, padx=2, pady=2, columnspan=2)
+
+        def on_report_changed(e):
+            self.rpt_type = dropdown_val.get()
+        report_dropdown = tk.OptionMenu(self.root, dropdown_val, *self.reports, command=on_report_changed)
+        report_dropdown.grid(row=4, column=2, padx=2, pady=2)
+
+        report_help = tk.Button(self.root, text="Report Help", command=self.rpt_help_window)
+        report_help.grid(row=4, column=3, padx=2, pady=2)
+
+        # Create a list box
+        employee_listbox = tk.Listbox(
+            self.root, listvariable=tk.StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
+        employee_listbox.grid(row=6, column=2, padx=2, pady=2)
+
+        # Set the callback function
+        def on_employee_changed(e):
+            self.select_emps = [self.employee_df.index[i]
+                        for i in employee_listbox.curselection()]
+
+        employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
+        label = tk.Label(self.root, text="Select a job code:\n(to select all, leave blank)")
+        label.grid(row=5, column=3, padx=2, pady=2)
+
+        # Create a list box
+        jobcode_listbox = tk.Listbox(
+            self.root, listvariable=tk.StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
+        jobcode_listbox.grid(row=6, column=3, padx=2, pady=2)
+        # Set the callback function
+        def on_jobcode_changed(e):
+            self.select_jobs = [self.jobcode_df.index[i]
+                        for i in jobcode_listbox.curselection()]
+
+        jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
+
+        label = tk.Label(self.root, text="\nProcess Reports")
+        label.grid(row=7, column=2, padx=2, pady=2, columnspan=2)
+
+        view_button = tk.Button(self.root, text="View", command=self.view_rpt, padx=15)
+        view_button.grid(row=8, column=2, padx=2, pady=2)
+
+        export_button = tk.Button(self.root, text="Print", command=self.export_rpt, padx=15)
+        export_button.grid(row=8, column=3, padx=2, pady=2)
+
+        label = tk.Label(self.root, text="")
+        label.grid(row=9, column=2)
+
+        payroll_button = tk.Button(
+            self.root, text="Payroll CSV Export", command=self.gusto_rpt, padx=15)
+        payroll_button.grid(row=10, column=2, padx=2, pady=2, columnspan=2)
+
+        # Create a button that will open the popup box
+        testing_adjust_button = False
+        if testing_adjust_button:
+            add_adjustment_button = tk.Button(self.root, text="Adjustments", command=self.adjustments_window, padx=15)
+            add_adjustment_button.grid(row=11, column=3, padx=2, pady=2)
 
     def view_rpt(self):
-        popup_window = tk.Toplevel()
-        popup_window.geometry("800x800")
-        popup_window.iconbitmap(self.icon)
-        popup_window.wm_title(self.title)
+        report_window = tk.Tk()
+        #report_window.geometry("800x800")
+        report_window.iconbitmap(self.icon)
+        report_window.wm_title(self.title)
+        report_frame = tk.Frame(report_window)
+        report_frame.grid()
         print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
         df = ReportWriter(self.day_one, self.day_two).print_to_json(
             self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
         if type(df) == 'empty':
-            self.info_label.config(text="No data to display")
+            showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
             return '' #exit the program if no data to display
         df.reset_index(inplace=True)
         #df.to_dict(orient='index')
-        pt = Table(self.r_frame, dataframe=df, width=1000, height=600,
-                showstatusbar=True, editable=True)
+        pt = Table(report_frame, dataframe=df, width=1000, height=600,
+                showstatusbar=True)
         pt.show()
-        self.info_label.config(
-            text=(datetime.now().strftime("%H:%M:%S") + "\ndisplaying"))
         
     def export_rpt(self):
             print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
             df = ReportWriter(self.day_one, self.day_two).print_to_json(
                 self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
             if type(df) == 'empty':
-                self.info_label.config(text="No rows to export")
+                showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
+                return '' #exit the program if no data to display
             result = df.fillna('')
             env = jinja2.Environment(
                 loader=jinja2.FileSystemLoader(searchpath="templates/"))
@@ -197,15 +240,10 @@ class MainGui():
                 '/d:"%s"' % printer_name,
                 ".",
                 0
-                )                          
-                self.info_label.config(text=(datetime.now().strftime(
-                    "%H:%M:%S") + "\nThe report has been printed\nCheck Printer: " + printer_name))
+                )
+                showinfo('Note', "The report has been printed\nCheck Printer: " + printer_name)                          
             except:
-                print('there was a printer error; file was only exported')
-                self.info_label.config(text=(datetime.now().strftime(
-                    "%H:%M:%S") + "\nThere was a printer error\nCheck the exports folder for the report"))
-            for widget in self.r_frame.winfo_children():
-                widget.destroy()
+                showinfo('Note', "There was a printer error\nCheck the exports folder for a PDF\n\nNote: Adobe Acrobat Reader should be installed")
 
     def gusto_rpt(self):
             print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
@@ -213,109 +251,63 @@ class MainGui():
             if (pd.date_range(self.day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] == self.day_two):
                 result = Payroll(self.day_one, self.day_two).process_payroll()
                 if type(result) == 'empty':
-                    self.info_label.config(text="No data to export")
+                    showinfo('Note', "There is no data to export for this selection\n(This is not an error)")
+                    return '' #exit the program if no data to export
                 name_string = ChipConfig().query("SETTINGS", "company_name") + \
                     '-payroll_export-' + 'F' + self.day_one + '-' + 'L' + self.day_two
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
-                self.info_label.config(text=(datetime.now().strftime(
-                    "%H:%M:%S") + "\nCheck the exports folder for the payroll CSV"))
+                showinfo('Note', ("Check the exports folder for the payroll CSV"))
             else:
-                self.info_label.config(
-                    text="There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st")
+                showinfo('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
 
 
-    def main_window(self):
-        self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
-        self.day_two = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
-        rpt_type = 'labor_main'
-        self.select_jobs = []
-        self.select_emps = []
+    def kill_launch_window(self, window):
+        while self.root.state() != 'normal':
+                time.sleep(1)
+                print('loading')
+        window.destroy()
 
-        self.strt_label.pack()
+    def adjustments_window(self):
+        # Create the popup box
+        adjust_window = tk.Tk()
+        adjust_window.geometry("300x400")
+        adjust_window.iconbitmap(self.icon)
+        adjust_window.wm_title(self.title)
+        adjust_frame = tk.Frame(adjust_window)
+        adjust_frame.grid()
+        today = datetime.today()
 
-        # Create a label
-        label = tk.Label(
-            self.l_frame, text="Select a date range\n(for one day, select twice)")
-        label.pack(padx=10, pady=3.5) 
-        # Create two date pickers
-        start_date_picker = DateEntry(self.l_frame, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
-        start_date_picker.pack(pady=3.5)
+        primary_mods = []
+        def on_primary_selection_changed(e):
+            primary_mods = self.employee_df.index[dropdown_val.get()]
+        # Do something when the primary selection is changed
 
-        end_date_picker = DateEntry(self.l_frame, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
-        end_date_picker.pack(pady=3.5)
+        second_mods = []
+        def on_multiple_selection_changed(e):
+            second_mods = [self.employee_df.index[i] for i in multiple_selection_listbox.curselection()]
 
-        def on_date_changed(e):
-            # Get the dates from both date pickers
-            start_date = start_date_picker.get()
-            end_date = end_date_picker.get()
-            self.day_one = datetime.strptime(start_date, '%m/%d/%y').strftime('%Y%m%d')
-            self.day_two = datetime.strptime(end_date, '%m/%d/%y').strftime('%Y%m%d')
-            print(self.day_one, self.day_two)
+        dl = tk.Label(adjust_frame, text="Date")
+        dl.grid()
+        # Create a list of dates from the previous 15th or end of month date, to today
+        date_list = [today - timedelta(days=x) for x in range(15)]
+        date_dropdown = tk.OptionMenu(adjust_frame, "", *date_list)
+        date_dropdown.grid(padx=2, pady=2)
 
-        start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
-        end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
+        psl = tk.Label(adjust_frame, text="Primary Server")
+        psl.grid()
+        dropdown_val = tk.StringVar(adjust_frame)
+        primary_selection_dropdown = tk.OptionMenu(adjust_frame, dropdown_val, *self.employee_df["NAME"].to_list(), command=on_primary_selection_changed)
+        primary_selection_dropdown.grid(padx=2, pady=2)
 
-        dropdown_val = tk.StringVar(self.root)
-        dropdown_val.set("labor_main")
-        label = tk.Label(self.l_frame, text="Select a report:")
-        label.pack(pady=3.5)
+        msl = tk.Label(adjust_frame, text="Secondary Servers")
+        msl.grid()
+        multiple_selection_listbox = tk.Listbox(adjust_frame,listvariable=tk.StringVar(value=self.employee_df["NAME"].to_list()), selectmode="multiple", exportselection=False)
+        multiple_selection_listbox.grid(padx=2, pady=2)
 
-        def on_report_changed(e):
-            self.rpt_type = dropdown_val.get()
-        report_dropdown = tk.OptionMenu(
-        self.l_frame, dropdown_val, *self.reports, command=on_report_changed)
-        report_dropdown.pack(pady=3.5)
-
-        label = tk.Label(self.l_frame, text="Select an employee:\n(to select all, leave blank)")
-        label.pack(pady=3.5)
-
-        # Create a list box
-        employee_listbox = tk.Listbox(
-            self.l_frame, listvariable=tk.StringVar(self.l_frame, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
-        employee_listbox.pack()
-
-        # Set the callback function
-        def on_employee_changed(e):
-            self.select_emps = [self.employee_df.index[i]
-                        for i in employee_listbox.curselection()]
-
-        employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
-
-        label = tk.Label(self.l_frame, text="Select a job code:\n(to select all, leave blank)")
-        label.pack(pady=3.5)
-
-        # Create a list box
-        jobcode_listbox = tk.Listbox(
-            self.l_frame, listvariable=tk.StringVar(self.l_frame, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
-        jobcode_listbox.pack()
-
-        # Set the callback function
-        def on_jobcode_changed(e):
-            self.select_jobs = [self.jobcode_df.index[i]
-                        for i in jobcode_listbox.curselection()]
-
-        jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
-
-        view_button = tk.Button(self.b_frame, text="View", command=self.view_rpt, padx=15)
-        view_button.pack(padx=1,pady=2)
-
-        export_button = tk.Button(self.b_frame, text="Print", command=self.export_rpt, padx=15)
-        export_button.pack(padx=1,pady=2)
-
-        label = tk.Label(self.l_frame, text="")
-        label.pack()
-
-        payroll_button = tk.Button(
-            self.b_frame, text="Payroll CSV Export", command=self.gusto_rpt, padx=15)
-        payroll_button.pack(padx=1,pady=2)
-
-        # Create a button that will open the popup box
-        add_adjustment_button = tk.Button(self.b_frame, text="Adjustments", command=self.adjustments_window, padx=15)
-        add_adjustment_button.pack(padx=1,pady=2)
+        # Bind the <<ListboxSelect>> event to the second list box
+        multiple_selection_listbox.bind("<<ListboxSelect>>", on_multiple_selection_changed)
 
 
 if __name__ == "__main__":

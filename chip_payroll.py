@@ -5,7 +5,7 @@ from gui import MainGui
 if __name__ == "__main__":
     # Create a window
     window = tk.Tk()
-    window.geometry("300x400")
+    window.geometry("400x200")
     icon = "assets\pyroll_ico.ico"
     title = "Payroll and Tipshare report tool"
     window.iconbitmap(icon)
