@@ -28,7 +28,6 @@ class ProcessPools():
         self.total_hours = {}
         self.pool_info = self.get_pool_info()
         self.pool_names = list(self.pool_info)
-        self.pool_out = self.pooler()
 
     def get_day(self, fmt="%a %b %e"):
         '''returns the current day for the process labor object'''
@@ -48,7 +47,7 @@ class ProcessPools():
         return self.pool_rates
 
     def get_pool_data(self):
-        return self.pool_out
+        return self.pooler()
 
     def get_pool_info(self):
         with open('data/pools.json') as jsonfile:
@@ -84,7 +83,9 @@ class ProcessPools():
                 self.pool_info[pool]["receive"])].copy()
             hr_sum = r['HOURS'].sum()
             cont_sum = c['c_'+pool].sum()
-            r_tiprate = np.divide(cont_sum, hr_sum)
+            #ignores the divide by zero error
+            with np.errstate(invalid='ignore'):
+                r_tiprate = np.divide(cont_sum, hr_sum)
             r[pool] = np.multiply(r['HOURS'].values, r_tiprate)
             return_df[pool] = r[pool]
             self.total_contributions[pool] = cont_sum
