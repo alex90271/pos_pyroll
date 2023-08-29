@@ -2,6 +2,7 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
+from chip_config import ChipConfig
 from query_db import QueryDB
 
 
@@ -26,6 +27,9 @@ class ProcessPools():
         self.pool_info = self.get_pool_info()
         self.pool_names = list(self.pool_info)
         self.pool_out = self.pooler()
+
+        self.verbose_debug = ChipConfig().query(
+            'SETTINGS', 'verbose_debug', return_type='bool')
 
     def get_day(self, fmt="%a %b %e"):
         '''returns the current day for the process labor object'''
@@ -54,7 +58,8 @@ class ProcessPools():
     def pooler(self):
         return_df = self.df.copy()
         for pool in self.pool_names:
-            print("processing " + pool)
+            if self.verbose_debug:
+                print("processing " + pool + " for " + self.day)
             c = self.df.loc[self.df['JOBCODE'].isin(
                 self.pool_info[pool]["contribute"])].copy()
             if self.pool_info[pool]["type"] == 'sales':
