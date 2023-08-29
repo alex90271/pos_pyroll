@@ -198,8 +198,7 @@ class ReportWriter():
         # if any filter options are provided, fliter the data now.
         # While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data
         df = self.job_emp_filter(selected_employees, selected_jobs, df)
-        df['SYSDATEIN'] = pd.to_datetime(
-            df['SYSDATEIN'], infer_datetime_format=True).dt.strftime("%a %b %e")
+        df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN']).dt.strftime("%a %b %e")
         # add employee names before generating report
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df)
         
