@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 import time
-from tkinter import Listbox, StringVar, Tk, Label, OptionMenu, Frame
+from tkinter import Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Button, Combobox, Frame
 import jinja2
@@ -19,7 +19,6 @@ import os
 class MainGui():
 
     def __init__(self, icon="assets\pyroll_ico.ico", title="Payroll and Tipshare report tool"):
-
         #call database
         self.employee_df = QueryDB().process_db('employees').set_index('ID')
         self.jobcode_df = QueryDB().process_db('jobcodes').set_index('ID')
@@ -58,7 +57,7 @@ class MainGui():
         """, justify="left")
 
     def view_rpt(self):
-        report_window = Tk()
+        report_window = Toplevel()
         report_window.iconbitmap(self.icon)
         report_window.wm_title(self.title)
         report_frame = Frame(report_window)
