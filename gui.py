@@ -1,8 +1,7 @@
 from datetime import date, datetime, timedelta
-import time
-from tkinter import Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
+from tkinter import SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
 from tkinter.messagebox import showinfo
-from tkinter.ttk import Button, Combobox, Frame
+from tkinter.ttk import Button, Combobox, Frame, Style
 import jinja2
 from tkcalendar import DateEntry
 import pandas as pd
@@ -16,24 +15,31 @@ import win32api
 import win32print
 import os
 
-class MainGui():
+class ChipGui():
 
-    def __init__(self, icon="assets\pyroll_ico.ico", title="Payroll and Tipshare report tool"):
+    def __init__(self, icon="", title="Title"):
         #call database
         self.employee_df = QueryDB().process_db('employees').set_index('ID')
         self.jobcode_df = QueryDB().process_db('jobcodes').set_index('ID')
         self.employee_df['NAME'] = self.employee_df['FIRSTNAME'] + ' ' + self.employee_df['LASTNAME']
         self.reports = ReportWriterReports().available_reports()
-        self.icon = icon
-        self.title = title
 
         #window setup
         self.root = Tk()
-        self.icon = icon 
         self.title = title
-        self.root.iconbitmap(icon)
         self.root.wm_title(title)
-        self.root.geometry("800x500")
+        self.root.geometry("500x600")
+
+        #add ttk font
+        Style().configure('.', font=('Verdana', 12))
+        #tk font
+        self.root.option_add("*font", ("Verdana", 12))
+
+        try:
+            self.icon = icon
+            self.root.iconbitmap(icon)
+        except:
+            print("error loading icon")
 
         #selections
         self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
@@ -41,20 +47,8 @@ class MainGui():
         self.rpt_type = "labor_main"
         self.select_emps = []
         self.select_jobs = []
-
-        self.info_label = Label(self.root, text="""
-                To Run a Report:
-                Select the report dates in the dropdown
-                (for a single day, enter it twice)
-                                   
-                Important Notes:
-                It is important to verify totals against Aloha 
-                    Total tips paid out should equal total tips reported on Aloha
-                The data reported here is only as accurate as Aloha 
-                    Ex. incorrect clockins
-                                   
-                Click "Report Help" for details on what each report does
-        """, justify="left")
+        
+        self.main_window()
 
     def view_rpt(self):
         report_window = Toplevel()
@@ -140,6 +134,12 @@ class MainGui():
                 showinfo('Note', ("Check the exports folder for the payroll CSV"))
             else:
                 showinfo('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
+            
+    def mainloop(self):
+        self.root.mainloop()
+
+    def tipshare_info_window(self):
+        showinfo('Note', "see pools.json")
 
     def rpt_help_window(self):
         showinfo('Note', """
@@ -164,8 +164,23 @@ class MainGui():
         pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
         print((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
 
+    def startup_help_window(self):
+        showinfo('Note', """
+                To Run a Report:
+                Select the report dates in the dropdown
+                (for a single day, enter it twice)
+                                   
+                Important Notes:
+                It is important to verify totals against Aloha 
+                    Total tips paid out should equal total tips reported on Aloha
+                The data reported here is only as accurate as Aloha 
+                    Ex. incorrect clockins
+                                   
+                Click "Report Help" for details on what each report does
+        """)
+
     def main_window(self):
-        self.info_label.grid(row=1,column=4, rowspan=8)
+        self.startup_help_window()
 
         label = Label(self.root, text="")
         label.grid(row=0, column=1, padx=2, pady=2)
@@ -173,7 +188,8 @@ class MainGui():
         label = Label(self.root, text="\nReport Options")
         label.grid(row=0, column=2, padx=2, pady=2, columnspan=2)
 
-        # Create two date pickers
+        ##DATE PICKERS##
+
         label = Label(self.root, text="First day")
         label.grid(row=1, column=2, padx=2, pady=2)
         start_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
@@ -196,8 +212,10 @@ class MainGui():
             self.day_two = datetime.strptime(end_date, '%m/%d/%y').strftime('%Y%m%d')
             print(self.day_one, self.day_two)
 
-        label = Label(self.root, text="Select an employee:\n(to select all, leave blank)")
-        label.grid(row=5, column=2, padx=2, pady=2)
+        start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
+        end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
+
+        ##REPORT DROPDOWN##
 
         dropdown_val = StringVar(self.root)
         dropdown_val.set("labor_main")
@@ -205,40 +223,46 @@ class MainGui():
         label.grid(row=3, column=2, padx=2, pady=2, columnspan=2)
 
         report_combo = Combobox(self.root, values=self.reports, width=16, exportselection=False)
-        report_combo.grid(row=4, column=2, padx=2, pady=2)
+        report_combo.grid(row=4, column=2, padx=2, pady=2, columnspan=2)
         report_combo.set("labor_main")
-        report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
-        report_help.grid(row=4, column=3, padx=2, pady=2)
 
         def on_report_changed(e):
             self.rpt_type = report_combo.get()
 
-        # Create a list box
-        employee_listbox = Listbox(self.root, listvariable=StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
-        employee_listbox.grid(row=6, column=2, padx=2, pady=2)
+        report_combo.bind("<<ComboboxSelected>>", on_report_changed)   
+
+        ##EMPLOYEE LISTBOX##
+
+        label = Label(self.root, text="Select an employee:\n(to select all, leave blank)")
+        label.grid(row=5, column=2, padx=2, pady=2)
+
+        employee_listbox = Listbox(self.root, height=10, listvariable=StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
+        employee_listbox.grid(row=6, column=2, padx=1, pady=2)
 
         # Set the callback function
         def on_employee_changed(e):
             self.select_emps = [self.employee_df.index[i]
                         for i in employee_listbox.curselection()]
+            
+        employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
+
+        ##JOBCODE LISTBOX##
 
         label = Label(self.root, text="Select a job code:\n(to select all, leave blank)")
         label.grid(row=5, column=3, padx=2, pady=2)
 
-        # Create a list box
         jobcode_listbox = Listbox(
-            self.root, listvariable=StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
-        jobcode_listbox.grid(row=6, column=3, padx=2, pady=2)
+            self.root, height=10, listvariable=StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
+        jobcode_listbox.grid(row=6, column=3, padx=1, pady=2)
+
         # Set the callback function
         def on_jobcode_changed(e):
             self.select_jobs = [self.jobcode_df.index[i]
                         for i in jobcode_listbox.curselection()]
-
-        start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
-        end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)        
-        report_combo.bind("<<ComboboxSelected>>", on_report_changed)
+     
         jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
-        employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
+
+        ##PROCESS BUTTONS#
 
         label = Label(self.root, text="\nProcess Reports")
         label.grid(row=7, column=2, padx=2, pady=2, columnspan=2)
@@ -249,20 +273,23 @@ class MainGui():
         export_button = Button(self.root, text="Print", command=self.export_rpt)
         export_button.grid(row=8, column=3, padx=2, pady=2)
 
-        label = Label(self.root, text="")
-        label.grid(row=9, column=2)
-
         payroll_button = Button(
             self.root, text="Payroll CSV Export", command=self.gusto_rpt)
         payroll_button.grid(row=10, column=2, padx=2, pady=2, columnspan=2)
 
-        # Create a button that will open the popup box
+        ##HELP BUTTONS##
+        label = Label(self.root, text="")
+        label.grid(row=11, column=2)
+        #tipshare_info = Button(self.root, text="Tipshare Settings", command=self.tipshare_info_window)
+        #tipshare_info.grid(row=12, column=2, padx=2, pady=2)
+        report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
+        report_help.grid(row=12, column=3, padx=2, pady=2)
+
         testing_adjust_button = False
+        #set to true to test the "adjustments" feature. Its not working at all
         if testing_adjust_button:
             add_adjustment_button = Button(self.root, text="Adjustments", command=self.adjustments_window)
-            add_adjustment_button.grid(row=11, column=3, padx=2, pady=2)
-        
-        self.root.mainloop()
+            add_adjustment_button.grid(row=14, column=3, padx=2, pady=2)
 
     def adjustments_window(self):
         # Create the popup box
@@ -306,10 +333,5 @@ class MainGui():
 
 
 if __name__ == "__main__":
-    icon = "assets\pyroll_ico.ico"
-    title = "Payroll and Tipshare report tool"
-
-    #launch the main GUI
-    gui = MainGui(icon=icon, title=title)
-    gui.main_window()
+    ChipGui().mainloop()
 
