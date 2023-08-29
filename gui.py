@@ -57,6 +57,91 @@ class MainGui():
                 Click "Report Help" for details on what each report does
         """, justify="left")
 
+    def view_rpt(self):
+        report_window = Tk()
+        report_window.iconbitmap(self.icon)
+        report_window.wm_title(self.title)
+        report_frame = Frame(report_window)
+        report_frame.grid()
+        print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
+        df = ReportWriter(self.day_one, self.day_two).print_to_json(
+            self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
+        if type(df) == 'empty':
+            showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
+            return '' #exit the program if no data to display
+        df.reset_index(inplace=True)
+        #df.to_dict(orient='index')
+        pt = Table(report_frame, dataframe=df, width=1000, height=600,
+                showstatusbar=True)
+        pt.show()
+        
+    def export_rpt(self):
+            print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
+            df = ReportWriter(self.day_one, self.day_two).print_to_json(
+                self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
+            if type(df) == 'empty':
+                showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
+                return '' #exit the program if no data to display
+            result = df.fillna('')
+            env = jinja2.Environment(
+                loader=jinja2.FileSystemLoader(searchpath="templates/"))
+            template = env.get_template('render.html').render(
+                tables=[result.to_html(
+                    table_id="table", classes="ui striped table")],
+                titles=result.columns.values,
+                timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p %Z)'),
+                dates=[
+                    datetime.strptime(self.day_one, "%Y%m%d").strftime(
+                        '%a, %b %d, %Y'),
+                    datetime.strptime(self.day_two, "%Y%m%d").strftime(
+                        '%a, %b %d, %Y')
+                ],
+                rpttp=self.rpt_type,
+                select_emps=self.select_emps, select_jobs=self.select_jobs)
+            export_dir = "/exports/"
+            name_string = self.rpt_type + '-' + self.day_one[-6:] + '-' + self.day_two[-6:]
+            cur_directory = os.path.abspath(os.getcwd())
+            extention = ".pdf"
+            export_path = cur_directory + export_dir + name_string + extention
+            pdfkit.from_string(input=template,
+                            output_path=(export_path),
+                            configuration=pdfkit.configuration(wkhtmltopdf=cur_directory+"/wkhtmltox/bin/wkhtmltopdf.exe"))
+            try:
+                printer_name = win32print.GetDefaultPrinter()
+                print("trying: " + printer_name)
+                win32api.ShellExecute (
+                0,
+                "print",
+                export_path,
+                #
+                # If this is None, the default printer will
+                # be used anyway.
+                #
+                '/d:"%s"' % printer_name,
+                ".",
+                0
+                )
+                showinfo('Note', "The report has been printed\nCheck Printer: " + printer_name)                          
+            except:
+                showinfo('Note', "There was a printer error\nCheck the exports folder for a PDF\n\nNote: Adobe Acrobat Reader should be installed")
+
+    def gusto_rpt(self):
+            print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
+            '''exports payroll to gusto'''
+            if (pd.date_range(self.day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] == self.day_two):
+                result = Payroll(self.day_one, self.day_two).process_payroll()
+                if type(result) == 'empty':
+                    showinfo('Note', "There is no data to export for this selection\n(This is not an error)")
+                    return '' #exit the program if no data to export
+                name_string = ChipConfig().query("SETTINGS", "company_name") + \
+                    '-payroll_export-' + 'F' + self.day_one + '-' + 'L' + self.day_two
+                result.to_csv(
+                    ("exports/" + name_string + '.csv'),
+                    index=False)
+                showinfo('Note', ("Check the exports folder for the payroll CSV"))
+            else:
+                showinfo('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
+
     def rpt_help_window(self):
         showinfo('Note', """
             1.Cout_eod:
@@ -179,91 +264,6 @@ class MainGui():
             add_adjustment_button.grid(row=11, column=3, padx=2, pady=2)
         
         self.root.mainloop()
-
-    def view_rpt(self):
-        report_window = Tk()
-        report_window.iconbitmap(self.icon)
-        report_window.wm_title(self.title)
-        report_frame = Frame(report_window)
-        report_frame.grid()
-        print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
-        df = ReportWriter(self.day_one, self.day_two).print_to_json(
-            self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
-        if type(df) == 'empty':
-            showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
-            return '' #exit the program if no data to display
-        df.reset_index(inplace=True)
-        #df.to_dict(orient='index')
-        pt = Table(report_frame, dataframe=df, width=1000, height=600,
-                showstatusbar=True)
-        pt.show()
-        
-    def export_rpt(self):
-            print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
-            df = ReportWriter(self.day_one, self.day_two).print_to_json(
-                self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
-            if type(df) == 'empty':
-                showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
-                return '' #exit the program if no data to display
-            result = df.fillna('')
-            env = jinja2.Environment(
-                loader=jinja2.FileSystemLoader(searchpath="templates/"))
-            template = env.get_template('render.html').render(
-                tables=[result.to_html(
-                    table_id="table", classes="ui striped table")],
-                titles=result.columns.values,
-                timestamp=datetime.now().strftime('%b %d %Y (%I:%M:%S%p %Z)'),
-                dates=[
-                    datetime.strptime(self.day_one, "%Y%m%d").strftime(
-                        '%a, %b %d, %Y'),
-                    datetime.strptime(self.day_two, "%Y%m%d").strftime(
-                        '%a, %b %d, %Y')
-                ],
-                rpttp=self.rpt_type,
-                select_emps=self.select_emps, select_jobs=self.select_jobs)
-            export_dir = "/exports/"
-            name_string = self.rpt_type + '-' + self.day_one[-6:] + '-' + self.day_two[-6:]
-            cur_directory = os.path.abspath(os.getcwd())
-            extention = ".pdf"
-            export_path = cur_directory + export_dir + name_string + extention
-            pdfkit.from_string(input=template,
-                            output_path=(export_path),
-                            configuration=pdfkit.configuration(wkhtmltopdf=cur_directory+"/wkhtmltox/bin/wkhtmltopdf.exe"))
-            try:
-                printer_name = win32print.GetDefaultPrinter()
-                print("trying: " + printer_name)
-                win32api.ShellExecute (
-                0,
-                "print",
-                export_path,
-                #
-                # If this is None, the default printer will
-                # be used anyway.
-                #
-                '/d:"%s"' % printer_name,
-                ".",
-                0
-                )
-                showinfo('Note', "The report has been printed\nCheck Printer: " + printer_name)                          
-            except:
-                showinfo('Note', "There was a printer error\nCheck the exports folder for a PDF\n\nNote: Adobe Acrobat Reader should be installed")
-
-    def gusto_rpt(self):
-            print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
-            '''exports payroll to gusto'''
-            if (pd.date_range(self.day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] == self.day_two):
-                result = Payroll(self.day_one, self.day_two).process_payroll()
-                if type(result) == 'empty':
-                    showinfo('Note', "There is no data to export for this selection\n(This is not an error)")
-                    return '' #exit the program if no data to export
-                name_string = ChipConfig().query("SETTINGS", "company_name") + \
-                    '-payroll_export-' + 'F' + self.day_one + '-' + 'L' + self.day_two
-                result.to_csv(
-                    ("exports/" + name_string + '.csv'),
-                    index=False)
-                showinfo('Note', ("Check the exports folder for the payroll CSV"))
-            else:
-                showinfo('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
 
     def adjustments_window(self):
         # Create the popup box
