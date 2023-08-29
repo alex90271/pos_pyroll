@@ -18,6 +18,8 @@ class ProcessPools():
     def __init__(self, day):
         # instantiate a single day to process data
         self.db = QueryDB(day)
+        self.verbose_debug = ChipConfig().query(
+            'SETTINGS', 'verbose_debug', return_type='bool')
         self.df = self.db.process_db('labor').copy()
         self.day = day
         self.pool_rates = {}
@@ -27,9 +29,6 @@ class ProcessPools():
         self.pool_info = self.get_pool_info()
         self.pool_names = list(self.pool_info)
         self.pool_out = self.pooler()
-
-        self.verbose_debug = ChipConfig().query(
-            'SETTINGS', 'verbose_debug', return_type='bool')
 
     def get_day(self, fmt="%a %b %e"):
         '''returns the current day for the process labor object'''
