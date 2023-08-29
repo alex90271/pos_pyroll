@@ -6,6 +6,7 @@ from tkinter.ttk import Button, Combobox, Frame
 import jinja2
 from tkcalendar import DateEntry
 import pandas as pd
+from process_pools import ProcessPools
 from query_db import QueryDB
 from report_writer import Payroll, ReportWriter, ReportWriterReports
 from chip_config import ChipConfig
@@ -55,7 +56,6 @@ class MainGui():
                                    
                 Click "Report Help" for details on what each report does
         """, justify="left")
-        self.info_label.grid(row=1,column=4, rowspan=8)
 
     def rpt_help_window(self):
         showinfo('Note', """
@@ -77,14 +77,11 @@ class MainGui():
             TTL_CONT are tip contributions
             DECTIPS are declared cash tips
         """)
-        #pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
+        pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
         print((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
 
     def main_window(self):
-        self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
-        self.day_two = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
-        self.select_jobs = []
-        self.select_emps = []
+        self.info_label.grid(row=1,column=4, rowspan=8)
 
         label = Label(self.root, text="")
         label.grid(row=0, column=1, padx=2, pady=2)
@@ -104,6 +101,9 @@ class MainGui():
                                     showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
         end_date_picker.grid(row=2, column=3, padx=2, pady=2)
 
+        start_date_picker.set_date((date.today()-timedelta(days=7)))
+        end_date_picker.set_date((date.today()-timedelta(days=1)))
+
         def on_date_changed(e):
             # Get the dates from both date pickers
             start_date = start_date_picker.get()
@@ -120,9 +120,9 @@ class MainGui():
         label = Label(self.root, text="Select a report:")
         label.grid(row=3, column=2, padx=2, pady=2, columnspan=2)
 
-        report_combo = Combobox(self.root, values=self.reports, width=14, textvariable="labor_main")
-        report_combo.allowCustomValue = False
+        report_combo = Combobox(self.root, values=self.reports, width=16, exportselection=False)
         report_combo.grid(row=4, column=2, padx=2, pady=2)
+        report_combo.set("labor_main")
         report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
         report_help.grid(row=4, column=3, padx=2, pady=2)
 
@@ -177,10 +177,11 @@ class MainGui():
         if testing_adjust_button:
             add_adjustment_button = Button(self.root, text="Adjustments", command=self.adjustments_window)
             add_adjustment_button.grid(row=11, column=3, padx=2, pady=2)
+        
+        self.root.mainloop()
 
     def view_rpt(self):
         report_window = Tk()
-        #report_window.geometry("800x800")
         report_window.iconbitmap(self.icon)
         report_window.wm_title(self.title)
         report_frame = Frame(report_window)
@@ -264,13 +265,6 @@ class MainGui():
             else:
                 showinfo('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
 
-
-    def kill_launch_window(self, window):
-        while self.root.state() != 'normal':
-                time.sleep(1)
-                print('loading')
-        window.destroy()
-
     def adjustments_window(self):
         # Create the popup box
         adjust_window = Tk()
@@ -313,4 +307,10 @@ class MainGui():
 
 
 if __name__ == "__main__":
-    print("this is a helper file, run chip_payroll")
+    icon = "assets\pyroll_ico.ico"
+    title = "Payroll and Tipshare report tool"
+
+    #launch the main GUI
+    gui = MainGui(icon=icon, title=title)
+    gui.main_window()
+
