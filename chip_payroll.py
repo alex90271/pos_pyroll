@@ -1,5 +1,3 @@
-import tkinter as tk
-from tkinter import ttk
 from gui import MainGui
 
 if __name__ == "__main__":
