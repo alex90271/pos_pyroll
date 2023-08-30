@@ -28,7 +28,7 @@ class ChipGui():
         self.root = Tk()
         self.title = title
         self.root.wm_title(title)
-        self.root.geometry("500x600")
+        self.root.geometry("460x650")
 
         #add ttk font
         Style().configure('.', font=('Verdana', 12))
@@ -182,24 +182,23 @@ class ChipGui():
     def main_window(self):
         self.startup_help_window()
 
-        label = Label(self.root, text="")
-        label.grid(row=0, column=1, padx=2, pady=2)
-
         label = Label(self.root, text="\nReport Options")
-        label.grid(row=0, column=2, padx=2, pady=2, columnspan=2)
+        label.grid(row=0, column=2, columnspan=2)
 
         ##DATE PICKERS##
 
         label = Label(self.root, text="First day")
-        label.grid(row=1, column=2, padx=2, pady=2)
+        label.grid(row=1, column=2)
         start_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
                                     showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=365)))
-        start_date_picker.grid(row=2, column=2, padx=2, pady=2)
+        start_date_picker.grid(row=2, column=2)
+
         label = Label(self.root, text="Second day")
         label.grid(row=1, column=3)
         end_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
                                     showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
-        end_date_picker.grid(row=2, column=3, padx=2, pady=2)
+        end_date_picker.grid(row=2, column=3)
+        self.root.grid_rowconfigure(3, weight=1)
 
         start_date_picker.set_date((date.today()-timedelta(days=7)))
         end_date_picker.set_date((date.today()-timedelta(days=1)))
@@ -220,10 +219,10 @@ class ChipGui():
         dropdown_val = StringVar(self.root)
         dropdown_val.set("labor_main")
         label = Label(self.root, text="Select a report:")
-        label.grid(row=3, column=2, padx=2, pady=2, columnspan=2)
+        label.grid(row=4, column=2, columnspan=2)
 
         report_combo = Combobox(self.root, values=self.reports, width=16, exportselection=False)
-        report_combo.grid(row=4, column=2, padx=2, pady=2, columnspan=2)
+        report_combo.grid(row=5, column=2, columnspan=2)
         report_combo.set("labor_main")
 
         def on_report_changed(e):
@@ -233,11 +232,12 @@ class ChipGui():
 
         ##EMPLOYEE LISTBOX##
 
+        self.root.grid_rowconfigure(5, weight=1)
         label = Label(self.root, text="Select an employee:\n(to select all, leave blank)")
-        label.grid(row=5, column=2, padx=2, pady=2)
+        label.grid(row=6, column=2)
 
         employee_listbox = Listbox(self.root, height=10, listvariable=StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
-        employee_listbox.grid(row=6, column=2, padx=1, pady=2)
+        employee_listbox.grid(row=7, column=2, padx=1, pady=2)
 
         # Set the callback function
         def on_employee_changed(e):
@@ -249,11 +249,11 @@ class ChipGui():
         ##JOBCODE LISTBOX##
 
         label = Label(self.root, text="Select a job code:\n(to select all, leave blank)")
-        label.grid(row=5, column=3, padx=2, pady=2)
+        label.grid(row=6, column=3)
 
         jobcode_listbox = Listbox(
             self.root, height=10, listvariable=StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
-        jobcode_listbox.grid(row=6, column=3, padx=1, pady=2)
+        jobcode_listbox.grid(row=7, column=3, padx=1, pady=2)
 
         # Set the callback function
         def on_jobcode_changed(e):
@@ -265,31 +265,34 @@ class ChipGui():
         ##PROCESS BUTTONS#
 
         label = Label(self.root, text="\nProcess Reports")
-        label.grid(row=7, column=2, padx=2, pady=2, columnspan=2)
+        label.grid(row=8, column=2, columnspan=2)
 
         view_button = Button(self.root, text="View", command=self.view_rpt)
-        view_button.grid(row=8, column=2, padx=2, pady=2)
+        view_button.grid(row=9, column=2)
 
         export_button = Button(self.root, text="Print", command=self.export_rpt)
-        export_button.grid(row=8, column=3, padx=2, pady=2)
+        export_button.grid(row=9, column=3)
+
+        self.root.grid_rowconfigure(10, weight=1)
 
         payroll_button = Button(
             self.root, text="Payroll CSV Export", command=self.gusto_rpt)
-        payroll_button.grid(row=10, column=2, padx=2, pady=2, columnspan=2)
+        payroll_button.grid(row=11, column=2, columnspan=2)
 
         ##HELP BUTTONS##
-        label = Label(self.root, text="")
-        label.grid(row=11, column=2)
-        #tipshare_info = Button(self.root, text="Tipshare Settings", command=self.tipshare_info_window)
-        #tipshare_info.grid(row=12, column=2, padx=2, pady=2)
+        self.root.grid_rowconfigure(12, weight=1)
+        tipshare_info = Button(self.root, text="Tipshare Settings", command=self.tipshare_info_window)
+        tipshare_info.grid(row=13, column=2)
         report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
-        report_help.grid(row=12, column=3, padx=2, pady=2)
+        report_help.grid(row=13, column=3)
 
         testing_adjust_button = False
         #set to true to test the "adjustments" feature. Its not working at all
         if testing_adjust_button:
             add_adjustment_button = Button(self.root, text="Adjustments", command=self.adjustments_window)
-            add_adjustment_button.grid(row=14, column=3, padx=2, pady=2)
+            add_adjustment_button.grid(row=14, column=3)
+
+        self.root.grid_rowconfigure(15, weight=1)
 
     def adjustments_window(self):
         # Create the popup box
@@ -315,18 +318,18 @@ class ChipGui():
         # Create a list of dates from the previous 15th or end of month date, to today
         date_list = [today - timedelta(days=x) for x in range(15)]
         date_dropdown = OptionMenu(adjust_frame, "", *date_list)
-        date_dropdown.grid(padx=2, pady=2)
+        date_dropdown.grid()
 
         psl = Label(adjust_frame, text="Primary Server")
         psl.grid()
         dropdown_val = StringVar(adjust_frame)
         primary_selection_dropdown = OptionMenu(adjust_frame, dropdown_val, *self.employee_df["NAME"].to_list(), command=on_primary_selection_changed)
-        primary_selection_dropdown.grid(padx=2, pady=2)
+        primary_selection_dropdown.grid()
 
         msl = Label(adjust_frame, text="Secondary Servers")
         msl.grid()
         multiple_selection_listbox = Listbox(adjust_frame,listvariable=StringVar(value=self.employee_df["NAME"].to_list()), selectmode="multiple", exportselection=False)
-        multiple_selection_listbox.grid(padx=2, pady=2)
+        multiple_selection_listbox.grid()
 
         # Bind the <<ListboxSelect>> event to the second list box
         multiple_selection_listbox.bind("<<ListboxSelect>>", on_multiple_selection_changed)
