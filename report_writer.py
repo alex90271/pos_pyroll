@@ -41,7 +41,7 @@ class ReportWriter():
             _df = _df.loc[_df['EMPLOYEE'].isin(selected_employees)]
         elif selected_jobs:
             _df = _df.loc[_df['JOBCODE'].isin(selected_jobs)]
-
+        
         if _df.empty:  # if there is no data left after filtering, return 'empty'
             return 'empty'
         else:
@@ -198,6 +198,8 @@ class ReportWriter():
         # if any filter options are provided, fliter the data now.
         # While it would be more efficent to filter the data BEFORE processing, it is neccisary as tips require each line data
         df = self.job_emp_filter(selected_employees, selected_jobs, df)
+        if type(df) == str:  # if df is 'empty' theres not point in doing anything else to it
+            return df
         df['SYSDATEIN'] = pd.to_datetime(df['SYSDATEIN']).dt.strftime("%a %b %e")
         # add employee names before generating report
         _df = query_db(self.days[len(self.days)-1]).process_names(df=df)
@@ -249,6 +251,9 @@ class ReportWriter():
         selected_employees=None,
         selected_jobs=None,
     ):
+        
+
+
         if rpt == 'tip_rate':
             df = self.rate_rpt(
                 rpt='Tip',
@@ -275,6 +280,8 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=False)
             # sort the columns
+            if type(df) == str:  # if df is 'empty' don't try to round it
+                return df
             df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS',
                      'OVERHRS', 'DECTIPS', 'TTL_CONT', 'TTL_TIP']]
 
@@ -290,6 +297,8 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 nightly=True)
             # sort the columns
+            if type(df) == str:  # if df is 'empty' don't try to round it
+                return df
             df = df[['SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'HOURS',
                      'OVERHRS', 'TTL_CONT', 'TTL_TIP', 'DECTIPS']]
 
@@ -304,6 +313,8 @@ class ReportWriter():
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
                 nightly=False)
+            if type(df) == str:  # if df is 'empty' don't try to round it
+                return df
             # sort the columns
             df = df[['LASTNAME', 'FIRSTNAME', 'HOURS',
                      'OVERHRS', 'TTL_TIP', 'DECTIPS']]
@@ -362,6 +373,8 @@ class ReportWriter():
                 selected_jobs=selected_jobs,
                 report=True
             )
+            if type(df) == str:  # if df is 'empty' don't try to round it
+                return df
             df = df[['FIRSTNAME', 'LASTNAME', 'ACTUAL_HOURLY']]
 
         elif rpt == 'tip_rate_plot':
@@ -375,10 +388,7 @@ class ReportWriter():
             raise ValueError(
                 '' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')
 
-        if type(df) == str:  # if df is 'empty' don't try to round it
-            return df
-        else:
-            return df.round(2)
+        return df.round(2)
 
 
 class ReportWriterReports():
