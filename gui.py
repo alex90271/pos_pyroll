@@ -58,7 +58,7 @@ class ChipGui():
         report_frame.grid()
         print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
         if self.rpt_type == 'labor_avg_hours' or self.rpt_type =='labor_weekly':
-            if (int(self.day_two) - int(self.day_one)) < 13:
+            if (int(self.day_two) - int(self.day_one)) < 14:
                 showerror('Error', "You must select a range greater than two weeks")
                 return 0 #exit the program if no data to display
             
@@ -128,7 +128,7 @@ class ChipGui():
             result = True
             if (pd.date_range(self.day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] != self.day_two):
                 #changes to false if the user clicks no
-                result = askyesno("Nonstandard Payroll Dialog", ("***CAUTION***CAUTION***\nYou have selected a NON STANDARD payroll interval for export\nPlease double check your days!\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n \nWould you like export the NON STANDARD payroll?"))
+                result = askyesno("***CAUTION***", ("***CAUTION***\nYou have selected a NON STANDARD payroll interval for export\nPlease double check your days!\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n \nWould you like export the NON STANDARD payroll?"))
             if result:
                 print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
                 '''exports payroll to gusto'''
@@ -141,7 +141,7 @@ class ChipGui():
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
-                showinfo('Note', ("Exported\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n \nCheck the exports folder for the CSV"))
+                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n \nCheck the exports folder for the CSV"))
                 
     def mainloop(self):
         self.root.mainloop()
@@ -224,8 +224,11 @@ Shows the average hours an employee worked through the period
     def startup_help_window(self):
         showinfo('Note', """
 To Run a Report:
-    Select the report dates in the dropdown
-    (for a single day, enter it twice)
+    1.Select the report dates in the dropdown
+       1a.For a single day, enter it in both first and last dates
+    3.Select a report type
+    4.(Optional) Filter by employee or job
+    5.Press "view", or send to printer with "print"
                                 
 The data reported here is only as accurate as Aloha 
     Ex. incorrect clockins
@@ -331,7 +334,7 @@ Report data is pulled from Aloha, and tipshare is recalculated each time a repor
 
         self.root.grid_rowconfigure(10, weight=1)
 
-        payroll_button = Button(self.root, text="Payroll CSV", command=self.gusto_rpt)
+        payroll_button = Button(self.root, text="Export to CSV", command=self.gusto_rpt)
         payroll_button.grid(row=11, column=2)
 
         ##HELP BUTTONS##
