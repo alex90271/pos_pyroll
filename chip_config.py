@@ -14,15 +14,14 @@ class ChipConfig():
         Path('debug').mkdir(exist_ok=True)
         Path('exports').mkdir(exist_ok=True)
 
-        path = "exports/"
         now = time.time()
-
-        for filename in os.listdir(path):
-            filestamp = os.stat(os.path.join(path, filename)).st_mtime
-            filecompare = now - 7 * 86400
-            if  filestamp < filecompare:
-                print('removing old report: ' + filename)
-                os.remove(path + filename)
+        for path in ['exports/','debug/']:
+            for filename in os.listdir(path):
+                filestamp = os.stat(os.path.join(path, filename)).st_mtime
+                filecompare = now - 7 * 86400
+                if  filestamp < filecompare:
+                    print('removing old report: ' + filename)
+                    os.remove(path + filename)
 
         if not os.path.isfile(self.config_name):
             print('generating new default config')
