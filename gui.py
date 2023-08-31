@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from tkinter import SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
+from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Button, Combobox, Frame, Style
 import jinja2
@@ -148,12 +148,27 @@ class ChipGui():
         report_frame = Frame(report_window)
         report_frame.grid()
 
+
         df.reset_index(inplace=True)
         #df.to_dict(orient='index')
         pt = Table(report_frame, dataframe=df, width=1000, height=300,
-                showstatusbar=False, editable= False)
+                showstatusbar=False, editable=False)
         pt.show()
-        showinfo('Note', "This data can be modified under /data/pools.json")
+        showinfo('Note', """
+This data can be modified under /data/pools.json
+
+This is a list of each tip pool
+Which Jobs contribute, and which receive
+Based on Jobcode numbers from Aloha
+
+Type-Sales: is contribution on percentage of sales
+
+Type-Tips: Contribution a percentage of tips
+
+Percent: how much they contribute
+                 
+A more helpful window is in the works
+                 """)
 
     def rpt_help_window(self):
         showinfo('Note', """
@@ -242,7 +257,7 @@ Report data is pulled from Aloha, and tipshare is recalculated each time a repor
             end_date = end_date_picker.get()
             self.day_one = datetime.strptime(start_date, '%m/%d/%y').strftime('%Y%m%d')
             self.day_two = datetime.strptime(end_date, '%m/%d/%y').strftime('%Y%m%d')
-            print(self.day_one, self.day_two)
+            #print(self.day_one, self.day_two)
 
         start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
         end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
