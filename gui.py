@@ -225,12 +225,16 @@ Shows the average hours an employee worked through the period
 
     def startup_help_window(self):
         showinfo('Note', """
-To Run a Report:
+RUN A REPORT:
     1.Select the report dates in the dropdown
        1a.For a single day, enter it in both first and last dates
     3.Select a report type
     4.(Optional) Filter by employee or job
     5.Press "view", or send to printer with "print"
+                 
+CSV EXPORT:
+    Only relies on you setting the Dates
+    Ignores the report, and employee/job selections
                                 
 The data reported here is only as accurate as Aloha 
     Ex. incorrect clockins
