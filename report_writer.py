@@ -316,7 +316,7 @@ class ReportWriter():
                 ttlrs.append(pool)
 
             df = self.labor_main(
-                drop_cols=['RATE', 'TIPSHCON', 'SALES', 'CCTIPS',
+                drop_cols=['RATE', 'TIPSHCON', 'COUTBYEOD', 'INVALID', 'JOB_NAME','TERMINATED','SYSDATEIN',
                            'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID', 'TTL_CONT', 'TTL_TIP'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=ttlrs,
