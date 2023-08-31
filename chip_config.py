@@ -53,6 +53,7 @@ class ChipConfig():
             'totals_tiprate_rpt': True, # bool
             'debug': False, #bool
             'verbose_debug': False,  # bool
+            'dropped_pools_from_tiprate': 'luncheon_pool',
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
             'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999', 
             'company_name': ''
@@ -133,6 +134,8 @@ class ChipConfig():
         # user can specify a return type if necissary.
         if return_type == 'int_array':
             result = [int(x) for x in result.split(',')]
+        if return_type == 'str_array':
+            result = [str(x) for x in result.split(',')]
         elif return_type == 'float':
             float(result)
         elif return_type == 'bool':

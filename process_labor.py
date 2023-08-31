@@ -34,6 +34,8 @@ class ProcessLabor():
             0]  # used for calculating labor costs for salaried employees
         self.verbose_debug = c.query(
             'SETTINGS', 'verbose_debug', return_type='bool')
+        
+        self.dropped_pools_from_tiprate = c.query('SETTINGS', 'dropped_pools_from_tiprate', return_type='str_array')
 
         if self.verbose_debug:
             if not os.path.exists('debug'):
@@ -200,6 +202,12 @@ class ProcessLabor():
         cash_tips = self.pooler.get_cash_contribution()
         total_tips = self.pooler.get_total_contribution()
         total_hours = self.pooler.get_total_hours()
+
+        for pool in self.dropped_pools_from_tiprate:
+            try:
+                del self.pool_names[pool]
+            except:
+                print('pool_name does not exist')
         df = pd.concat([pd.DataFrame(data={
             names[0]: [pool],
             names[1]: [self.get_day()],  # date
