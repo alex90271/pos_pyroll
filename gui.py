@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showerror, showinfo
 from tkinter.ttk import Button, Combobox, Frame, Style
 import jinja2
 from tkcalendar import DateEntry
@@ -57,11 +57,15 @@ class ChipGui():
         report_frame = Frame(report_window)
         report_frame.grid()
         print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
+        if self.rpt_type == 'labor_avg_hours' or self.rpt_type =='labor_weekly':
+            if (int(self.day_two) - int(self.day_one)) < 13:
+                showerror('Error', "You must select a range greater than two weeks")
+                return 0 #exit the program if no data to display
         df = ReportWriter(self.day_one, self.day_two).print_to_json(
             self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
         if type(df) == 'empty':
             showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
-            return '' #exit the program if no data to display
+            return 0 #exit the program if no data to display
         df.reset_index(inplace=True)
         #df.to_dict(orient='index')
         pt = Table(report_frame, dataframe=df, width=1000, height=600,
@@ -116,7 +120,7 @@ class ChipGui():
                 )
                 showinfo('Note', "The report has been printed\nCheck Printer: " + printer_name)                          
             except:
-                showinfo('Note', "There was a printer error\nCheck the exports folder for a PDF\n\nNote: Adobe Acrobat Reader should be installed")
+                showerror('Error', "There was a printer error\nCheck the exports folder for a PDF\n\nNote: Adobe Acrobat Reader should be installed")
 
     def gusto_rpt(self):
             print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
@@ -133,7 +137,7 @@ class ChipGui():
                     index=False)
                 showinfo('Note', ("Check the exports folder for the payroll CSV"))
             else:
-                showinfo('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
+                showerror('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
             
     def mainloop(self):
         self.root.mainloop()
