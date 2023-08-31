@@ -127,7 +127,8 @@ class ChipGui():
     def gusto_rpt(self):
             result = True
             if (pd.date_range(self.day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] != self.day_two):
-                result = askyesno("Nonstandard Payroll Dialog", ("CAUTION:\nYou have selected a non standard payroll interval for export\nFirst day: " + self.day_one + "\nLast day: " + self.day_two + "\n \nWould you like to continue?"))
+                #changes to false if the user clicks no
+                result = askyesno("Nonstandard Payroll Dialog", ("***CAUTION***CAUTION***\nYou have selected a NON STANDARD payroll interval for export\nPlease double check your days!\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n \nWould you like export the NON STANDARD payroll?"))
             if result:
                 print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
                 '''exports payroll to gusto'''
@@ -140,7 +141,7 @@ class ChipGui():
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
-                showinfo('Note', ("Exported\nCheck the exports folder the CSV"))
+                showinfo('Note', ("Exported\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n \nCheck the exports folder for the CSV"))
                 
     def mainloop(self):
         self.root.mainloop()
@@ -248,7 +249,7 @@ Report data is pulled from Aloha, and tipshare is recalculated each time a repor
                                     showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=365)))
         start_date_picker.grid(row=2, column=2)
 
-        label = Label(self.root, text="Second day")
+        label = Label(self.root, text="Last day")
         label.grid(row=1, column=3)
         end_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
                                     showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
