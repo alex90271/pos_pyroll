@@ -143,7 +143,7 @@ class ChipGui():
                     ("exports/" + name_string + '.csv'),
                     index=False)
 
-                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTotal Tips Paid Out: " + str(np.sum(result['paycheck_tips'])) + "\n\nCheck the exports folder for the CSV"))
+                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTotal Tips Paid Out: " + str(np.round(np.sum(result['paycheck_tips'])),2) + "\n\nCheck the exports folder for the CSV"))
                 
     def mainloop(self):
         self.root.mainloop()
