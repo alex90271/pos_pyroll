@@ -386,7 +386,6 @@ class ReportWriterReports():
     def available_reports(self):
         return ['labor_main',
             'labor_total',
-            'labor_nightly',
             'labor_weekly',
             'tipshare_detail',
             'punctuality',
