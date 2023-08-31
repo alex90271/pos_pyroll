@@ -139,44 +139,77 @@ class ChipGui():
         self.root.mainloop()
 
     def tipshare_info_window(self):
-        showinfo('Note', "see pools.json")
+        pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
+        df = pd.DataFrame(pooler.get_pool_info())
+
+        report_window = Toplevel()
+        report_window.iconbitmap(self.icon)
+        report_window.wm_title(self.title)
+        report_frame = Frame(report_window)
+        report_frame.grid()
+
+        df.reset_index(inplace=True)
+        #df.to_dict(orient='index')
+        pt = Table(report_frame, dataframe=df, width=1000, height=300,
+                showstatusbar=False, editable= False)
+        pt.show()
+        showinfo('Note', "This data can be modified under /data/pools.json")
 
     def rpt_help_window(self):
         showinfo('Note', """
-            1.Cout_eod:
-            This report lists any clockins that were force closed by the end of day (3am)
-
-            2.Labor Rate:
-            Labor rate report pulls from pay rates set in Aloha
+1.labor_main
+By Jobcode, Shows a breakdown of tips, and hours
+TTL_TIP are tips paid out on check
+TTL_CONT are tip contributions
+DECTIPS are declared cash tips
+                                  
+2.labor_total,
+Same as "Labor_Main", but only employee totals
+                                                           
+3.labor_weekly,
+Requires 2+ weeks
+Shows a sum of labor for each week
                  
-            3.Hourly:
-            Hourly shows the actual hourly rate someone made, tips and all (uses pay rates set in aloha)
-
-            4.Labor Average Hours:
-            Requires 2+ weeks; Labor Average shows the average hours and employee worked during the selected period
+4.tipshare_detail,
+A complex breakdown of tipshare
                  
-            5.Labor Reports:
-            Shows a breakdown of tips, and hours
-            TTL_TIP are tips paid out on check
-            TTL_CONT are tip contributions
-            DECTIPS are declared cash tips
+5.punctuality,
+Shows when employees clocked in, and out                 
+                 
+6.hourly,
+Shows employee hourly, including their tips
+Includes pay from payrates set in Aloha
+                 
+7.tip_rate,
+Shows the daily tip payrate, and info
+Broken down by tip pool (takeout, servers, etc)
+                 
+8.labor_rate,
+Shows the daily labor paid out, against sales
+Based on labor rates set in Aloha
+                 
+9.cout_eod,
+Shows each employee that Aloha force clocked out
+Any 3am outhours should be fixed                 
+outhour, outmin, shows the latest outhour, and min from Aloha
+                 
+10.labor_avg_hours
+Requires 2+ weeks
+Shows the average hours an employee worked through the period                
         """)
-        pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
-        print((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
 
     def startup_help_window(self):
         showinfo('Note', """
-                To Run a Report:
-                Select the report dates in the dropdown
-                (for a single day, enter it twice)
-                                   
-                Important Notes:
-                It is important to verify totals against Aloha 
-                    Total tips paid out should equal total tips reported on Aloha
-                The data reported here is only as accurate as Aloha 
-                    Ex. incorrect clockins
-                                   
-                Click "Report Help" for details on what each report does
+To Run a Report:
+    Select the report dates in the dropdown
+    (for a single day, enter it twice)
+                                
+The data reported here is only as accurate as Aloha 
+    Ex. incorrect clockins
+                            
+Click "Report Help" for details on what each report does
+                
+Report data is pulled from Aloha, and tipshare is recalculated each time a report run
         """)
 
     def main_window(self):
