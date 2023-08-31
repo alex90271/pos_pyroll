@@ -110,14 +110,14 @@ class QueryDB():
 
         elif db_type == 'transactions':  # this isn't used yet
             if self.data == 'Data':
-                raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
+                raise ValueError('ERROR: DATE ERROR IN TRANSACTION DATA')
             a = self.dbf_to_list('/GNDTndr.dbf')
             df = pd.DataFrame(a)
             return df.copy()
 
         elif db_type == 'house_acct':
             if self.data == 'Data':
-                raise ValueError('ERROR: NO DATE GIVEN FOR TRANSACTION DATA')
+                raise ValueError('ERROR: DATE ERROR IN TRANSACTION DATA')
             a = self.dbf_to_list('/HSE.DBF')
             df = pd.DataFrame(a)
             return df.copy()
@@ -126,7 +126,7 @@ class QueryDB():
             shared_cols = ['DOB', 'STARTHOUR', 'STARTMIN', 'STOPHOUR',
                            'STOPMIN', 'STOREID', 'REGIONID', 'OCCASIONID']
             if self.data == 'Data':
-                raise ValueError('ERROR: NO DATE GIVEN FOR LABOR DATA')
+                raise ValueError('ERROR: DATE ERROR IN LABOR DATA')
             # 15 minute intervals of sales
             a_df = pd.DataFrame(self.dbf_to_list('/GNDLBSUM.DBF'))
             # 15 minute invervales of labor cost
