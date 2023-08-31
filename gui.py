@@ -3,6 +3,7 @@ from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu
 from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
 from tkinter.ttk import Button, Combobox, Frame, Style
 import jinja2
+import numpy as np
 from tkcalendar import DateEntry
 import pandas as pd
 from process_pools import ProcessPools
@@ -141,7 +142,8 @@ class ChipGui():
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
-                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n \nCheck the exports folder for the CSV"))
+
+                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTotal Tips Paid Out: " + str(np.sum(result['paycheck_tips'])) + "\n\nCheck the exports folder for the CSV"))
                 
     def mainloop(self):
         self.root.mainloop()
