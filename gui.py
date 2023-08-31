@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
-from tkinter.messagebox import showerror, showinfo
+from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
 from tkinter.ttk import Button, Combobox, Frame, Style
 import jinja2
 from tkcalendar import DateEntry
@@ -125,9 +125,12 @@ class ChipGui():
                 showerror('Error', "There was a printer error\nCheck the exports folder for a PDF\n\nNote: Adobe Acrobat Reader should be installed")
 
     def gusto_rpt(self):
-            print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
-            '''exports payroll to gusto'''
-            if (pd.date_range(self.day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] == self.day_two):
+            result = True
+            if (pd.date_range(self.day_one, periods=1, freq='SM').strftime("%Y%m%d")[0] != self.day_two):
+                result = askyesno("Nonstandard Payroll Dialog", ("CAUTION:\nYou have selected a non standard payroll interval for export\nFirst day: " + self.day_one + "\nLast day: " + self.day_two + "\n \nWould you like to continue?"))
+            if result:
+                print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
+                '''exports payroll to gusto'''
                 result = Payroll(self.day_one, self.day_two).process_payroll()
                 if type(result) == 'empty':
                     showinfo('Note', "There is no data to export for this selection\n(This is not an error)")
@@ -137,10 +140,8 @@ class ChipGui():
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
-                showinfo('Note', ("Check the exports folder for the payroll CSV"))
-            else:
-                showerror('Note', ("There was an error\nYou must select a payroll interval to export payroll\nEx. 1st-15th or 16th-31st"))
-            
+                showinfo('Note', ("Exported\nCheck the exports folder the CSV"))
+                
     def mainloop(self):
         self.root.mainloop()
 
@@ -329,13 +330,12 @@ Report data is pulled from Aloha, and tipshare is recalculated each time a repor
 
         self.root.grid_rowconfigure(10, weight=1)
 
-        payroll_button = Button(
-            self.root, text="Payroll CSV Export", command=self.gusto_rpt)
-        payroll_button.grid(row=11, column=2, columnspan=2)
+        payroll_button = Button(self.root, text="Payroll CSV", command=self.gusto_rpt)
+        payroll_button.grid(row=11, column=2)
 
         ##HELP BUTTONS##
         self.root.grid_rowconfigure(12, weight=1)
-        tipshare_info = Button(self.root, text="Tipshare Settings", command=self.tipshare_info_window)
+        tipshare_info = Button(self.root, text="Tipshare Config", command=self.tipshare_info_window)
         tipshare_info.grid(row=13, column=2)
         report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
         report_help.grid(row=13, column=3)
