@@ -61,11 +61,13 @@ class ChipGui():
             if (int(self.day_two) - int(self.day_one)) < 13:
                 showerror('Error', "You must select a range greater than two weeks")
                 return 0 #exit the program if no data to display
+            
         df = ReportWriter(self.day_one, self.day_two).print_to_json(
             self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
-        if type(df) == 'empty':
+        if type(df) == str:
             showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
             return 0 #exit the program if no data to display
+        
         df.reset_index(inplace=True)
         #df.to_dict(orient='index')
         pt = Table(report_frame, dataframe=df, width=1000, height=600,
