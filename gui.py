@@ -143,27 +143,12 @@ class ChipGui():
                     ("exports/" + name_string + '.csv'),
                     index=False)
 
-                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTotal Tips Paid Out: " + str(np.round(np.sum(result['paycheck_tips'])),2) + "\n\nCheck the exports folder for the CSV"))
+                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTotal Tips Paid Out: " + str(np.round(np.sum(result['paycheck_tips']),2)) + "\n\nCheck the exports folder for the CSV"))
                 
     def mainloop(self):
         self.root.mainloop()
 
     def tipshare_info_window(self):
-        pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
-        df = pd.DataFrame(pooler.get_pool_info())
-
-        report_window = Toplevel()
-        report_window.iconbitmap(self.icon)
-        report_window.wm_title(self.title)
-        report_frame = Frame(report_window)
-        report_frame.grid()
-
-
-        df.reset_index(inplace=True)
-        #df.to_dict(orient='index')
-        pt = Table(report_frame, dataframe=df, width=1000, height=300,
-                showstatusbar=False, editable=False)
-        pt.show()
         showinfo('Note', """
 This data can be modified under /data/pools.json
 
@@ -179,6 +164,21 @@ Percent: how much they contribute
                  
 A more helpful window is in the works
                  """)
+        pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
+        df = pd.DataFrame(pooler.get_pool_info())
+
+        report_window = Toplevel()
+        report_window.iconbitmap(self.icon)
+        report_window.wm_title(self.title)
+        report_frame = Frame(report_window)
+        report_frame.grid()
+
+
+        df.reset_index(inplace=True)
+        #df.to_dict(orient='index')
+        pt = Table(report_frame, dataframe=df, width=1000, height=300,
+                showstatusbar=False, editable=False)
+        pt.show()
 
     def rpt_help_window(self):
         showinfo('Note', """
@@ -228,20 +228,19 @@ Shows the average hours an employee worked through the period
 RUN A REPORT:
     1.Select the report dates in the dropdown
        1a.For a single day, enter it in both first and last dates
-    3.Select a report type
-    4.(Optional) Filter by employee or job
-    5.Press "view", or send to printer with "print"
+    2.Select a report type
+       2a. Click "Report Help" for details on each report
+    3.(Optional) Filter by employee or job
+    4.Press "view", or send to printer with "print"
                  
 CSV EXPORT:
     Only relies on you setting the Dates
     Ignores the report, and employee/job selections
-                                
-The data reported here is only as accurate as Aloha 
-    Ex. incorrect clockins
-                            
-Click "Report Help" for details on what each report does
-                
-Report data is pulled from Aloha, and tipshare is recalculated each time a report run
+
+The data reported is only as accurate as data in Aloha 
+(For example, incorrect clockins)
+
+If changes are made in Aloha, a new report will show it
         """)
 
     def main_window(self):
