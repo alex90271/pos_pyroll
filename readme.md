@@ -16,7 +16,7 @@
 ### --- BACKEND:
 
     Pyinstaller Compile Command: 
-        pyinstaller chip_payroll.py --noconsole --hidden-import babel.numbers --add-data "templates/*;templates" --add-data "wkhtmltox/bin/*;wkhtmltox/bin" --add-data "wkhtmltox/include/*;wkhtmltox/include"
+        pyinstaller chip_payroll.py --noconsole --hidden-import babel.numbers --add-data "templates/*;templates" --add-data "wkhtmltox/bin/*;wkhtmltox/bin" --add-data "wkhtmltox/include/*;wkhtmltox/include" --add-data "assets/*;assets"
 
     NOTE: If using --onefile arg, templates and wkhtmltox must be added separately
         pyinstaller gui.py --onefile --noconsole --hidden-import babel.numbers

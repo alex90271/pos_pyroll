@@ -8,7 +8,7 @@ a = Analysis(
     ['chip_payroll.py'],
     pathex=[],
     binaries=[],
-    datas=[('templates/*', 'templates'), ('wkhtmltox/bin/*', 'wkhtmltox/bin'), ('wkhtmltox/include/*', 'wkhtmltox/include')],
+    datas=[('templates/*', 'templates'), ('wkhtmltox/bin/*', 'wkhtmltox/bin'), ('wkhtmltox/include/*', 'wkhtmltox/include'), ('assets/*', 'assets')],
     hiddenimports=['babel.numbers'],
     hookspath=[],
     hooksconfig={},
