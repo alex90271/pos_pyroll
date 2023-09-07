@@ -91,9 +91,9 @@ class ProcessPools():
             self.total_contributions[pool] = cont_sum
             self.total_hours[pool] = hr_sum
             self.pool_rates[pool] = r_tiprate
-            if self.verbose_debug:
-                return_df.to_csv('debug/pooler'+ pool + ' ' + self.day + '.csv')
             
+        if self.verbose_debug:
+            return_df.to_csv('debug/pooler' + self.day + '.csv')
         return_df['TTL_TIP'] = np.add(return_df[self.pool_names].sum(
             axis=1), return_df[['CCTIP_' + pool for pool in self.pool_names]].sum(axis=1))
         return_df['TTL_CONT'] = return_df[[
