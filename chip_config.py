@@ -6,7 +6,7 @@ import time
 
 class ChipConfig():
 
-    def __init__(self, config_name='chip.json',pooler_name='pools.json'):
+    def __init__(self, config_name='settings_v3.json',pooler_name='tip_pools.json'):
         self.config_name = 'data/'+config_name
         self.pooler_name = 'data/'+pooler_name
 
@@ -44,18 +44,17 @@ class ChipConfig():
     def generate_config(self):
         '''generates the default config file, with default settings. To reset config file, just delete it'''
         data = {}
-        data['ver'] = {'ver': 2}
         data['SETTINGS'] = {
-            'tracked_labor': '8',  # array
-            'pay_period_days': '15',  # array
-            'count_salary': True,  # bool
             'totals_tiprate_rpt': True, # bool
             'debug': False, #bool
             'verbose_debug': False,  # bool
             'dropped_pools_from_tiprate': 'luncheon_pool',
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
-            'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999', 
-            'company_name': ''
+            'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999'
+        }
+        data['LABOR_PERCENT_SETTINGS'] = {
+            'tracked_labor': '8',  # array
+            'pay_period_days': '15',  # array
         }
     
 
