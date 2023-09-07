@@ -24,7 +24,8 @@ class ChipGui():
         self.jobcode_df = QueryDB().process_db('jobcodes').set_index('ID')
         self.employee_df['NAME'] = self.employee_df['FIRSTNAME'] + ' ' + self.employee_df['LASTNAME']
         self.reports = ReportWriterReports().available_reports()
-
+        self.verbose_debug = ChipConfig().query(
+            'SETTINGS', 'verbose_debug', return_type='bool')
         #window setup
         self.root = Tk()
         self.title = title
@@ -70,6 +71,8 @@ class ChipGui():
             return 0 #exit the program if no data to display
         
         df.reset_index(inplace=True)
+        if self.verbose_debug:
+            df.to_csv('debug/latest_viewed.csv')
         #df.to_dict(orient='index')
         pt = Table(report_frame, dataframe=df, width=1000, height=600,
                 showstatusbar=True)
@@ -137,8 +140,7 @@ class ChipGui():
                 if type(result) == 'empty':
                     showinfo('Note', "There is no data to export for this selection\n(This is not an error)")
                     return '' #exit the program if no data to export
-                name_string = ChipConfig().query("SETTINGS", "company_name") + \
-                    '-payroll_export-' + 'F' + self.day_one + '-' + 'L' + self.day_two
+                name_string = 'payroll_csv-' + self.day_one + '-through-' + self.day_two
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
