@@ -50,7 +50,7 @@ class ProcessPools():
         return self.pooler()
 
     def get_pool_info(self):
-        with open('data/pools.json') as jsonfile:
+        with open('data/tip_pools.json') as jsonfile:
             return json.load(jsonfile)
 
     def pooler(self):
