@@ -29,8 +29,8 @@ class ProcessLabor():
         # config options
         c = ChipConfig()
         self.tracked_labor = c.query(
-            'SETTINGS', 'tracked_labor', return_type='int_array')
-        self.pay_period = c.query('SETTINGS', 'pay_period_days', return_type='int_array')[
+            'LABOR_PERCENT_SETTINGS', 'tracked_labor', return_type='int_array')
+        self.pay_period = c.query('LABOR_PERCENT_SETTINGS', 'pay_period_days', return_type='int_array')[
             0]  # used for calculating labor costs for salaried employees
         self.verbose_debug = c.query(
             'SETTINGS', 'verbose_debug', return_type='bool')
@@ -128,7 +128,7 @@ class ProcessLabor():
 
     def calc_salary(self):
         '''returns a dataframe of the salary employees'''
-        salary_df = pd.DataFrame  # blank dataframe
+        salary_df = pd.DataFrame()  # blank dataframe
         salary_path = 'data/salary.csv'
         # check if the salary csv already exists
         if not os.path.exists(salary_path):
