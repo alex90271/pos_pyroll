@@ -45,11 +45,10 @@ class ChipConfig():
         '''generates the default config file, with default settings. To reset config file, just delete it'''
         data = {}
         data['SETTINGS'] = {
-            'totals_tiprate_rpt': True, # bool
+            'totaled_tiprate': True, # bool
             'debug': False, #bool
             'verbose_debug': False,  # bool
             'dropped_pools_from_tiprate': 'luncheon_pool',
-            'totaled_tiprate': True,
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
             'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999'
         }
