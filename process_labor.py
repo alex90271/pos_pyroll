@@ -34,6 +34,8 @@ class ProcessLabor():
             0]  # used for calculating labor costs for salaried employees
         self.verbose_debug = c.query(
             'SETTINGS', 'verbose_debug', return_type='bool')
+        self.totals_tiprate = c.query(
+            'SETTINGS', 'totaled_tiprate', return_type='bool')
         
         self.dropped_pools_from_tiprate = c.query('SETTINGS', 'dropped_pools_from_tiprate', return_type='str_array')
 
@@ -153,7 +155,8 @@ class ProcessLabor():
         else:
             cur_df = self.df.copy()
         if salary:
-            cur_df = cur_df.append(self.calc_salary())
+            #cur_df = cur_df.append(self.calc_salary())
+            cur_df = pd.concat([cur_df, self.calc_salary()])
         reg = np.multiply(cur_df.loc[:, ('HOURS')], cur_df.loc[:, ('RATE')])
         over = np.multiply(cur_df.loc[:, ('OVERHRS')], np.multiply(
             cur_df.loc[:, ('RATE')], 1.5))
@@ -216,6 +219,13 @@ class ProcessLabor():
             names[4]: [total_tips[pool]],  # Total Tip Pool
             names[5]: [total_hours[pool]]  # Total Tipped Hours
         }) for pool in self.pool_names])
+
+        if self.totals_tiprate:
+            _df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
+            _df = _df.sort_values(by='index').drop(columns='index')
+            _df['Date'] = self.get_day()
+            _df['Pool'] = 'DAILY SUM'
+            return _df
         return df
 
     def calc_laborrate_df(self):

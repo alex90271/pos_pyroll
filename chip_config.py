@@ -49,6 +49,7 @@ class ChipConfig():
             'debug': False, #bool
             'verbose_debug': False,  # bool
             'dropped_pools_from_tiprate': 'luncheon_pool',
+            'totaled_tiprate': True,
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
             'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999'
         }
