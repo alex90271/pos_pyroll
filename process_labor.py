@@ -206,9 +206,10 @@ class ProcessLabor():
         total_tips = self.pooler.get_total_contribution()
         total_hours = self.pooler.get_total_hours()
 
+        tip_rate_pools = self.pool_names
         for pool in self.dropped_pools_from_tiprate:
             try:
-                del self.pool_names[pool]
+                del tip_rate_pools[pool]
             except:
                 print('pool_name does not exist')
         df = pd.concat([pd.DataFrame(data={
@@ -218,11 +219,12 @@ class ProcessLabor():
             names[3]: [cash_tips[pool]],  # Cash Tips
             names[4]: [total_tips[pool]],  # Total Tip Pool
             names[5]: [total_hours[pool]]  # Total Tipped Hours
-        }) for pool in self.pool_names])
+        }) for pool in tip_rate_pools])
 
         if self.totals_tiprate:
             _df = df.reset_index().pivot_table(index=['Date'], aggfunc=np.sum)
             _df = _df.sort_values(by='index').drop(columns='index')
+            _df['Total_Hours'] = np.divide(_df['Total_Hours'],len(tip_rate_pools))
             _df['Date'] = self.get_day()
             _df['Pool'] = 'DAILY SUM'
             return _df
