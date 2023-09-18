@@ -73,9 +73,9 @@ class ProcessPools():
                 self.cash_contributions[pool] = c['DECTIPS'].sum()
                 return_df['CCTIP_'+pool] = 0
             elif self.pool_names[pool]["type"] == 'equal':
-                c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values, c['DECTIPS'].values),
+                c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values),
                                            len(c.index)-1)
-                self.cash_contributions[pool] = c['DECTIPS'].sum()
+                #self.cash_contributions[pool] = c['DECTIPS'].sum()
                 return_df['CCTIP_'+pool] = 0
             return_df['c_'+pool] = c['c_'+pool]
 
