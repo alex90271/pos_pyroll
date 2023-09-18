@@ -144,8 +144,15 @@ class ChipGui():
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
-
-                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTotal Tips Paid Out: " + str(np.round(np.sum(result['paycheck_tips']),2)) + "\n\nCheck the exports folder for the CSV"))
+                
+                #generate report tooltip
+                paycheck_tips = np.round(np.sum(result['paycheck_tips']),2)
+                gratuties  = np.round(np.sum(result['custom_earning_gratuity']),2)
+                tip_grat_sum = np.round((paycheck_tips + gratuties),2)
+                total_exp_hours = np.round(np.sum(result['regular_hours']),2)
+                total_exp_overtime = np.round(np.sum(result['overtime_hours']),2)
+                total_hr_overtim_exp_sum = np.round((total_exp_hours + total_exp_overtime),2)
+                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTips Paid Out: " + str(paycheck_tips) + "\nGratuities Paid Out: " + str(gratuties) + "\nTotal: " + str(tip_grat_sum) + "\n\nHours: " + str(total_exp_hours) + "\nOvertime: " + str(total_exp_overtime) + "\nTotal: " + str(total_hr_overtim_exp_sum) + "\n\nCheck the exports folder for the CSV"))
                 
     def mainloop(self):
         self.root.mainloop()
