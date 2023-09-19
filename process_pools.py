@@ -54,48 +54,70 @@ class ProcessPools():
             return json.load(jsonfile)
 
     def pooler(self):
+        '''loops through the tip_pools.json and calculates tip pools based on if a sales, tip or equal pool type
+        '''
         return_df = self.df.copy()
         for pool in self.pool_names:
             if self.verbose_debug:
                 print("processing " + pool + " for " + self.day)
             c = self.df.loc[self.df['JOBCODE'].isin(
                 self.pool_info[pool]["contribute"])].copy()
+            
             if self.pool_info[pool]["type"] == 'sales':
+                #calculating a tip pool by taking a percentage of sales
                 c['c_'+pool] = np.multiply(c['SALES'].values,
                                            (int(self.pool_info[pool]["percent"])/100))
                 self.cash_contributions[pool] = 0
                 # return the rest of the tips after the tip pool
                 c['CCTIP_'+pool] = c['CCTIPS'] - c['c_'+pool]
                 return_df['CCTIP_'+pool] = c['CCTIP_'+pool]
+
             elif self.pool_info[pool]["type"] == 'tips':
+                #calculating a tip pool based on a percentage of tips
                 c['c_'+pool] = np.multiply(np.add(c['CCTIPS'].values, c['DECTIPS'].values),
                                            (int(self.pool_info[pool]["percent"])/100))
                 self.cash_contributions[pool] = c['DECTIPS'].sum()
                 return_df['CCTIP_'+pool] = 0
+
             elif self.pool_info[pool]["type"] == 'equal':
-                c['c_'+pool] = np.sum(c['CCTIPS'].values)
+                #calculating a tip pool by evenly splitting the tips
+                c['c_'+pool] = c['CCTIPS'].values
+                #get the total tips, and divide by total splitting it. to split equally
                 self.cash_contributions[pool] = 0
-                return_df['CCTIP_'+pool] = np.divide(np.sum(c['CCTIPS'].values),len(c.index)-1)
+                return_df['CCTIP_'+pool] = 0
+            
+            else:
+                raise ValueError("invalid pool type in tip_pools.json")
+
+            #record all the contributions, even though that isn't what each person has earned. 
             return_df['c_'+pool] = c['c_'+pool]
 
-            r = self.df.loc[self.df['JOBCODE'].isin(
-                self.pool_info[pool]["receive"])].copy()
-            hr_sum = r['HOURS'].sum()
-            cont_sum = c['c_'+pool].sum()
-            #ignores the divide by zero error
-            with np.errstate(invalid='ignore'):
-                r_tiprate = np.divide(cont_sum, hr_sum)
-            r[pool] = np.multiply(r['HOURS'].values, r_tiprate)
-            return_df[pool] = r[pool]
+            #now we are applying the calculations to the specific pool 
+            r = self.df.loc[self.df['JOBCODE'].isin(self.pool_info[pool]["receive"])].copy()
+
+            if self.pool_info[pool]["type"] == 'equal':
+                #split equally
+                self.pool_rates[pool] = 0
+                r[pool] = np.divide(c['CCTIPS'].sum(), len(c.index))
+                return_df[pool] = r[pool]
+            else:
+                #split based on a rate formula
+                hr_sum = r['HOURS'].sum()
+                cont_sum = c['c_'+pool].sum()
+                #ignores the divide by zero error
+                with np.errstate(invalid='ignore'):
+                    r_tiprate = np.divide(cont_sum, hr_sum)
+                r[pool] = np.multiply(r['HOURS'].values, r_tiprate)
+                return_df[pool] = r[pool]
+                self.pool_rates[pool] = r_tiprate
             self.total_contributions[pool] = cont_sum
             self.total_hours[pool] = hr_sum
-            self.pool_rates[pool] = r_tiprate
             
         if self.verbose_debug:
             return_df.to_csv('debug/pooler' + self.day + '.csv')
-        return_df['TTL_TIP'] = np.add(return_df[self.pool_names].sum(
+        return_df['TTL_TIPS'] = np.add(return_df[self.pool_names].sum(
             axis=1), return_df[['CCTIP_' + pool for pool in self.pool_names]].sum(axis=1))
-        return_df['TTL_CONT'] = return_df[[
+        return_df['TTL_CONTRIBUTION'] = return_df[[
             'c_' + pool for pool in self.pool_names]].sum(axis=1)
         # c_ prefix means contribution, CCTIPS_ prefix means tip after a sales type contribution
 
@@ -103,4 +125,4 @@ class ProcessPools():
 
 if __name__ == '__main__':
     print("loading Processpool_info.py")
-    print(ProcessPools('20230304').get_pool_data())
+    print(ProcessPools('20230909').pooler())
