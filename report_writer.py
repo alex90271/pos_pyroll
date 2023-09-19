@@ -274,7 +274,7 @@ class ReportWriter():
                            'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'EXP_ID'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME', 'JOB_NAME'],
                 totaled_cols=['HOURS', 'OVERHRS',
-                              'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
+                              'TTL_CONTRIBUTION', 'TTL_TIPS', 'DECTIPS'],
                 addl_cols=[],
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
@@ -283,7 +283,7 @@ class ReportWriter():
             if type(df) == str:  # if df is 'empty' don't try to round it
                 return df
             df = df[['LASTNAME', 'FIRSTNAME', 'JOB_NAME', 'HOURS',
-                     'OVERHRS', 'DECTIPS', 'TTL_CONT', 'TTL_TIP']]
+                     'OVERHRS', 'DECTIPS', 'TTL_CONTRIBUTION', 'TTL_TIPS']]
 
         elif rpt == 'labor_nightly':
             df = self.labor_main(
@@ -291,7 +291,7 @@ class ReportWriter():
                 index_cols=['EMPLOYEE', 'LASTNAME',
                             'FIRSTNAME', 'JOB_NAME', 'SYSDATEIN'],
                 totaled_cols=['HOURS', 'OVERHRS',
-                              'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
+                              'TTL_CONTRIBUTION', 'TTL_TIPS', 'DECTIPS'],
                 addl_cols=[],
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
@@ -300,14 +300,14 @@ class ReportWriter():
             if type(df) == str:  # if df is 'empty' don't try to round it
                 return df
             df = df[['SYSDATEIN', 'LASTNAME', 'FIRSTNAME', 'HOURS',
-                     'OVERHRS', 'TTL_CONT', 'TTL_TIP', 'DECTIPS']]
+                     'OVERHRS', 'TTL_CONTRIBUTION', 'TTL_TIPS', 'DECTIPS']]
 
         elif rpt == 'labor_total':
             df = self.labor_main(
                 drop_cols=[],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=['HOURS', 'OVERHRS',
-                              'TTL_CONT', 'TTL_TIP', 'DECTIPS'],
+                              'TTL_CONTRIBUTION', 'TTL_TIPS', 'DECTIPS'],
                 addl_cols=[],
                 sum_only=True,
                 selected_employees=selected_employees,
@@ -317,7 +317,7 @@ class ReportWriter():
                 return df
             # sort the columns
             df = df[['LASTNAME', 'FIRSTNAME', 'HOURS',
-                     'OVERHRS', 'TTL_TIP', 'DECTIPS']]
+                     'OVERHRS', 'TTL_TIPS', 'DECTIPS']]
 
         elif rpt == 'tipshare_detail':
             ttlrs = ['HOURS', 'OVERHRS']
@@ -328,7 +328,7 @@ class ReportWriter():
 
             df = self.labor_main(
                 drop_cols=['RATE', 'TIPSHCON', 'COUTBYEOD', 'INVALID', 'JOB_NAME','TERMINATED','SYSDATEIN',
-                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID', 'TTL_CONT', 'TTL_TIP'],
+                           'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'JOBCODE1', 'EXP_ID', 'TTL_CONTRIBUTION', 'TTL_TIPS'],
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=ttlrs,
                 addl_cols=[],
@@ -425,14 +425,14 @@ class Payroll(ReportWriter):
             addl_cols=[],
             append_totals=False)
         
-        df['TTL_TIP'] = df['TTL_TIP'] - df['AUTGRTTOT']
+        df['TTL_TIPS'] = df['TTL_TIPS'] - df['AUTGRTTOT']
 
         # need hours by jobcode, but total tips
         df_hours = df[['LASTNAME', 'FIRSTNAME',
                        'JOB_NAME', 'JOBCODE', 'HOURS', 'OVERHRS', 'EXP_ID']]
 
         df_tips = df[['LASTNAME', 'FIRSTNAME',
-                      'DECTIPS', 'TTL_TIP',
+                      'DECTIPS', 'TTL_TIPS',
                       'AUTGRTTOT', 'EXP_ID']]
         
         df_tips = pd.pivot_table(df_tips,
@@ -463,7 +463,7 @@ class Payroll(ReportWriter):
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
-                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIP': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
+                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
         df = df.sort_values(by='ID')
         df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
                  'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity', 'personal_note']]
@@ -487,7 +487,7 @@ class WeeklyWriter(ReportWriter):
             for date in date_ranges:
                 super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
                                 last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
-                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONTRIBUTION', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
                                     index_cols=['EMPLOYEE', 'LASTNAME',
                                                 'FIRSTNAME'],
                                     totaled_cols=[],
@@ -505,7 +505,7 @@ class WeeklyWriter(ReportWriter):
             for date in date_ranges:
                 super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
                                 last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
-                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONT', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONTRIBUTION', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
                                     index_cols=['EMPLOYEE', 'LASTNAME',
                                                 'FIRSTNAME','JOB_NAME'],
                                     totaled_cols=['HOURS', 'OVERHRS',

@@ -168,10 +168,10 @@ Based on Jobcode numbers from Aloha
 Type-Sales: is contribution on percentage of sales
 
 Type-Tips: Contribution a percentage of tips
+                 
+Type-Equal: Splitting the tip equally
 
 Percent: how much they contribute
-                 
-A more helpful window is in the works
                  """)
         pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
         df = pd.DataFrame(pooler.get_pool_info())
@@ -193,7 +193,7 @@ A more helpful window is in the works
         showinfo('Note', """
 1.labor_main
 By Jobcode, Shows a breakdown of tips, and hours
-TTL_TIP are tips paid out on check
+TTL_TIPS are tips paid out on check
 TTL_CONTRIBUTIONS are what they paid to tip pool
 DECTIPS are declared cash tips
                                   
