@@ -194,7 +194,7 @@ A more helpful window is in the works
 1.labor_main
 By Jobcode, Shows a breakdown of tips, and hours
 TTL_TIP are tips paid out on check
-TTL_CONT are tip contributions
+TTL_CONTRIBUTIONS are what they paid to tip pool
 DECTIPS are declared cash tips
                                   
 2.labor_total,

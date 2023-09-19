@@ -41,5 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['pyroll_ico.ico'],
+    icon=['assets\\pyroll_ico.ico'],
 )
