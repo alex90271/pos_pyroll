@@ -20,8 +20,9 @@ class ChipGui():
 
     def __init__(self, icon="", title="Title"):
         #call database
-        self.employee_df = QueryDB().process_db('employees').set_index('ID')
-        self.jobcode_df = QueryDB().process_db('jobcodes').set_index('ID')
+        yesterday = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
+        self.employee_df = QueryDB(yesterday).process_db('employees').set_index('ID')
+        self.jobcode_df = QueryDB(yesterday).process_db('jobcodes').set_index('ID')
         self.employee_df['NAME'] = self.employee_df['FIRSTNAME'] + ' ' + self.employee_df['LASTNAME']
         self.reports = ReportWriterReports().available_reports()
         self.verbose_debug = ChipConfig().query(
@@ -45,7 +46,7 @@ class ChipGui():
 
         #selections
         self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
-        self.day_two = (date.today()-timedelta(days=1)).strftime('%Y%m%d')
+        self.day_two = yesterday
         self.rpt_type = "labor_main"
         self.select_emps = []
         self.select_jobs = []
@@ -74,8 +75,9 @@ class ChipGui():
         if self.verbose_debug:
             df.to_csv('debug/latest_viewed.csv')
         #df.to_dict(orient='index')
-        pt = Table(report_frame, dataframe=df, width=1000, height=600,
+        pt = Table(report_frame, dataframe=df, width=1100, height=600,
                 showstatusbar=True)
+        pt.autoResizeColumns()
         pt.show()
         
     def export_rpt(self):
@@ -183,7 +185,7 @@ Percent: how much they contribute
         report_frame.grid()
 
 
-        df.reset_index(inplace=True)
+        #df.set_index(inplace=True)
         #df.to_dict(orient='index')
         pt = Table(report_frame, dataframe=df, width=1000, height=300,
                 showstatusbar=False, editable=False)
@@ -367,6 +369,7 @@ If changes are made in Aloha, a new report will show it
         self.root.grid_rowconfigure(15, weight=1)
 
     def adjustments_window(self):
+        '''does not work'''
         # Create the popup box
         adjust_window = Tk()
         adjust_window.geometry("300x400")
