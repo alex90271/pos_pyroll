@@ -121,7 +121,7 @@ class ProcessLabor():
         cur_df = cur_df.join(labor)
         cur_df.drop(columns=['INVALID', 'COUTBYEOD'], axis=1, inplace=True)
         cur_df['ACTUAL_HOURLY'] = np.divide(np.add(
-            cur_df['TTL_TIP'], cur_df['TOTAL_PAY']), np.add(cur_df['HOURS'], cur_df['OVERHRS']))
+            cur_df['TTL_TIPS'], cur_df['TOTAL_PAY']), np.add(cur_df['HOURS'], cur_df['OVERHRS']))
 
         if self.verbose_debug:
             cur_df.to_csv('debug/calc_hourly_rate' + self.day + '.csv')
