@@ -78,7 +78,7 @@ class ReportWriter():
         reg_df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR',
                             'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE', 'SYSDATEIN'], axis=1, inplace=True)
 
-        _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY']],
+        _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY','JOBCODE']],
                              index=['EMPLOYEE'],
                              aggfunc=np.mean,
                              fill_value=np.NaN)
