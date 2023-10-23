@@ -75,21 +75,23 @@ class ReportWriter():
         '''returns the hourly pay rate through the period'''
         a = [labor(day).calc_hourly_pay_rate() for day in self.days]
         reg_df = pd.concat(a)
+        if selected_jobs:
+            reg_df = self.job_emp_filter(None,selected_jobs, reg_df)
         reg_df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR',
                             'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE', 'SYSDATEIN'], axis=1, inplace=True)
 
-        _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY','JOBCODE']],
+        _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY']],
                              index=['EMPLOYEE'],
                              aggfunc=np.mean,
                              fill_value=np.NaN)
         if report:
             # readds totals for report
-            # rpt_df = reg_df[['TOTALTIPS','TOTAL_PAY','HOURS','OVERHRS','EMPLOYEE']].join(_df, ['EMPLOYEE'])
+            _df = reg_df[['TTL_TIPS','TOTAL_PAY','HOURS','OVERHRS','EMPLOYEE']].join(_df, ['EMPLOYEE'])
             _df = query_db(self.days[len(self.days)-1]
                            ).process_names(df=_df, job_bool=False)
         # the _df is the df being returned
-        if selected_employees or selected_jobs:
-            return self.job_emp_filter(selected_employees, selected_jobs, _df)
+        if selected_employees:
+            return self.job_emp_filter(selected_employees,None, _df)
         else:
             return _df
 
@@ -375,7 +377,7 @@ class ReportWriter():
             )
             if type(df) == str:  # if df is 'empty' don't try to round it
                 return df
-            df = df[['FIRSTNAME', 'LASTNAME', 'ACTUAL_HOURLY']]
+            #df = df[['FIRSTNAME', 'LASTNAME', 'ACTUAL_HOURLY']]
 
         elif rpt == 'tip_rate_plot':
             df = self.rate_rpt_plot()
@@ -540,7 +542,7 @@ if __name__ == '__main__':
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
-         ReportWriter('20230301','20230315').rate_rpt_plot(rpt='Tip')
+         print(ReportWriter('20230912','20230919').hourly_pay_rate(report=True, selected_jobs=[1]))
         # print(Payroll('20230401', '20230401').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
