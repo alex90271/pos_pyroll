@@ -302,8 +302,14 @@ If changes are made in Aloha, a new report will show it
 
         def on_report_changed(e):
             self.rpt_type = report_combo.get()
+            if self.rpt_type == "tipshare_detail":
+                showinfo('Note', "This is a complex breakdown of tipshare\n\nColumns prefixed with c_ are contribution\nShows contributions and payouts broken down by each tip pool")
+            if self.rpt_type == "tip_rate":
+                showinfo('Note', "This report ignores employee or jobcode selections\nShows the daily tip payrate, and info Broken down by tip pool (takeout, servers, etc)")
+            if self.rpt_type == "punctuality":
+                showinfo('Note', "This report displays clockin times, converting from 24 hour time to am/pm")
             if self.rpt_type == "hourly":
-                showinfo('Note', "The report will ignore jobcode selections, as it is providing an average\n\nCalculates total hourly payrate, based on their rate set in Aloha PLUS tips. Average is based on timeframe selected\n\nCalculated as total payment divided by total hours")
+                showinfo('Note', "The report will ignore jobcode selections, as it is based only on total hours\n\nCalculates total hourly payrate, based on their rate set in Aloha PLUS tips. Average is based on timeframe selected\n\nCalculated as total payment divided by total hours")
             if self.rpt_type == "labor_avg_hours":
                 showinfo('Note',"Report requires 2+ weeks selection\n\nIt Shows the average hours an employee worked through the selection")
             if self.rpt_type == "labor_weekly":
