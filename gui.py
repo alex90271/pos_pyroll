@@ -196,7 +196,7 @@ Percent: how much they contribute
 1.labor_main
 By Jobcode, Shows a breakdown of tips, and hours
 TTL_TIPS are tips paid out on check
-TTL_CONTRIBUTIONS are what they paid to tip pool
+TTL_CONTRIBUTIONS are what they gave to tip pool
 DECTIPS are declared cash tips
                                   
 2.labor_total,
@@ -302,6 +302,14 @@ If changes are made in Aloha, a new report will show it
 
         def on_report_changed(e):
             self.rpt_type = report_combo.get()
+            if self.rpt_type == "hourly":
+                showinfo('Note', "The report will ignore jobcode selections, as it is providing an average\n\nCalculates total hourly payrate, based on their rate set in Aloha PLUS tips. Average is based on timeframe selected\n\nCalculated as total payment divided by total hours")
+            if self.rpt_type == "labor_avg_hours":
+                showinfo('Note',"Report requires 2+ weeks selection\n\nIt Shows the average hours an employee worked through the selection")
+            if self.rpt_type == "labor_weekly":
+                showinfo('Note',"Report requires 2+ weeks selection\n\nIt Shows the sum of hours an worked through the selection")
+            if self.rpt_type == "cout_eod":
+                showinfo('Note',"Shows each employee that Aloha force clocked out\nAny 3am outhours should be fixed\nThe columns: outhour, outmin, shows the latest clockout from Aloha\n\nEx. If outhour was 3 and out min 00, that is 3:00 clockout")
 
         report_combo.bind("<<ComboboxSelected>>", on_report_changed)   
 
