@@ -80,14 +80,15 @@ class ProcessPools():
                 return_df['CCTIP_'+pool] = 0
 
             elif self.pool_info[pool]["type"] == 'equal':
+                print("Helo")
                 #calculating a tip pool by evenly splitting the tips
                 c['c_'+pool] = c['CCTIPS'].values
                 #get the total tips, and divide by total splitting it. to split equally
-                self.cash_contributions[pool] = 0
+                self.cash_contributions[pool] = c['DECTIPS'].sum()
                 return_df['CCTIP_'+pool] = 0
-            
             else:
                 raise ValueError("invalid pool type in tip_pools.json")
+            
 
             #record all the contributions, even though that isn't what each person has earned. 
             return_df['c_'+pool] = c['c_'+pool]
@@ -110,6 +111,7 @@ class ProcessPools():
                 r[pool] = np.multiply(r['HOURS'].values, r_tiprate)
                 return_df[pool] = r[pool]
                 self.pool_rates[pool] = r_tiprate
+            print(cont_sum, hr_sum, pool)
             self.total_contributions[pool] = cont_sum
             self.total_hours[pool] = hr_sum
             
