@@ -1,11 +1,10 @@
-Flask==2.0.1
-dbfread==2.0.7
-pandas==2.0.3
-numpy==1.25.1
+Flask
+dbfread
+pandas
+numpy
 pyinstaller
-tkcalendar==1.61
-ttk
+tkcalendar
 pandastable
-pdfkit==1.0.0
-pywin32
+pdfkit
+jinja2
 
