@@ -405,29 +405,56 @@ If changes are made in Aloha, a new report will show it
         '''does not work'''
         # Create the popup box
         adjust_window = Tk()
-        adjust_window.geometry("300x400")
+        adjust_window.geometry("400x600")
         adjust_window.iconbitmap(self.icon)
         adjust_window.wm_title(self.title)
         adjust_frame = Frame(adjust_window)
         adjust_frame.grid()
         today = datetime.today()
+        self.day_data = {}
 
-        dl = Label(adjust_frame, text="Date")
-        dl.grid()
+        def run_date(day):
+            day = datetime.strptime(day, "%a, %b %d, %y").strftime('%Y%m%d')
+            print('PROCESSING: ' + ' ' + day)
+            result = ReportWriter(day, day).print_to_json(
+                'labor_main', json_fmt=True)
+            if type(result) == 'empty':
+                showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
+                return '' #exit the program if no data to display
+            result = result[result['TTL_CONTRIBUTION'] > 0]
+            result.drop(result.tail(1).index,inplace=True)
+            self.day_data = result
+            
+        def run_primary_selection(init_val):
+            '''opens either the split tip adjustment window or the tippool adjustment window'''
+            if init_val == "Removing a Tip from Pool":
+                print("rm tip")
+                fn = self.day_data['FIRSTNAME'] + ' | ' + self.day_data['JOB_NAME']
+                psl1 = Label(adjust_frame, text="Primary Server")
+                psl1.grid()
+                dropdown_val = StringVar(adjust_frame)
+                primary_selection_dropdown = OptionMenu(adjust_frame, dropdown_val, *fn.to_list())
+                primary_selection_dropdown.grid()
+            elif init_val == "Splitting a Tip":
+                print("splt tip")
+
+        dl = Label(adjust_frame, text="Choose a Date")
+        dl.grid(row=2,column=2)
         # Create a list of dates from the previous 15th or end of month date, to today
         date_list = [today - timedelta(days=x) for x in range(20)]
-        date_dropdown = OptionMenu(adjust_frame, "", *date_list)
-        date_dropdown.grid()
-
-        label2 = Label(self.root, text="**you can only adjust the last 20 days**")
+        date_list = [x.strftime("%a, %b %d, %y") for x in date_list]
+        label2 = Label(adjust_frame, text="**you can only adjust the last 20 days**")
         label2.config(font=("Courier", 10))
-        label2.grid()
+        label2.grid(row=3,column=2)
+        init_run_date = StringVar(adjust_frame)
+        date_dropdown = OptionMenu(adjust_frame, init_run_date, *date_list, command=run_date)
+        date_dropdown.grid(row=4  ,column=2)
 
-        psl = Label(adjust_frame, text="Primary Server")
-        psl.grid()
-        dropdown_val = StringVar(adjust_frame)
-        primary_selection_dropdown = OptionMenu(adjust_frame, dropdown_val, *self.employee_df["NAME"].to_list(), command=on_primary_selection_changed)
-        primary_selection_dropdown.grid()
+        psl2 = Label(adjust_frame, text="Choose an option")
+        psl2.grid(row=5, column=2)
+        init_dropdown_val = StringVar(adjust_frame)
+        primary_selection_dropdown = OptionMenu(adjust_frame, init_dropdown_val, *["Splitting a Tip","Removing a Tip from Pool"], command=run_primary_selection)
+        primary_selection_dropdown.grid(row=6,column=2)
 
 
 
