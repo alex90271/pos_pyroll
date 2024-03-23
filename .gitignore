@@ -17,3 +17,7 @@ __pycache__
 dist
 exports
 build
+.DS_Store
+
+#environment
+venv
