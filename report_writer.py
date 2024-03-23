@@ -78,7 +78,7 @@ class ReportWriter():
         if selected_jobs:
             reg_df = self.job_emp_filter(None,selected_jobs, reg_df)
         reg_df.drop(labels=['CCTIPS', 'DECTIPS', 'SALES', 'TIPSHCON', 'INHOUR',
-                            'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE', 'SYSDATEIN'], axis=1, inplace=True)
+                            'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'RATE', 'SYSDATEIN', 'JOBCODE'], axis=1, inplace=True)
 
         _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY']],
                              index=['EMPLOYEE'],
@@ -86,7 +86,7 @@ class ReportWriter():
                              fill_value=np.NaN)
         if report:
             # readds totals for report
-            _df = reg_df[['TTL_TIPS','TOTAL_PAY','HOURS','OVERHRS','EMPLOYEE']].join(_df, ['EMPLOYEE'])
+            #_df = reg_df[['TTL_TIPS','TOTAL_PAY','HOURS','OVERHRS','EMPLOYEE']].join(_df, ['EMPLOYEE'])
             _df = query_db(self.days[len(self.days)-1]
                            ).process_names(df=_df, job_bool=False)
         # the _df is the df being returned
@@ -377,7 +377,7 @@ class ReportWriter():
             )
             if type(df) == str:  # if df is 'empty' don't try to round it
                 return df
-            #df = df[['FIRSTNAME', 'LASTNAME', 'ACTUAL_HOURLY']]
+            df = df[['FIRSTNAME', 'LASTNAME', 'ACTUAL_HOURLY']]
 
         elif rpt == 'tip_rate_plot':
             df = self.rate_rpt_plot()
