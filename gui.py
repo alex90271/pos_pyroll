@@ -2,18 +2,16 @@ from datetime import date, datetime, timedelta
 from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
 from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
 from tkinter.ttk import Button, Combobox, Frame, Style
-import jinja2
 import numpy as np
 from tkcalendar import DateEntry
 import pandas as pd
 from process_pools import ProcessPools
+import jinja2
 from query_db import QueryDB
 from report_writer import Payroll, ReportWriter, ReportWriterReports
 from chip_config import ChipConfig
 from pandastable import Table
 import pdfkit
-import win32api
-import win32print
 import os
 
 class ChipGui():
@@ -155,7 +153,21 @@ class ChipGui():
                 total_exp_overtime = np.round(np.sum(result['overtime_hours']),2)
                 total_hr_overtim_exp_sum = np.round((total_exp_hours + total_exp_overtime),2)
                 showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTips Paid Out: " + str(paycheck_tips) + "\nGratuities Paid Out: " + str(gratuties) + "\nTotal: " + str(tip_grat_sum) + "\n\nHours: " + str(total_exp_hours) + "\nOvertime: " + str(total_exp_overtime) + "\nTotal: " + str(total_hr_overtim_exp_sum) + "\n\nCheck the exports folder for the CSV"))
-                
+
+    def export_csv(self):
+            print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
+            result = ReportWriter(self.day_one, self.day_two).print_to_json(
+                self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
+            if type(result) == 'empty':
+                showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
+                return '' #exit the program if no data to display
+            name_string = self.rpt_type + '-' + self.day_one + '-through-' + self.day_two
+            result.to_csv(
+                ("exports/" + name_string + '.csv'),
+                index=False)
+        
+            showinfo('Note', ("Exported\n\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nCheck the exports folder for the CSV"))
+            
     def mainloop(self):
         self.root.mainloop()
 
@@ -265,8 +277,9 @@ If changes are made in Aloha, a new report will show it
         label = Label(self.root, text="First day")
         label.grid(row=1, column=2)
         start_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=365)))
+                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=400)))
         start_date_picker.grid(row=2, column=2)
+        print((date.today()-timedelta(days=365)))
 
         label = Label(self.root, text="Last day")
         label.grid(row=1, column=3)
@@ -286,6 +299,7 @@ If changes are made in Aloha, a new report will show it
             self.day_two = datetime.strptime(end_date, '%m/%d/%y').strftime('%Y%m%d')
             #print(self.day_one, self.day_two)
 
+
         start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
         end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
 
@@ -294,7 +308,9 @@ If changes are made in Aloha, a new report will show it
         dropdown_val = StringVar(self.root)
         dropdown_val.set("labor_main")
         label = Label(self.root, text="Select a report:")
-        label.grid(row=4, column=2, columnspan=2)
+        label2 = Label(self.root, text="*report does not apply to payroll csv*")
+        label.grid(row=3, column=2, columnspan=2)
+        label2.grid(row=4, column=2, columnspan=2)
 
         report_combo = Combobox(self.root, values=self.reports, width=16, exportselection=False)
         report_combo.grid(row=5, column=2, columnspan=2)
@@ -305,11 +321,11 @@ If changes are made in Aloha, a new report will show it
             if self.rpt_type == "tipshare_detail":
                 showinfo('Note', "This is a complex breakdown of tipshare\n\nColumns prefixed with c_ are contribution\nShows contributions and payouts broken down by each tip pool")
             if self.rpt_type == "tip_rate":
-                showinfo('Note', "This report ignores employee or jobcode selections\nShows the daily tip payrate, and info Broken down by tip pool (takeout, servers, etc)")
+                showinfo('Note', "This report ignores employee or jobcode selections\nShows the daily tip payrate, and info Broken down by tip pool (takeout, servers, etc)\n\nReport can be changed to show just a total")
             if self.rpt_type == "punctuality":
                 showinfo('Note', "This report displays clockin times, converting from 24 hour time to am/pm")
             if self.rpt_type == "hourly":
-                showinfo('Note', "The report will ignore jobcode selections, as it is based only on total hours\n\nCalculates total hourly payrate, based on their rate set in Aloha PLUS tips. Average is based on timeframe selected\n\nCalculated as total payment divided by total hours")
+                showinfo('Note', "Jobcode selections will restrict calculation to hours from that job only\n\nCalculates total hourly payrate, based on their rate set in Aloha PLUS tips. Average is based on timeframe selected\n\nCalculated as total payment divided by total hours")
             if self.rpt_type == "labor_avg_hours":
                 showinfo('Note',"Report requires 2+ weeks selection\n\nIt Shows the average hours an employee worked through the selection")
             if self.rpt_type == "labor_weekly":
@@ -364,8 +380,11 @@ If changes are made in Aloha, a new report will show it
 
         self.root.grid_rowconfigure(10, weight=1)
 
-        payroll_button = Button(self.root, text="Export to CSV", command=self.gusto_rpt)
-        payroll_button.grid(row=11, column=2)
+        export_csv_button = Button(self.root, text="Export to CSV", command=self.export_csv)
+        export_csv_button.grid(row=11, column=2)
+
+        payroll_button = Button(self.root, text="Export to Payroll CSV", command=self.gusto_rpt)
+        payroll_button.grid(row=11, column=3)
 
         ##HELP BUTTONS##
         self.root.grid_rowconfigure(12, weight=1)
