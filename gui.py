@@ -308,7 +308,8 @@ If changes are made in Aloha, a new report will show it
         dropdown_val = StringVar(self.root)
         dropdown_val.set("labor_main")
         label = Label(self.root, text="Select a report:")
-        label2 = Label(self.root, text="*report does not apply to payroll csv*")
+        label2 = Label(self.root, text="**report, employee, and jobcode selections\n do not apply to payroll csv**")
+        label2.config(font=("Courier", 10))
         label.grid(row=3, column=2, columnspan=2)
         label2.grid(row=4, column=2, columnspan=2)
 
@@ -371,6 +372,7 @@ If changes are made in Aloha, a new report will show it
 
         label = Label(self.root, text="\nProcess Reports")
         label.grid(row=8, column=2, columnspan=2)
+        
 
         view_button = Button(self.root, text="View", command=self.view_rpt)
         view_button.grid(row=9, column=2)
@@ -383,7 +385,7 @@ If changes are made in Aloha, a new report will show it
         export_csv_button = Button(self.root, text="Export to CSV", command=self.export_csv)
         export_csv_button.grid(row=11, column=2)
 
-        payroll_button = Button(self.root, text="Export to Payroll CSV", command=self.gusto_rpt)
+        payroll_button = Button(self.root, text="Export Payroll CSV", command=self.gusto_rpt)
         payroll_button.grid(row=11, column=3)
 
         ##HELP BUTTONS##
@@ -393,13 +395,11 @@ If changes are made in Aloha, a new report will show it
         report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
         report_help.grid(row=13, column=3)
 
-        testing_adjust_button = False
-        #set to true to test the "adjustments" feature. Its not working at all
-        if testing_adjust_button:
-            add_adjustment_button = Button(self.root, text="Adjustments", command=self.adjustments_window)
-            add_adjustment_button.grid(row=14, column=3)
+        self.root.grid_rowconfigure(16, weight=1)
+        add_adjustment_button = Button(self.root, text="Adjustments", command=self.adjustments_window)
+        add_adjustment_button.grid(row=15, column=2, columnspan=2)
 
-        self.root.grid_rowconfigure(15, weight=1)
+        self.root.grid_rowconfigure(16, weight=1)
 
     def adjustments_window(self):
         '''does not work'''
@@ -412,21 +412,16 @@ If changes are made in Aloha, a new report will show it
         adjust_frame.grid()
         today = datetime.today()
 
-        primary_mods = []
-        def on_primary_selection_changed(e):
-            primary_mods = self.employee_df.index[dropdown_val.get()]
-        # Do something when the primary selection is changed
-
-        second_mods = []
-        def on_multiple_selection_changed(e):
-            second_mods = [self.employee_df.index[i] for i in multiple_selection_listbox.curselection()]
-
         dl = Label(adjust_frame, text="Date")
         dl.grid()
         # Create a list of dates from the previous 15th or end of month date, to today
-        date_list = [today - timedelta(days=x) for x in range(15)]
+        date_list = [today - timedelta(days=x) for x in range(20)]
         date_dropdown = OptionMenu(adjust_frame, "", *date_list)
         date_dropdown.grid()
+
+        label2 = Label(self.root, text="**you can only adjust the last 20 days**")
+        label2.config(font=("Courier", 10))
+        label2.grid()
 
         psl = Label(adjust_frame, text="Primary Server")
         psl.grid()
@@ -434,13 +429,6 @@ If changes are made in Aloha, a new report will show it
         primary_selection_dropdown = OptionMenu(adjust_frame, dropdown_val, *self.employee_df["NAME"].to_list(), command=on_primary_selection_changed)
         primary_selection_dropdown.grid()
 
-        msl = Label(adjust_frame, text="Secondary Servers")
-        msl.grid()
-        multiple_selection_listbox = Listbox(adjust_frame,listvariable=StringVar(value=self.employee_df["NAME"].to_list()), selectmode="multiple", exportselection=False)
-        multiple_selection_listbox.grid()
-
-        # Bind the <<ListboxSelect>> event to the second list box
-        multiple_selection_listbox.bind("<<ListboxSelect>>", on_multiple_selection_changed)
 
 
 if __name__ == "__main__":
