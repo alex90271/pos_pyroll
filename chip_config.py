@@ -2,13 +2,15 @@ import json
 import os
 from pathlib import Path
 import time
+import sqlite3
 
 
 class ChipConfig():
 
-    def __init__(self, config_name='settings_v3.json',pooler_name='tip_pools.json'):
+    def __init__(self, config_name='settings_v3.json',pooler_name='tip_pools.json',adjustments_db_name='adjustments.db'):
         self.config_name = 'data/'+config_name
         self.pooler_name = 'data/'+pooler_name
+        self.adjustments_db_name = 'data/'+adjustments_db_name
 
         Path('data').mkdir(exist_ok=True)
         Path('debug').mkdir(exist_ok=True)
@@ -31,6 +33,27 @@ class ChipConfig():
             print('generating new default pooler')
             self.save_json(self.generate_pooler(),self.pooler_name)
 
+        if not os.path.isfile(self.adjustments_db_name):
+            print('generating new adjustments database')
+            conn = sqlite3.connect(self.adjustments_db_name)
+            cursor = conn.cursor()
+            cursor.execute('''CREATE TABLE IF NOT EXISTS tip_adjustments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ADJUSTMENT_ID INTEGER,
+                FIRSTNAME TEXT,
+                JOB_NAME TEXT,
+                ADJUSTMENT INTEGER,
+                DATE DATE
+            )''')
+            data = (100, '', '', -5, '2024-03-23')
+            sql = '''INSERT INTO tip_adjustments (ADJUSTMENT_ID, FIRSTNAME, JOB_NAME, ADJUSTMENT, DATE)
+                    VALUES (?, ?, ?, ?, ?)'''
+            conn.execute(sql, data)
+            conn.commit()
+            conn.close()
+            with open(f"data/{time.time()}.file", "w") as file:
+                file.write('1')
+        
         self.data = self.read_json(self.config_name)
 
     def save_json(self, data, name):
