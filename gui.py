@@ -1,5 +1,7 @@
 from datetime import date, datetime, timedelta
+import sqlite3
 from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
+from tkinter import ttk
 from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
 from tkinter.ttk import Button, Combobox, Frame, Style
 import numpy as np
@@ -413,6 +415,18 @@ If changes are made in Aloha, a new report will show it
         today = datetime.today()
         self.day_data = {}
 
+        def add_adjustment_to_db(self, Employee, Job_Name, Adjustment, Date, AdjustedBy, AdjustedOn):
+            '''takes in adjustments and adds them to the database'''
+            conn = sqlite3.connect(self.adjustments_db_name)
+            data = (Employee, Job_Name, Adjustment, Date, AdjustedBy, AdjustedOn)
+            #data = (1001, 'FRYCOOK', -5, '20240323','ALEX','20240401')
+            sql = '''INSERT INTO tip_adjustments (EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON)
+                    VALUES (?, ?, ?, ?, ?,?)'''
+            conn.execute(sql, data)
+            conn.commit()
+            conn.close()
+            showinfo('Note',"Adjustment saved")
+
         def run_date(day):
             day = datetime.strptime(day, "%a, %b %d, %y").strftime('%Y%m%d')
             print('PROCESSING: ' + ' ' + day)
@@ -427,16 +441,35 @@ If changes are made in Aloha, a new report will show it
             
         def run_primary_selection(init_val):
             '''opens either the split tip adjustment window or the tippool adjustment window'''
-            if init_val == "Removing a Tip from Pool":
-                print("rm tip")
+            if init_val == "Adjust a Tip":
+                print("adj tip")
+                Employee=0
+                Job_Name=''
+                Adjustment=[]
+                Date=19700101
+                AdjustedBy=''
+                AdjustedOn=19700101
                 fn = self.day_data['FIRSTNAME'] + ' | ' + self.day_data['JOB_NAME']
                 psl1 = Label(adjust_frame, text="Primary Server")
                 psl1.grid()
                 dropdown_val = StringVar(adjust_frame)
                 primary_selection_dropdown = OptionMenu(adjust_frame, dropdown_val, *fn.to_list())
                 primary_selection_dropdown.grid()
-            elif init_val == "Splitting a Tip":
+                print(dropdown_val)
+                psl2 = Label(adjust_frame, text="Enter adjustment\nNegative values allowed (deductions)")
+                psl2.grid()
+                adjustment_amt_selector = ttk.Spinbox(adjust_frame,increment=1,values=Adjustment)
+                adjustment_amt_selector.grid()
+                psl3 = Label(adjust_frame, text="Enter your name\n(who is entering this adjustment)")
+                psl3.grid()
+                who_adjusted_input = ttk.Entry(adjust_frame)
+                who_adjusted_input.grid()
+                save_button = Button(adjust_frame, text="submit_adjustment", command=add_adjustment_to_db(Employee, Job_Name, Adjustment, Date, AdjustedBy, AdjustedOn))
+                save_button.grid()
+
+            elif init_val == "Split a Tip":
                 print("splt tip")
+                showinfo('Note',"You should't be on this screen, please exit the entire app and restart")
 
         dl = Label(adjust_frame, text="Choose a Date")
         dl.grid(row=2,column=2)
@@ -453,7 +486,7 @@ If changes are made in Aloha, a new report will show it
         psl2 = Label(adjust_frame, text="Choose an option")
         psl2.grid(row=5, column=2)
         init_dropdown_val = StringVar(adjust_frame)
-        primary_selection_dropdown = OptionMenu(adjust_frame, init_dropdown_val, *["Splitting a Tip","Removing a Tip from Pool"], command=run_primary_selection)
+        primary_selection_dropdown = OptionMenu(adjust_frame, init_dropdown_val, *["Adjust a Tip"], command=run_primary_selection)
         primary_selection_dropdown.grid(row=6,column=2)
 
 

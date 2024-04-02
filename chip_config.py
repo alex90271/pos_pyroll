@@ -3,14 +3,15 @@ import os
 from pathlib import Path
 import time
 import sqlite3
+import pandas as pd
 
 
 class ChipConfig():
 
-    def __init__(self, config_name='settings_v3.json',pooler_name='tip_pools.json',adjustments_db_name='adjustments.db'):
+    def __init__(self, config_name='settings_v3.json',pooler_name='tip_pools.json'):
         self.config_name = 'data/'+config_name
         self.pooler_name = 'data/'+pooler_name
-        self.adjustments_db_name = 'data/'+adjustments_db_name
+        self.adjustments_db_name = 'data/'+'adjustments.db'
 
         Path('data').mkdir(exist_ok=True)
         Path('debug').mkdir(exist_ok=True)
@@ -39,16 +40,13 @@ class ChipConfig():
             cursor = conn.cursor()
             cursor.execute('''CREATE TABLE IF NOT EXISTS tip_adjustments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                ADJUSTMENT_ID INTEGER,
-                FIRSTNAME TEXT,
+                EMPLOYEE INTEGER,
                 JOB_NAME TEXT,
                 ADJUSTMENT INTEGER,
-                DATE DATE
+                DATE DATE,
+                ADJUSTEDBY TEXT,
+                ADJUSTEDON DATE
             )''')
-            data = (100, '', '', -5, '2024-03-23')
-            sql = '''INSERT INTO tip_adjustments (ADJUSTMENT_ID, FIRSTNAME, JOB_NAME, ADJUSTMENT, DATE)
-                    VALUES (?, ?, ?, ?, ?)'''
-            conn.execute(sql, data)
             conn.commit()
             conn.close()
             with open(f"data/{time.time()}.file", "w") as file:
@@ -165,7 +163,7 @@ class ChipConfig():
         return result
 
 
+
 if __name__ == '__main__':
     print("loading ChipConfig.py")
-    print(ChipConfig().query("SETTINGS",
-          "interface_employees", return_type='int_array'))
+    print(ChipConfig())

@@ -2,6 +2,7 @@ import datetime
 import json
 import numpy as np
 import pandas as pd
+import sqlite3
 from chip_config import ChipConfig
 from query_db import QueryDB
 
@@ -52,6 +53,18 @@ class ProcessPools():
     def get_pool_info(self):
         with open('data/tip_pools.json') as jsonfile:
             return json.load(jsonfile)
+    
+    def get_adjustments(self):
+        '''check the adjustments database for any changes
+        
+            does not work yet as of 20240401
+        '''
+        conn = sqlite3.connect('data/adjustments.db')
+        df = pd.read_sql(f'SELECT EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON from tip_adjustments', conn)
+        conn.close()
+        print(df)
+        matching_rows = df.loc[df['DATE'] == int(self.day)]
+        print(matching_rows)
 
     def pooler(self):
         '''loops through the tip_pools.json and calculates tip pools based on if a sales, tip or equal pool type
@@ -127,4 +140,4 @@ class ProcessPools():
 
 if __name__ == '__main__':
     print("loading Processpool_info.py")
-    print(ProcessPools('20230909').pooler())
+    print(ProcessPools('20240323').get_adjustments())
