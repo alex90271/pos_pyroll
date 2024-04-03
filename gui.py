@@ -169,9 +169,6 @@ class ChipGui():
                 index=False)
         
             showinfo('Note', ("Exported\n\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nCheck the exports folder for the CSV"))
-            
-    def mainloop(self):
-        self.root.mainloop()
 
     def tipshare_info_window(self):
         showinfo('Note', """
@@ -262,10 +259,13 @@ CSV EXPORT:
     Only relies on you setting the Dates
     Ignores the report, and employee/job selections
 
+TO UPDATE HOURS/TIPS:
+    For hours, update these in Aloha. Then run a new report
+    To adjust tips, click the 'Adjustments' button on the next screen
+
 The data reported is only as accurate as data in Aloha 
 (For example, incorrect clockins)
 
-If changes are made in Aloha, a new report will show it
         """)
 
     def main_window(self):
@@ -397,100 +397,17 @@ If changes are made in Aloha, a new report will show it
         report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
         report_help.grid(row=13, column=3)
 
-        self.root.grid_rowconfigure(16, weight=1)
-        add_adjustment_button = Button(self.root, text="Adjustments", command=self.adjustments_window)
+        def init_adjustment_gui():
+            pass
+
+        self.root.grid_rowconfigure(14, weight=1)
+        add_adjustment_button = Button(self.root, text="Adjustments", command=init_adjustment_gui)
         add_adjustment_button.grid(row=15, column=2, columnspan=2)
 
         self.root.grid_rowconfigure(16, weight=1)
 
-    def adjustments_window(self):
-        '''does not work'''
-        # Create the popup box
-        adjust_window = Tk()
-        adjust_window.geometry("400x600")
-        adjust_window.iconbitmap(self.icon)
-        adjust_window.wm_title(self.title)
-        adjust_frame = Frame(adjust_window)
-        adjust_frame.grid()
-        today = datetime.today()
-        self.day_data = {}
-
-        def add_adjustment_to_db(self, Employee, Job_Name, Adjustment, Date, AdjustedBy, AdjustedOn):
-            '''takes in adjustments and adds them to the database'''
-            conn = sqlite3.connect(self.adjustments_db_name)
-            data = (Employee, Job_Name, Adjustment, Date, AdjustedBy, AdjustedOn)
-            #data = (1001, 'FRYCOOK', -5, '20240323','ALEX','20240401')
-            sql = '''INSERT INTO tip_adjustments (EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON)
-                    VALUES (?, ?, ?, ?, ?,?)'''
-            conn.execute(sql, data)
-            conn.commit()
-            conn.close()
-            showinfo('Note',"Adjustment saved")
-
-        def run_date(day):
-            day = datetime.strptime(day, "%a, %b %d, %y").strftime('%Y%m%d')
-            print('PROCESSING: ' + ' ' + day)
-            result = ReportWriter(day, day).print_to_json(
-                'labor_main', json_fmt=True)
-            if type(result) == 'empty':
-                showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
-                return '' #exit the program if no data to display
-            result = result[result['TTL_CONTRIBUTION'] > 0]
-            result.drop(result.tail(1).index,inplace=True)
-            self.day_data = result
-            
-        def run_primary_selection(init_val):
-            '''opens either the split tip adjustment window or the tippool adjustment window'''
-            if init_val == "Adjust a Tip":
-                print("adj tip")
-                Employee=0
-                Job_Name=''
-                Adjustment=[]
-                Date=19700101
-                AdjustedBy=''
-                AdjustedOn=19700101
-                fn = self.day_data['FIRSTNAME'] + ' | ' + self.day_data['JOB_NAME']
-                psl1 = Label(adjust_frame, text="Primary Server")
-                psl1.grid()
-                dropdown_val = StringVar(adjust_frame)
-                primary_selection_dropdown = OptionMenu(adjust_frame, dropdown_val, *fn.to_list())
-                primary_selection_dropdown.grid()
-                print(dropdown_val)
-                psl2 = Label(adjust_frame, text="Enter adjustment\nNegative values allowed (deductions)")
-                psl2.grid()
-                adjustment_amt_selector = ttk.Spinbox(adjust_frame,increment=1,values=Adjustment)
-                adjustment_amt_selector.grid()
-                psl3 = Label(adjust_frame, text="Enter your name\n(who is entering this adjustment)")
-                psl3.grid()
-                who_adjusted_input = ttk.Entry(adjust_frame)
-                who_adjusted_input.grid()
-                save_button = Button(adjust_frame, text="submit_adjustment", command=add_adjustment_to_db(Employee, Job_Name, Adjustment, Date, AdjustedBy, AdjustedOn))
-                save_button.grid()
-
-            elif init_val == "Split a Tip":
-                print("splt tip")
-                showinfo('Note',"You should't be on this screen, please exit the entire app and restart")
-
-        dl = Label(adjust_frame, text="Choose a Date")
-        dl.grid(row=2,column=2)
-        # Create a list of dates from the previous 15th or end of month date, to today
-        date_list = [today - timedelta(days=x) for x in range(20)]
-        date_list = [x.strftime("%a, %b %d, %y") for x in date_list]
-        label2 = Label(adjust_frame, text="**you can only adjust the last 20 days**")
-        label2.config(font=("Courier", 10))
-        label2.grid(row=3,column=2)
-        init_run_date = StringVar(adjust_frame)
-        date_dropdown = OptionMenu(adjust_frame, init_run_date, *date_list, command=run_date)
-        date_dropdown.grid(row=4  ,column=2)
-
-        psl2 = Label(adjust_frame, text="Choose an option")
-        psl2.grid(row=5, column=2)
-        init_dropdown_val = StringVar(adjust_frame)
-        primary_selection_dropdown = OptionMenu(adjust_frame, init_dropdown_val, *["Adjust a Tip"], command=run_primary_selection)
-        primary_selection_dropdown.grid(row=6,column=2)
-
-
+    def mainloop(self):
+        self.root.mainloop()
 
 if __name__ == "__main__":
     ChipGui().mainloop()
-
