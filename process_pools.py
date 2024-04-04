@@ -64,7 +64,6 @@ class ProcessPools():
         conn.close()
         #print(df)
         matching_rows = df.loc[df['DATE'] == int(self.day)]
-        matching_rows['ID'] = matching_rows['EMPLOYEE']
         return matching_rows
 
     def pooler(self):
@@ -72,7 +71,17 @@ class ProcessPools():
         '''
         return_df = self.df.copy()
         adjustments_df = self.get_adjustments()
-        print(return_df, adjustments_df)
+        #subtract the CC tips here
+
+        #find which row to adjust
+        if adjustments_df.empty:
+            print('No adjustments')
+        else:
+            for emp in adjustments_df.itertuples():
+                #Pandas(Index=1, EMPLOYEE=1003, JOB='5', ADJUSTMENT=5, DATE=20240325, ADJUSTEDBY='Alex', ADJUSTEDON=20240403)
+                slice = return_df.loc[return_df['EMPLOYEE'] == emp[1]]
+                print(emp[3]) #handle job
+                print(emp[4]) #handle Adjustment
 
         for pool in self.pool_names:
             if self.verbose_debug:
