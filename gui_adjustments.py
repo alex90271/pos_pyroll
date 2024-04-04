@@ -17,6 +17,10 @@ class AdjustmentsGui():
         self.adjust_frame.grid()
         self.today = datetime.today()
         self.day = 19700101
+        self.adjustment_amt_selector = ttk.Spinbox()
+        self.primary_selection_dropdown = Combobox()
+        self.who_adjusted_input = ttk.Entry()
+
 
         #initalizers 
         self.Employee=0
@@ -27,6 +31,7 @@ class AdjustmentsGui():
         self.AdjustedOn=19700101
         def set_day(e):
             self.day = self.date_dropdown.get()
+            self.Date = datetime.strptime(self.day, "%a, %b %d, %y").strftime('%Y%m%d')
             self.run_date()
         #startgui
         dl = Label(self.adjust_frame, text="Choose a Date")
@@ -41,18 +46,38 @@ class AdjustmentsGui():
         self.date_dropdown.grid(row=4  ,column=2)
         self.date_dropdown.bind("<<ComboboxSelected>>", set_day)
 
+    def set_adjustedby(self):
+        self.AdjustedBy = self.who_adjusted_input.get()
+        self.AdjustedOn = datetime.today().strftime('%Y%m%d')
+
+    def set_adjustment(self):
+        self.Adjustment = self.adjustment_amt_selector.get()
+
+    def set_employee_job_date(self):
+        name,job,num = self.primary_selection_dropdown.get().split(', ')
+        self.Employee = num
+        self.Job_Name = job
+
     def add_adjustment_to_db(self):
         '''takes in adjustments and adds them to the database'''
-        print(self.Employee, self.Job_Name, self.Adjustment, self.Date, self.AdjustedBy, self.AdjustedOn)
-        conn = sqlite3.connect('data/adjustments.db')
-        data = (self.Employee, self.Job_Name, self.Adjustment, self.Date, self.AdjustedBy, self.AdjustedOn)
-        #data = (1001, 'FRYCOOK', -5, '20240323','ALEX','20240401')
-        sql = '''INSERT INTO tip_adjustments (EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON)
-                VALUES (?, ?, ?, ?, ?,?)'''
-        conn.execute(sql, data)
-        conn.commit()
-        conn.close()
-        showinfo('Note',"Adjustment saved")
+        self.set_adjustedby()
+        self.set_adjustment()
+        self.set_employee_job_date()
+        #date is set earlier on, which is needed to run the employee list
+        print(self.Date)
+
+        if self.AdjustedOn == 19700101:
+            showinfo('Note',"Something went wrong")
+        else:
+            conn = sqlite3.connect('data/adjustments.db')
+            data = (self.Employee, self.Job_Name, self.Adjustment, self.Date, self.AdjustedBy, self.AdjustedOn)
+            #data = (1001, 'FRYCOOK', -5, '20240323','ALEX','20240401')
+            sql = '''INSERT INTO tip_adjustments (EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON)
+                    VALUES (?, ?, ?, ?, ?,?)'''
+            conn.execute(sql, data)
+            conn.commit()
+            conn.close()
+            showinfo('Note',"Adjustment saved")
 
     def run_date(self):
         self.day = datetime.strptime(self.day, "%a, %b %d, %y").strftime('%Y%m%d')
@@ -63,27 +88,30 @@ class AdjustmentsGui():
             return '' #exit the program if no data to display
         result = result[result['TTL_CONTRIBUTION'] > 0]
         result.drop(result.tail(1).index,inplace=True)
-        fn = (result['FIRSTNAME'] + ' | ' + result['JOB_NAME']).to_list()
+        result.reset_index(inplace=True)
+        result['ID'] = result['ID'].astype(int)
+        fn = (result['FIRSTNAME'] + ', ' + result['JOB_NAME'] + ', ' + result['ID'].astype(str)).to_list()
         psl1 = Label(self.adjust_frame, text="Primary Server")
         psl1.grid(row=7,column=2)
-        dropdown_val = StringVar(self.adjust_frame)
-        primary_selection_dropdown = Combobox(self.adjust_frame, values=fn)
-        primary_selection_dropdown.grid(row=8,column=2)
+        self.primary_selection_dropdown = Combobox(self.adjust_frame, values=fn)
+        self.primary_selection_dropdown.grid(row=8,column=2)
 
         psl2 = Label(self.adjust_frame, text="Enter adjustment")
         psl2.grid(row=9,column=2)
         psl2_helper = Label(self.adjust_frame, text="Negative values allowed (deductions)")
         psl2_helper.config(font=("Courier", 10))
         psl2_helper.grid(row=10,column=2)
-        adjustment_amt_selector = ttk.Spinbox(self.adjust_frame,increment=1,from_=-500,to=500)
-        adjustment_amt_selector.grid(row=11,column=2)
+        self.adjustment_amt_selector = ttk.Spinbox(self.adjust_frame,increment=1,from_=-500,to=500)
+        self.adjustment_amt_selector.grid(row=11,column=2)
+
         psl3 = Label(self.adjust_frame, text="Enter your name")
         psl3.grid(row=12,column=2)
         psl3_helper = Label(self.adjust_frame, text="who is entering this adjustment")
         psl3_helper.config(font=("Courier", 10))
         psl3_helper.grid(row=13,column=2)
-        who_adjusted_input = ttk.Entry(self.adjust_frame)
-        who_adjusted_input.grid(row=14,column=2)
+        self.who_adjusted_input = ttk.Entry(self.adjust_frame)
+        self.who_adjusted_input.grid(row=14,column=2)
+
         save_button = Button(self.adjust_frame, text="submit_adjustment", command=self.add_adjustment_to_db)
         save_button.grid(row=15,column=2)
 
