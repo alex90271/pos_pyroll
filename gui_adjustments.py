@@ -5,6 +5,8 @@ from tkinter import ttk
 from tkinter.messagebox import showinfo
 from tkinter.ttk import Button, Combobox, Frame
 from report_writer import ReportWriter
+from process_labor import ProcessLabor as labor
+
 
 class AdjustmentsGui():
 
@@ -24,7 +26,7 @@ class AdjustmentsGui():
 
         #initalizers 
         self.Employee=0
-        self.Job_Name=''
+        self.Job=0
         self.Adjustment=0
         self.Date=19700101
         self.AdjustedBy=''
@@ -54,9 +56,9 @@ class AdjustmentsGui():
         self.Adjustment = self.adjustment_amt_selector.get()
 
     def set_employee_job_date(self):
-        name,job,num = self.primary_selection_dropdown.get().split(', ')
-        self.Employee = num
-        self.Job_Name = job
+        emp,job = self.primary_selection_dropdown.get().split(', ')
+        self.Employee = emp
+        self.Job = job
 
     def add_adjustment_to_db(self):
         '''takes in adjustments and adds them to the database'''
@@ -70,9 +72,9 @@ class AdjustmentsGui():
             showinfo('Note',"Something went wrong")
         else:
             conn = sqlite3.connect('data/adjustments.db')
-            data = (self.Employee, self.Job_Name, self.Adjustment, self.Date, self.AdjustedBy, self.AdjustedOn)
+            data = (self.Employee, self.Job, self.Adjustment, self.Date, self.AdjustedBy, self.AdjustedOn)
             #data = (1001, 'FRYCOOK', -5, '20240323','ALEX','20240401')
-            sql = '''INSERT INTO tip_adjustments (EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON)
+            sql = '''INSERT INTO tip_adjustments (EMPLOYEE, JOB, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON)
                     VALUES (?, ?, ?, ?, ?,?)'''
             conn.execute(sql, data)
             conn.commit()
@@ -81,16 +83,16 @@ class AdjustmentsGui():
 
     def run_date(self):
         self.day = datetime.strptime(self.day, "%a, %b %d, %y").strftime('%Y%m%d')
-        result = ReportWriter(self.day, self.day).print_to_json(
-            'labor_main', json_fmt=True)
-        if type(result) == 'empty':
-            showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
-            return '' #exit the program if no data to display
-        result = result[result['TTL_CONTRIBUTION'] > 0]
-        result.drop(result.tail(1).index,inplace=True)
-        result.reset_index(inplace=True)
-        result['ID'] = result['ID'].astype(int)
-        fn = (result['FIRSTNAME'] + ', ' + result['JOB_NAME'] + ', ' + result['ID'].astype(str)).to_list()
+        #result = ReportWriter(self.day, self.day)
+        ids = labor(self.day).get_pool_data()
+        #if type(result) == 'empty':
+        #    showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
+        #    return '' #exit the program if no data to display
+        #result = result[result['TTL_CONTRIBUTION'] > 0]
+        #result.drop(result.tail(1).index,inplace=True)
+        ids['EMPLOYEE'] = ids['EMPLOYEE'].astype(int)
+        #print(result)
+        fn = (ids['EMPLOYEE'].astype(str) + ', ' + ids['JOBCODE'].astype(str)).to_list()
         psl1 = Label(self.adjust_frame, text="Primary Server")
         psl1.grid(row=7,column=2)
         self.primary_selection_dropdown = Combobox(self.adjust_frame, values=fn)

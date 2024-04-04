@@ -41,7 +41,7 @@ class ChipConfig():
             cursor.execute('''CREATE TABLE IF NOT EXISTS tip_adjustments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 EMPLOYEE INTEGER,
-                JOB_NAME TEXT,
+                JOB TEXT,
                 ADJUSTMENT INTEGER,
                 DATE DATE,
                 ADJUSTEDBY TEXT,

@@ -60,16 +60,20 @@ class ProcessPools():
             does not work yet as of 20240403
         '''
         conn = sqlite3.connect('data/adjustments.db')
-        df = pd.read_sql(f'SELECT EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON from tip_adjustments', conn)
+        df = pd.read_sql(f'SELECT EMPLOYEE, JOB, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON from tip_adjustments', conn)
         conn.close()
         #print(df)
         matching_rows = df.loc[df['DATE'] == int(self.day)]
-        print(matching_rows)
+        matching_rows['ID'] = matching_rows['EMPLOYEE']
+        return matching_rows
 
     def pooler(self):
         '''loops through the tip_pools.json and calculates tip pools based on if a sales, tip or equal pool type
         '''
         return_df = self.df.copy()
+        adjustments_df = self.get_adjustments()
+        print(return_df, adjustments_df)
+
         for pool in self.pool_names:
             if self.verbose_debug:
                 print("processing " + pool + " for " + self.day)
@@ -140,4 +144,4 @@ class ProcessPools():
 
 if __name__ == '__main__':
     print("loading Processpool_info.py")
-    print(ProcessPools('20240325').get_adjustments())
+    print(ProcessPools('20240325').pooler())
