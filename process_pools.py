@@ -57,12 +57,12 @@ class ProcessPools():
     def get_adjustments(self):
         '''check the adjustments database for any changes
         
-            does not work yet as of 20240401
+            does not work yet as of 20240403
         '''
         conn = sqlite3.connect('data/adjustments.db')
         df = pd.read_sql(f'SELECT EMPLOYEE, JOB_NAME, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON from tip_adjustments', conn)
         conn.close()
-        print(df)
+        #print(df)
         matching_rows = df.loc[df['DATE'] == int(self.day)]
         print(matching_rows)
 
@@ -140,4 +140,4 @@ class ProcessPools():
 
 if __name__ == '__main__':
     print("loading Processpool_info.py")
-    print(ProcessPools('20240323').get_adjustments())
+    print(ProcessPools('20240325').get_adjustments())
