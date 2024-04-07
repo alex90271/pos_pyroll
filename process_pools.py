@@ -57,10 +57,10 @@ class ProcessPools():
     def get_adjustments(self):
         '''check the adjustments database for any changes
         
-            does not work yet as of 20240403
+            does not work yet as of 20240406
         '''
         conn = sqlite3.connect('data/adjustments.db')
-        df = pd.read_sql(f'SELECT EMPLOYEE, JOB, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON from tip_adjustments', conn)
+        df = pd.read_sql('SELECT * from tip_adjustments', conn)
         conn.close()
         df['DATE'] = pd.to_datetime(df['DATE'], format='%Y%m%d')
         matching_rows = df[df['DATE'] == pd.to_datetime(self.day)]
@@ -79,11 +79,16 @@ class ProcessPools():
             print('No adjustments')
         else:
             for emp in adjustments_df.itertuples():
-                #example interation Pandas(Index=1, EMPLOYEE=1003, JOB='5', ADJUSTMENT=5, DATE=20240325, ADJUSTEDBY='Alex', ADJUSTEDON=20240403)
-                slice = return_df.loc[return_df['EMPLOYEE'] == emp[1]] #handle employee
-                slice = slice.loc[slice['JOBCODE'] == int(emp[2])] #handle job
-                slice = slice.head(1) #in case the employee has multiple clockins, only apply the adjustment to the first one
-                slice['CCTIPS'] = slice['CCTIPS'] + emp[3]
+                #example interation Pandas(Index=0, id=1, EMPLOYEE=1003, JOB='5', ADJUSTMENT=5, DATE=20240325, ADJUSTEDBY='Alex', ADJUSTEDON=20240403)
+                slice = return_df.loc[return_df['EMPLOYEE'].astype(int) == emp[2]] #handle employee
+                slice = slice.loc[slice['JOBCODE'].astype(int) == int(emp[3])] #handle job
+                slice = slice.head(1) #in case the employee has multiple clockins, only apply the adjustment to the first one+
+                if emp[4] > 0:
+                    print('positive adjustment')
+                    slice['CCTIPS'] = slice['CCTIPS'].astype(float) + float(emp[4])
+                if emp[4] < 0:
+                    print('negative adjustment')
+                    slice['CCTIPS'] = slice['CCTIPS'].astype(float) + float(emp[4])
                 print(slice)
 
         for pool in self.pool_names:
@@ -157,3 +162,4 @@ class ProcessPools():
 if __name__ == '__main__':
     print("loading Processpool_info.py")
     print(ProcessPools('20230909').pooler())
+    #ProcessPools('20230909').pooler()
