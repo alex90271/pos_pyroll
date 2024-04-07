@@ -62,8 +62,9 @@ class ProcessPools():
         conn = sqlite3.connect('data/adjustments.db')
         df = pd.read_sql(f'SELECT EMPLOYEE, JOB, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON from tip_adjustments', conn)
         conn.close()
-        #print(df)
-        matching_rows = df.loc[df['DATE'] == int(self.day)]
+        df['DATE'] = pd.to_datetime(df['DATE'], format='%Y%m%d')
+        matching_rows = df[df['DATE'] == pd.to_datetime(self.day)]
+        print(matching_rows)
         return matching_rows
 
     def pooler(self):
@@ -80,7 +81,7 @@ class ProcessPools():
             for emp in adjustments_df.itertuples():
                 #example interation Pandas(Index=1, EMPLOYEE=1003, JOB='5', ADJUSTMENT=5, DATE=20240325, ADJUSTEDBY='Alex', ADJUSTEDON=20240403)
                 slice = return_df.loc[return_df['EMPLOYEE'] == emp[1]] #handle employee
-                slice = slice.loc[slice['JOBCODE'] == emp[2]] #handle job
+                slice = slice.loc[slice['JOBCODE'] == int(emp[2])] #handle job
                 slice = slice.head(1) #in case the employee has multiple clockins, only apply the adjustment to the first one
                 slice['CCTIPS'] = slice['CCTIPS'] + emp[3]
                 print(slice)
@@ -155,4 +156,4 @@ class ProcessPools():
 
 if __name__ == '__main__':
     print("loading Processpool_info.py")
-    print(ProcessPools('20240325').pooler())
+    print(ProcessPools('20230909').pooler())
