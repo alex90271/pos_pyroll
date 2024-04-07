@@ -1,3 +1,4 @@
+import sqlite3
 import matplotlib.pyplot as plt
 from process_labor import ProcessLabor as labor
 from process_transactions import ProcessTransactions as transactions
@@ -46,6 +47,14 @@ class ReportWriter():
             return 'empty'
         else:
             return _df
+            
+    def adjustments_report(self):
+        conn = sqlite3.connect('data/adjustments.db')
+        df = pd.read_sql('SELECT * from tip_adjustments', conn)
+        conn.close()
+        df = df[df['DATE'].astype(str).isin(self.days)]
+        return df
+
 
     def tip_in_period(self, unused=False
                       ):
@@ -373,11 +382,13 @@ class ReportWriter():
             df = self.hourly_pay_rate(
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
-                report=True
-            )
+                report=True)
             if type(df) == str:  # if df is 'empty' don't try to round it
                 return df
             df = df[['FIRSTNAME', 'LASTNAME', 'ACTUAL_HOURLY']]
+        
+        elif rpt == 'adjustments':
+            df = self.adjustments_report()
 
         elif rpt == 'tip_rate_plot':
             df = self.rate_rpt_plot()
@@ -405,7 +416,9 @@ class ReportWriterReports():
             'tip_rate',
             'labor_rate',
             'cout_eod',
-            'labor_avg_hours']
+            'labor_avg_hours', 
+            'adjustments',
+            'tip_rate_plot']
 
 
 class Payroll(ReportWriter):
@@ -542,9 +555,9 @@ if __name__ == '__main__':
 
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
-        # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
+         print(ReportWriter('20230909', '20230915').adjustments_report())
         # print(ReportWriter('20230912','20230919').hourly_pay_rate(report=True, selected_jobs=[1]))
-         print(Payroll('20230909', '20230909').process_payroll())
+        # print(Payroll('20230909', '20230909'))
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)
