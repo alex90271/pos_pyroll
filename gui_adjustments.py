@@ -54,7 +54,7 @@ class AdjustmentsGui():
 
     def set_adjustment(self):
         self.Adjustment = self.adjustment_amt_selector.get()
-        self.Adjustment = int(self.Adjustment)
+        self.Adjustment = float(self.Adjustment)
 
     def set_employee_job_date(self):
         emp,job = self.primary_selection_dropdown.get().split(', ')
