@@ -435,19 +435,20 @@ class Payroll(ReportWriter):
 
         df_tips = df[['LASTNAME', 'FIRSTNAME',
                       'DECTIPS', 'TTL_TIPS',
-                      'AUTGRTTOT', 'EXP_ID']]
-        
+                      'AUTGRTTOT', 'EXP_ID', 'ADJUSTMENTS']]
+
         df_tips = pd.pivot_table(df_tips,
                                  index=['ID', 'LASTNAME', 'FIRSTNAME', 'EXP_ID'],
                                  aggfunc=np.sum,
                                  fill_value=np.NaN).reset_index().set_index('ID')
 
+        #get the hourly pay rate and print it on paychecks
         #hr_df = self.hourly_pay_rate()
         #hr_df.index.rename('ID', inplace=True)
         #self.primary = self.primary.join(hr_df, ['ID'])
-        self.primary['ACTUAL_HOURLY'] = ''
-        #self.primary['ACTUAL_HOURLY'] = '**see paystub for actual pay info** Average Hourly (with Tips): ' + \
-            #self.primary['ACTUAL_HOURLY'].astype(str)
+        #self.primary['ACTUAL_HOURLY'] = ''
+        #self.primary['ACTUAL_HOURLY'] = '**this is just a calculation, see paystub for actual pay info** Average Hourly (with Tips): ' + \
+        #    self.primary['ACTUAL_HOURLY'].astype(str)
         
         # some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
         df = self.primary.merge(df_tips, how='inner', on='ID')
@@ -465,7 +466,7 @@ class Payroll(ReportWriter):
         # match gusto columns
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
-                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ACTUAL_HOURLY':'personal_note','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
+                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ADJUSTMENTS':'personal_note','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
         df = df.sort_values(by='ID')
         df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
                  'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity', 'personal_note']]
@@ -542,8 +543,8 @@ if __name__ == '__main__':
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
         # print(ReportWriter('20230301', '20230315').print_to_json('house_acct'))
-         print(ReportWriter('20230912','20230919').hourly_pay_rate(report=True, selected_jobs=[1]))
-        # print(Payroll('20230401', '20230401').process_payroll())
+        # print(ReportWriter('20230912','20230919').hourly_pay_rate(report=True, selected_jobs=[1]))
+         print(Payroll('20230909', '20230909').process_payroll())
     r = 1
     f = timeit.repeat("main()", "from __main__ import main",
                       number=1, repeat=r)
