@@ -54,7 +54,7 @@ class ProcessPools():
         with open('data/tip_pools.json') as jsonfile:
             return json.load(jsonfile)
     
-    def get_adjustments(self):
+    def set_adjustments(self):
         '''check the adjustments database for any changes
         
             does not work yet as of 20240406
@@ -63,34 +63,25 @@ class ProcessPools():
         df = pd.read_sql('SELECT * from tip_adjustments', conn)
         conn.close()
         df['DATE'] = pd.to_datetime(df['DATE'], format='%Y%m%d')
-        matching_rows = df[df['DATE'] == pd.to_datetime(self.day)]
-        print(matching_rows)
-        return matching_rows
+        adjustments_df = df[df['DATE'] == pd.to_datetime(self.day)]
+        if not adjustments_df.empty:
+            for emp in adjustments_df.itertuples():
+                # Filter by employee and job code within return_df
+                match_condition = (self.df['EMPLOYEE'].astype(int) == int(emp[2])) & \
+                                (self.df['JOBCODE'].astype(int) == int(emp[3]))
+                # Modify CCTIPS directly in the filtered DataFrame
+                self.df.loc[match_condition, 'CCTIPS'] += float(emp[4])
+                adjustment_type = "up" if emp[4] > 0 else "down"
+                print(f'Positive adjustment made' if emp[4] > 0 else 'Negative adjustment made') 
+                self.df.loc[match_condition, 'ADJUSTMENTS'] = f"***Tips Adjusted*** Adjusted {adjustment_type} by: {abs(emp[4])}"
+        else:
+            print('No adjustments')
 
     def pooler(self):
         '''loops through the tip_pools.json and calculates tip pools based on if a sales, tip or equal pool type
         '''
+        self.set_adjustments() #subtract the CC tips here
         return_df = self.df.copy()
-        adjustments_df = self.get_adjustments()
-        #subtract the CC tips here
-
-        #find which row to adjust
-        if not adjustments_df.empty:
-            for emp in adjustments_df.itertuples():
-                # Filter by employee and job code within return_df
-                match_condition = (return_df['EMPLOYEE'].astype(int) == int(emp[2])) & \
-                                (return_df['JOBCODE'].astype(int) == int(emp[3]))
-
-                # Modify CCTIPS directly in the filtered DataFrame
-                return_df.loc[match_condition, 'CCTIPS'] += float(emp[4])
-                if emp[4] > 0:
-                    print('Positive adjustment made')
-                else:
-                    print('Negative adjustment made')
-        else:
-            print('No adjustments')
-        
-        print(return_df)
 
         for pool in self.pool_names:
             if self.verbose_debug:
@@ -162,5 +153,5 @@ class ProcessPools():
 
 if __name__ == '__main__':
     print("loading Processpool_info.py")
-    #print(ProcessPools('20230909').pooler())
-    ProcessPools('20230909').pooler()
+    print(ProcessPools('20230909').pooler())
+    #ProcessPools('20230909').pooler()
