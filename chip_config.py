@@ -37,6 +37,8 @@ class ChipConfig():
         if not os.path.isfile(self.adjustments_db_name):
             print('generating new adjustments database')
             conn = sqlite3.connect(self.adjustments_db_name)
+            with open(f"data/adj_db_g{time.time()}.file", "w") as file:
+                file.write(str(time.time()))
             cursor = conn.cursor()
             cursor.execute('''CREATE TABLE IF NOT EXISTS tip_adjustments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,8 +51,6 @@ class ChipConfig():
             )''')
             conn.commit()
             conn.close()
-            with open(f"data/{time.time()}.file", "w") as file:
-                file.write('1')
         
         self.data = self.read_json(self.config_name)
 
