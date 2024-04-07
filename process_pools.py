@@ -75,21 +75,22 @@ class ProcessPools():
         #subtract the CC tips here
 
         #find which row to adjust
-        if adjustments_df.empty:
-            print('No adjustments')
-        else:
+        if not adjustments_df.empty:
             for emp in adjustments_df.itertuples():
-                #example interation Pandas(Index=0, id=1, EMPLOYEE=1003, JOB='5', ADJUSTMENT=5, DATE=20240325, ADJUSTEDBY='Alex', ADJUSTEDON=20240403)
-                slice = return_df.loc[return_df['EMPLOYEE'].astype(int) == emp[2]] #handle employee
-                slice = slice.loc[slice['JOBCODE'].astype(int) == int(emp[3])] #handle job
-                slice = slice.head(1) #in case the employee has multiple clockins, only apply the adjustment to the first one+
+                # Filter by employee and job code within return_df
+                match_condition = (return_df['EMPLOYEE'].astype(int) == int(emp[2])) & \
+                                (return_df['JOBCODE'].astype(int) == int(emp[3]))
+
+                # Modify CCTIPS directly in the filtered DataFrame
+                return_df.loc[match_condition, 'CCTIPS'] += float(emp[4])
                 if emp[4] > 0:
-                    print('positive adjustment')
-                    slice['CCTIPS'] = slice['CCTIPS'].astype(float) + float(emp[4])
-                if emp[4] < 0:
-                    print('negative adjustment')
-                    slice['CCTIPS'] = slice['CCTIPS'].astype(float) + float(emp[4])
-                print(slice)
+                    print('Positive adjustment made')
+                else:
+                    print('Negative adjustment made')
+        else:
+            print('No adjustments')
+        
+        print(return_df)
 
         for pool in self.pool_names:
             if self.verbose_debug:
@@ -161,5 +162,5 @@ class ProcessPools():
 
 if __name__ == '__main__':
     print("loading Processpool_info.py")
-    print(ProcessPools('20230909').pooler())
-    #ProcessPools('20230909').pooler()
+    #print(ProcessPools('20230909').pooler())
+    ProcessPools('20230909').pooler()
