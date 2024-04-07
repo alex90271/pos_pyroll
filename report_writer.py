@@ -555,7 +555,7 @@ if __name__ == '__main__':
 
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
-         print(ReportWriter('20230909', '20230915').adjustments_report())
+         print(ReportWriter('20230909', '20230915').print_to_json('adjustments'))
         # print(ReportWriter('20230912','20230919').hourly_pay_rate(report=True, selected_jobs=[1]))
         # print(Payroll('20230909', '20230909'))
     r = 1
