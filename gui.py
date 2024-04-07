@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-import sqlite3
+import warnings
 from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
 from tkinter import ttk
 from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
@@ -27,6 +27,8 @@ class ChipGui():
         self.reports = ReportWriterReports().available_reports()
         self.verbose_debug = ChipConfig().query(
             'SETTINGS', 'verbose_debug', return_type='bool')
+        if not self.verbose_debug:
+            warnings.simplefilter(action='ignore', category=FutureWarning)
         #window setup
         self.root = Tk()
         if os.name == 'posix':
@@ -77,6 +79,7 @@ class ChipGui():
         df.reset_index(inplace=True)
         if self.verbose_debug:
             df.to_csv('debug/latest_viewed.csv')
+
         #df.to_dict(orient='index')
         pt = Table(report_frame, dataframe=df, width=1100, height=600,
                 showstatusbar=True)
