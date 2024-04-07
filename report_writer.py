@@ -219,7 +219,7 @@ class ReportWriter():
         _df.drop(drop_cols, axis=1, inplace=True)
         _df = pd.pivot_table(_df,
                              index=index_cols,
-                             aggfunc=np.sum,
+                             aggfunc='sum',
                              fill_value=np.NaN)
         
         # this block of code sets the index to employee numbers, sorts by last name, and adds totals
