@@ -29,6 +29,9 @@ class ChipGui():
             'SETTINGS', 'verbose_debug', return_type='bool')
         #window setup
         self.root = Tk()
+        if os.name == 'posix':
+            style = ttk.Style(self.root)
+            style.theme_use('aqua')
         self.title = title
         self.root.wm_title(title)
         self.root.geometry("460x650")
