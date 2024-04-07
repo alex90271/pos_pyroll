@@ -54,11 +54,12 @@ class AdjustmentsGui():
 
     def set_adjustment(self):
         self.Adjustment = self.adjustment_amt_selector.get()
+        self.Adjustment = int(self.Adjustment)
 
     def set_employee_job_date(self):
         emp,job = self.primary_selection_dropdown.get().split(', ')
-        self.Employee = emp
-        self.Job = job
+        self.Employee = int(emp)
+        self.Job = int(job)
 
     def add_adjustment_to_db(self):
         '''takes in adjustments and adds them to the database'''
@@ -73,7 +74,7 @@ class AdjustmentsGui():
         else:
             conn = sqlite3.connect('data/adjustments.db')
             data = (self.Employee, self.Job, self.Adjustment, self.Date, self.AdjustedBy, self.AdjustedOn)
-            #data = (1001, 'FRYCOOK', -5, '20240323','ALEX','20240401')
+            #data = (1001, 8, -5, '20240323','ALEX','20240401')
             sql = '''INSERT INTO tip_adjustments (EMPLOYEE, JOB, ADJUSTMENT, DATE, ADJUSTEDBY, ADJUSTEDON)
                     VALUES (?, ?, ?, ?, ?,?)'''
             conn.execute(sql, data)
