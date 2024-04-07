@@ -157,7 +157,7 @@ class ChipGui():
                 total_exp_hours = np.round(np.sum(result['regular_hours']),2)
                 total_exp_overtime = np.round(np.sum(result['overtime_hours']),2)
                 total_hr_overtim_exp_sum = np.round((total_exp_hours + total_exp_overtime),2)
-                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTips Paid Out: " + str(paycheck_tips) + "\nGratuities Paid Out: " + str(gratuties) + "\nTotal: " + str(tip_grat_sum) + "\n\nHours: " + str(total_exp_hours) + "\nOvertime: " + str(total_exp_overtime) + "\nTotal: " + str(total_hr_overtim_exp_sum) + "\n\nCheck the exports folder for the CSV"))
+                showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTips Paid Out: $" + str(paycheck_tips) + "\nGratuities Paid Out: $" + str(gratuties) + "\nTotal: $" + str(tip_grat_sum) + "\n\nHours: " + str(total_exp_hours) + "\nOvertime: " + str(total_exp_overtime) + "\nTotal: " + str(total_hr_overtim_exp_sum) + "\n\nCheck the exports folder for the CSV"))
 
     def export_csv(self):
             print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
