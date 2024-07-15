@@ -11,6 +11,7 @@ from process_pools import ProcessPools
 import jinja2
 from query_db import QueryDB
 from report_writer import Payroll, ReportWriter, ReportWriterReports
+from gui_adjustments import AdjustmentsGui
 from chip_config import ChipConfig
 from pandastable import Table
 import pdfkit
@@ -31,9 +32,6 @@ class ChipGui():
             warnings.simplefilter(action='ignore', category=FutureWarning)
         #window setup
         self.root = Tk()
-        if os.name == 'posix':
-            style = ttk.Style(self.root)
-            style.theme_use('aqua')
         self.title = title
         self.root.wm_title(title)
         self.root.geometry("460x650")
@@ -178,7 +176,7 @@ class ChipGui():
 
     def tipshare_info_window(self):
         showinfo('Note', """
-This data can be modified under /data/pools.json
+This data can be modified under <INSTALLDIR>/data/pools.json
 
 This is a list of each tip pool
 Which Jobs contribute, and which receive
@@ -192,21 +190,6 @@ Type-Equal: Splitting the tip equally
 
 Percent: how much they contribute
                  """)
-        pooler = ProcessPools((date.today()-timedelta(days=1)).strftime('%Y%m%d'))
-        df = pd.DataFrame(pooler.get_pool_info())
-
-        report_window = Toplevel()
-        report_window.iconbitmap(self.icon)
-        report_window.wm_title(self.title)
-        report_frame = Frame(report_window)
-        report_frame.grid()
-
-
-        #df.set_index(inplace=True)
-        #df.to_dict(orient='index')
-        pt = Table(report_frame, dataframe=df, width=1000, height=300,
-                showstatusbar=False, editable=False)
-        pt.show()
 
     def rpt_help_window(self):
         showinfo('Note', """
@@ -285,14 +268,14 @@ The data reported is only as accurate as data in Aloha
         label = Label(self.root, text="First day")
         label.grid(row=1, column=2)
         start_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=400)))
+                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(weeks=162)))
         start_date_picker.grid(row=2, column=2)
         print((date.today()-timedelta(days=365)))
 
         label = Label(self.root, text="Last day")
         label.grid(row=1, column=3)
         end_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(days=395)))
+                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(weeks=162)))
         end_date_picker.grid(row=2, column=3)
         self.root.grid_rowconfigure(3, weight=1)
 
@@ -404,7 +387,7 @@ The data reported is only as accurate as data in Aloha
         report_help.grid(row=13, column=3)
 
         def init_adjustment_gui():
-            pass
+            AdjustmentsGui().mainloop()
 
         self.root.grid_rowconfigure(14, weight=1)
         add_adjustment_button = Button(self.root, text="Adjustments", command=init_adjustment_gui)
