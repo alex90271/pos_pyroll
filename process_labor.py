@@ -28,8 +28,7 @@ class ProcessLabor():
         self.day = day
         # config options
         c = ChipConfig()
-        self.pay_period = c.query('settings', 'pay_period_days', return_type='int_array')[
-            0]  # used for calculating labor costs for salaried employees
+        self.pay_period = c.query('SETTINGS', 'pay_period_days')  # used for calculating labor costs for salaried employees
         self.verbose_debug = c.query(
             'SETTINGS', 'verbose_debug', return_type='bool')
         self.totals_tiprate = c.query(
