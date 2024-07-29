@@ -4,7 +4,7 @@
 ### --- INSTALL INSTRUCTIONS
 
     1. Create your environment `python -m venv .venv`\
-        a. Activate the script on the windows system `powershell -ExecutionPolicy Bypass -File script.ps1`
+        a. Activate the script on the windows system, using an elevated powershell terminal `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
         b. Connect to the environment (windows) `./.venv/Scripts/Activate.ps1`
 
     2. Install dependencies with `python -m pip install -r "requirements.txt"`
@@ -14,7 +14,7 @@
         b. Move the extracted wkhtmltox file into the root directory
 
     4. Run `python chip_payroll.py` to launch
-        a. After first launch you will need to configure settings[v3].json to point to your database or set debug to true
+        a. After first launch you will need to configure settings[v3].json to point to your database(or set debug to true)
 
 ### --- BUILDING EXECUTABLE:
 
