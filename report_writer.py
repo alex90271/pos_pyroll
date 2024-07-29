@@ -92,7 +92,7 @@ class ReportWriter():
         _df = pd.pivot_table(reg_df[['EMPLOYEE', 'ACTUAL_HOURLY']],
                              index=['EMPLOYEE'],
                              aggfunc=np.mean,
-                             fill_value=np.NaN)
+                             fill_value=np.nan)
         if report:
             # readds totals for report
             #_df = reg_df[['TTL_TIPS','TOTAL_PAY','HOURS','OVERHRS','EMPLOYEE']].join(_df, ['EMPLOYEE'])
