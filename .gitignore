@@ -20,7 +20,4 @@ build
 .DS_Store
 
 #environment
-macenv
-winenv
-venv
 .venv
