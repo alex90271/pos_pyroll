@@ -48,7 +48,7 @@ class ChipGui():
             print("error loading icon")
 
         #selections
-        self.day_one = (date.today()-timedelta(days=7)).strftime('%Y%m%d')
+        self.day_one = yesterday
         self.day_two = yesterday
         self.rpt_type = "labor_main"
         self.select_emps = []
