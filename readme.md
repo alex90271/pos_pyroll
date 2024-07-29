@@ -23,7 +23,7 @@
     Pyinstaller Compile Command: 
         `pyinstaller chip_payroll.py --noconsole --hidden-import babel.numbers --add-data "templates/*;templates" --add-data "wkhtmltox/bin/*;wkhtmltox/bin" --add-data "wkhtmltox/include/*;wkhtmltox/include" --add-data "assets/*;assets`
 
-    To use the custom icon you can add the argument `--icon=assets\pyroll_ico.ico"`
+    To use the custom icon you can add the argument `--icon=assets\pyroll_ico.ico`
 
-    If using --onefile arg, templates, wkhtmltox, and assets must be added separately
+    Onefile is easier to distribute but requires templates, wkhtmltox, and icon assets to be added separately:
         `pyinstaller chip_payroll.py --onefile --noconsole --hidden-import babel.numbers`
