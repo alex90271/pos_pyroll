@@ -48,9 +48,9 @@ class ProcessLabor():
         day = datetime.datetime.strptime(self.day, "%Y%m%d")  # 20210101
         return day.strftime(fmt)  # Mon Jan 1
 
-    def get_total_pay(self):
+    def get_total_pay(self, tracked_labor):
         '''returns total cost of labor'''
-        cur_df = self.calc_labor_cost()
+        cur_df = self.calc_labor_cost(tracked_labor)
         total = np.sum(cur_df.loc[:, ('TOTAL_PAY')])
         return total
 
@@ -101,10 +101,10 @@ class ProcessLabor():
         df['DATE'] = self.get_day()
         return df
 
-    def get_labor_rate(self, return_nan=True):
+    def get_labor_rate(self, tracked_labor, return_nan=True):
         # if self.cached:
         # return self.cached[3]
-        labor_cost = self.get_total_pay()
+        labor_cost = self.get_total_pay(tracked_labor)
         sales = self.get_total_sales()
         if sales == 0:
             return 0
@@ -143,14 +143,15 @@ class ProcessLabor():
             salary_df.loc[:, ('OVERHRS')], self.pay_period)
         return salary_df
 
-    def calc_labor_cost(self, total=False, salary=True):
+    def calc_labor_cost(self, tracked_labor=[], salary=True):
         '''returns a dataframe with pay based on pay rate and hours on tracked labor
            use salary=False to skip calculating salary'''
-        if not total:
+        if tracked_labor != []:
             cur_df = self.df.loc[self.df.loc[:, ('JOBCODE')].isin(
-                self.tracked_labor)].copy()
+                tracked_labor)].copy()
         else:
             cur_df = self.df.copy()
+
         if salary:
             #cur_df = cur_df.append(self.calc_salary())
             cur_df = pd.concat([cur_df, self.calc_salary()])
