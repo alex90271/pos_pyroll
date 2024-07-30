@@ -196,7 +196,6 @@ class ReportWriter():
         addl_cols: list,
         selected_employees=None,
         selected_jobs=None,
-        sum_only=False,
         nightly=False,
         append_totals=True,
     ):
@@ -317,7 +316,6 @@ class ReportWriter():
                 totaled_cols=['HOURS', 'OVERHRS',
                               'TTL_CONTRIBUTION', 'TTL_TIPS', 'DECTIPS'],
                 addl_cols=[],
-                sum_only=True,
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
                 nightly=False)
