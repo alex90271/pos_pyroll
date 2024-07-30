@@ -338,7 +338,6 @@ class ReportWriter():
                 index_cols=['EMPLOYEE', 'LASTNAME', 'FIRSTNAME'],
                 totaled_cols=ttlrs,
                 addl_cols=[],
-                sum_only=True,
                 selected_employees=selected_employees,
                 selected_jobs=selected_jobs,
                 nightly=False)
