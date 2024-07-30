@@ -180,9 +180,9 @@ class ReportWriter():
 
         return _df
 
-    def labor_hourly_rate(self):
+    def labor_hourly_rate(self, tracked_labor):
         '''returns the labor rate to sales'''
-        return [labor(day).get_labor_rate(return_nan=False) for day in self.days]
+        return [labor(day).get_labor_rate(tracked_labor, return_nan=False) for day in self.days]
 
     def get_total_sales(self):
         return [labor(day).get_total_sales() for day in self.days]
@@ -503,7 +503,6 @@ class WeeklyWriter(ReportWriter):
                                                 'FIRSTNAME'],
                                     totaled_cols=[],
                                     addl_cols=[],
-                                    sum_only=True,
                                     append_totals=False).reset_index()
                 if type(t) != str:
                     data.append(t)
@@ -522,7 +521,6 @@ class WeeklyWriter(ReportWriter):
                                     totaled_cols=['HOURS', 'OVERHRS',
                                                 'SRVTIPS', 'TIPOUT', 'DECTIPS'],
                                     addl_cols=['DATE', 'SALES', 'RATE'],
-                                    sum_only=True,
                                     append_totals=False,
                                     selected_jobs=selected_jobs,
                                     selected_employees=selected_employees)
@@ -530,7 +528,7 @@ class WeeklyWriter(ReportWriter):
                     data.append(t)
                     t['WEEK'] = date  # .strftime('%b, %d, %a, %Y')
                     t['SALES'] = np.sum(self.get_total_sales())
-                    t['RATE'] = (np.sum(self.labor_hourly_rate())/6)
+                    t['RATE'] = (np.sum(self.labor_hourly_rate(selected_jobs))/6)
 
             df = pd.concat(data)
 
