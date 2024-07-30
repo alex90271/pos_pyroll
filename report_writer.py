@@ -148,11 +148,8 @@ class ReportWriter():
 
         return df
     
-    def rate_rpt_plot(
-            self,
-            rpt: str,
-    ):
-        df = self.rate_rpt(rpt=rpt, totaled_cols=[],averaged_cols=[])
+    def rate_rpt_plot(self):
+        df = self.rate_rpt(rpt='Tip', totaled_cols=[],averaged_cols=[])
         #df['Date'] = df['Date'].str[4:]
         plt.figure(figsize=(12, 9))
         df.pivot(index='Date', columns='Pool', values='Hourly')
@@ -166,7 +163,7 @@ class ReportWriter():
         plt.hlines(y=7.25, xmin=0, xmax=15, linewidth=2, color='r',label='Min Wage Threshold')
         plt.xticks(df['Date'], rotation=45, ha="right")
         plt.tight_layout()  # Adjust layout for better label display
-        plt.savefig('foo.png')
+        plt.savefig('exports/foo.png')
 
     def cout_by_eod(
         self,
@@ -238,7 +235,7 @@ class ReportWriter():
         # if any additonal columns are requested, add them
         if addl_cols is not None:
             for col in addl_cols:
-                _df[col] = np.NaN
+                _df[col] = np.nan
         return _df
 
     def employees_in_dates(self):
@@ -392,11 +389,11 @@ class ReportWriter():
 
         elif rpt == 'tip_rate_plot':
             df = self.rate_rpt_plot()
-            raise ValueError("BETA REPORT\nReport was exported\nThere are no guarantees of accuracy of this report")
+            #BETA REPORT\nReport was exported\nThere are no guarantees of accuracy of this report
 
         elif rpt == 'house_acct':
             df = self.house_accounts()
-            raise ValueError("BETA REPORT\nReport was exported\nThere are no guarantees of accuracy of this report")
+            #BETA REPORT\nReport was exported\nThere are no guarantees of accuracy of this report
         else:
             raise ValueError(
                 '' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')
@@ -503,7 +500,7 @@ class WeeklyWriter(ReportWriter):
             for date in date_ranges:
                 super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
                                 last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
-                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONTRIBUTION', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONTRIBUTION', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                                     index_cols=['EMPLOYEE', 'LASTNAME',
                                                 'FIRSTNAME'],
                                     totaled_cols=[],
@@ -521,7 +518,7 @@ class WeeklyWriter(ReportWriter):
             for date in date_ranges:
                 super().__init__(first_day=datetime.datetime.strftime(date, "%Y%m%d"),
                                 last_day=datetime.datetime.strftime((date+datetime.timedelta(days=6.9)), "%Y%m%d"), increment=1)
-                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONTRIBUTION', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE', 'CCTIP_luncheon_pool', 'CCTIP_server_pool', 'CCTIP_takeout_pool', 'c_luncheon_pool', 'c_server_pool', 'c_takeout_pool'],
+                t = self.labor_main(drop_cols=['RATE', 'TIPSHCON', 'TTL_CONTRIBUTION', 'SALES', 'CCTIPS', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE', 'JOBCODE'],
                                     index_cols=['EMPLOYEE', 'LASTNAME',
                                                 'FIRSTNAME','JOB_NAME'],
                                     totaled_cols=['HOURS', 'OVERHRS',
