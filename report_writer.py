@@ -163,7 +163,7 @@ class ReportWriter():
         plt.hlines(y=7.25, xmin=0, xmax=15, linewidth=2, color='r',label='Min Wage Threshold')
         plt.xticks(df['Date'], rotation=45, ha="right")
         plt.tight_layout()  # Adjust layout for better label display
-        plt.savefig('exports/foo.png')
+        plt.savefig('exports/tip_rate_plot.png')
 
     def cout_by_eod(
         self,
@@ -363,7 +363,7 @@ class ReportWriter():
                     selected_employees=selected_employees,
                     json_fmt=json_fmt)
 
-        elif rpt == 'labor_avg_hours':
+        elif rpt == 'avg_hours_per_week':
             df = WeeklyWriter(
                 self.first_day,
                 self.last_day).weekly_labor(
@@ -408,7 +408,7 @@ class ReportWriterReports():
             'labor_rate',
             'cout_eod',
             'hourly',
-            'labor_avg_hours', 
+            'avg_hours_per_week', 
             'adjustments',
             'tip_rate_plot',
             'tipshare_detail',]
