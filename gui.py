@@ -72,6 +72,7 @@ class ChipGui():
             self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
         if type(df) == str:
             showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
+            pt.delete()
             return 0 #exit the program if no data to display
         
         df.reset_index(inplace=True)
