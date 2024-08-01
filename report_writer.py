@@ -403,16 +403,15 @@ class ReportWriterReports():
     def available_reports(self):
         return ['labor_main',
             'labor_total',
-            'labor_weekly',
-            'tipshare_detail',
             'punctuality',
-            'hourly',
             'tip_rate',
             'labor_rate',
             'cout_eod',
+            'hourly',
             'labor_avg_hours', 
             'adjustments',
-            'tip_rate_plot']
+            'tip_rate_plot',
+            'tipshare_detail',]
 
 
 class Payroll(ReportWriter):
