@@ -3,7 +3,7 @@ import warnings
 from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
 from tkinter import ttk
 from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
-from tkinter.ttk import Button, Combobox, Frame, Style
+from tkinter.ttk import Button, Combobox, Frame, Separator, Style
 import numpy as np
 from tkcalendar import DateEntry
 import pandas as pd
@@ -34,7 +34,7 @@ class ChipGui():
         self.root = Tk()
         self.title = title
         self.root.wm_title(title)
-        self.root.geometry("460x650")
+        self.root.geometry("460x700")
 
         #add ttk font
         Style().configure('.', font=('Verdana', 12))
@@ -374,27 +374,29 @@ The data reported is only as accurate as data in Aloha
 
         self.root.grid_rowconfigure(10, weight=1)
 
-        export_csv_button = Button(self.root, text="Export to CSV", command=self.export_csv)
-        export_csv_button.grid(row=11, column=2)
-
-        payroll_button = Button(self.root, text="Export Payroll CSV", command=self.gusto_rpt)
-        payroll_button.grid(row=11, column=3)
-
-        ##HELP BUTTONS##
-        self.root.grid_rowconfigure(12, weight=1)
-        tipshare_info = Button(self.root, text="Tipshare Config", command=self.tipshare_info_window)
-        tipshare_info.grid(row=13, column=2)
         report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
-        report_help.grid(row=13, column=3)
+        report_help.grid(row=11, column=3)
+
+        payroll_button = Button(self.root, text="Export Payroll", command=self.gusto_rpt)
+        payroll_button.grid(row=11, column=2)
+
+        self.root.grid_rowconfigure(13, weight=1)
+
+        separator = Label(self.root, text="\nOther Options")
+        separator.grid(column=1, row=14, columnspan=3, sticky='ns')
+
+        export_csv_button = Button(self.root, text="Debug Export", command=self.export_csv)
+        export_csv_button.grid(row=15, column=2)
+
 
         def init_adjustment_gui():
             AdjustmentsGui().mainloop()
 
-        self.root.grid_rowconfigure(14, weight=1)
         add_adjustment_button = Button(self.root, text="Adjustments", command=init_adjustment_gui)
-        add_adjustment_button.grid(row=15, column=2, columnspan=2)
+        add_adjustment_button.grid(row=15, column=3, columnspan=2)
 
         self.root.grid_rowconfigure(16, weight=1)
+
 
     def mainloop(self):
         self.root.mainloop()
