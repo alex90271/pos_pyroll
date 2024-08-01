@@ -209,6 +209,7 @@ Shows when employees clocked in, and out
 --tip_rate--
 Shows the daily tip payrate, and info
 Broken down by tip pool (takeout, servers, etc)
+Or as a total if set to True in settings
                  
 --labor_rate--
 Shows the daily labor paid out, against sales
@@ -316,9 +317,9 @@ If Aloha is incorrect, these reports will also be incorrect
         def on_report_changed(e):
             self.rpt_type = report_combo.get()
             if self.rpt_type == "tip_rate":
-                showinfo('Note', "This report ignores employee & jobcode selections")
+                showinfo('Note', "This report ignores any employee & jobcode selections\n\nNumbers are based on tipshare settings")
             if self.rpt_type == "labor_rate":
-                showinfo('Note', "This report uses jobcode selections only\n\nIgnores employee selections")
+                showinfo('Note', "Select the jobcodes you want for the calculation\n\nIgnores any employee selections\n\nLabor Cost is based on pay rate in Aloha")
             if self.rpt_type == "hourly":
                 showinfo('Note', "If a job is selected, it will only show the hourly for that job\n\nIncludes Tips")
             if self.rpt_type == "avg_hours_per_week":

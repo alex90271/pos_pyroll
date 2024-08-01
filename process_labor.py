@@ -54,10 +54,13 @@ class ProcessLabor():
         total = np.sum(cur_df.loc[:, ('TOTAL_PAY')])
         return total
 
-    def get_total_hours(self, over=False, reg=False):
+    def get_total_hours(self, tracked_labor, over=False, reg=False):
         '''returns total hours tracked on the labor tracker'''
-        cur_df = self.df.loc[self.df.loc[:,
-                                         ('JOBCODE')].isin(self.tracked_labor)]
+        if tracked_labor==[]:
+            cur_df = self.df.copy()
+        else:
+            cur_df = self.df.loc[self.df.loc[:,
+                                         ('JOBCODE')].isin(tracked_labor)]
         total = 0
         if reg:
             total += np.sum(cur_df.loc[:, ('HOURS')])
@@ -205,21 +208,21 @@ class ProcessLabor():
             return _df
         return df
 
-    def calc_laborrate_df(self):
+    def calc_laborrate_df(self, tracked_labor):
         '''returns a dataframe with the daily calculations for labor rate percentages'''
 
-        jobcodes = QueryDB().return_jobname(self.tracked_labor)
+        jobcodes = QueryDB().return_jobname(tracked_labor)
         jobcodes = ', '.join(jobcodes)
 
         df = pd.DataFrame(data={
             "Jobs": [jobcodes],
             "Day": [self.get_day()],
-            "Rate (%)": [self.get_labor_rate()],
-            "Total Pay": [self.get_total_pay()],
+            "Rate (%)": [self.get_labor_rate(tracked_labor)],
+            "Total Pay": [self.get_total_pay(tracked_labor)],
             "Total Sales": [self.get_total_sales()],
-            "Reg Hours": [self.get_total_hours(reg=True)],
-            "Over Hours": [self.get_total_hours(over=True)],
-            "Total Hours": [self.get_total_hours(reg=True, over=True)]
+            "Reg Hours": [self.get_total_hours(tracked_labor, reg=True)],
+            "Over Hours": [self.get_total_hours(tracked_labor, over=True)],
+            "Total Hours": [self.get_total_hours(tracked_labor, reg=True, over=True)]
         })
         return df
 

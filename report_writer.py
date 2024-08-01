@@ -130,12 +130,13 @@ class ReportWriter():
         rpt: str,
         totaled_cols: list,
         averaged_cols: list,
+        selected_jobs: list,
     ):
         a = []
         if rpt == 'Tip':
             a = (labor(day).calc_tiprate_df() for day in self.days)
         elif rpt == 'Labor':
-            a = (labor(day).calc_laborrate_df() for day in self.days)
+            a = (labor(day).calc_laborrate_df(selected_jobs) for day in self.days)
         else:
             print('no proper data provided the following report is blank:')
             return pd.DataFrame({})  # returns a blank dataframe
@@ -150,7 +151,7 @@ class ReportWriter():
         return df
     
     def rate_rpt_plot(self):
-        df = self.rate_rpt(rpt='Tip', totaled_cols=[],averaged_cols=[])
+        df = self.rate_rpt(rpt='Tip', totaled_cols=[],averaged_cols=[], selected_jobs=[])
         #df['Date'] = df['Date'].str[4:]
         plt.figure(figsize=(12, 9))
         df.pivot(index='Date', columns='Pool', values='Hourly')
@@ -268,7 +269,8 @@ class ReportWriter():
                     "Cash",
                     "Total_Pool"
                 ],
-                averaged_cols=["Hourly"])
+                averaged_cols=["Hourly"], 
+                selected_jobs=selected_jobs)
 
         elif rpt == 'punctuality':
             df = self.punctuality(
@@ -348,7 +350,8 @@ class ReportWriter():
                 rpt='Labor',
                 totaled_cols=['Total Pay', 'Total Sales',
                               'Reg Hours', 'Over Hours', 'Total Hours'],
-                averaged_cols=['Rate (%)'])
+                averaged_cols=['Rate (%)'], 
+                selected_jobs=selected_jobs)
 
         elif rpt == 'cout_eod':
             df = self.cout_by_eod(
@@ -396,7 +399,13 @@ class ReportWriter():
             raise ValueError(
                 '' + rpt + ' is an invalid selection - valid options: tip_rate, labor_rate, cout_eod, punctuality, labor_totals, labor_main, hourly')
 
-        return df.round(2)
+        try:
+            return df.round(2)
+        except:
+            print("couldn't round")
+            print(df)
+        return df
+        
 
 
 class ReportWriterReports():
