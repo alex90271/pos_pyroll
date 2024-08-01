@@ -159,7 +159,6 @@ class ReportWriter():
         _df.sort_values(by=['Date'][4:],inplace=True)
         df.sort_values(by=['Date'][4:],inplace=True)
         df = pd.concat([df,_df]).reset_index(drop=True)[['Pool','Date','Hourly']]
-        print(df)
         plt.plot(df.pivot(index='Date', columns='Pool', values='Hourly'))
         plt.hlines(y=7.25, xmin=0, xmax=15, linewidth=2, color='r',label='Min Wage Threshold')
         plt.xticks(df['Date'], rotation=45, ha="right")
@@ -510,7 +509,6 @@ class WeeklyWriter(ReportWriter):
                 if type(t) != str:
                     data.append(t)
             df = pd.concat(data)
-            print(df)
             rtn_df = df.pivot_table(index=['FIRSTNAME'], values=['HOURS', 'OVERHRS'], aggfunc=np.average)
 
             return rtn_df
