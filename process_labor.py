@@ -166,29 +166,6 @@ class ProcessLabor():
             cur_df.to_csv('debug/calc_labor_cost' + self.day + '.csv')
         return cur_df
 
-    def calc_hourly_labor(self, interval=60, jobcodes=[7, 8]):
-        _df = self.db.process_db('labor_hourly')
-        cur_df = _df.loc[_df.loc[:, ('JOBID')].isin(jobcodes)].copy()
-        cur_df.drop(columns=['JOBID', 'STOREID', 'REGIONID',
-                    'OCCASIONID'], axis=1, inplace=True)
-        cur_df = cur_df.pivot_table(
-            index=['DOB', 'STARTHOUR', 'STARTMIN', 'STOPHOUR', 'STOPMIN'], aggfunc=np.sum)
-        cur_df.reset_index(inplace=True)
-        # pivot table will multiply sales for each jobcode selected, so we undo that here
-        cur_df['AMOUNT'] = cur_df['AMOUNT'].divide(len(jobcodes))
-        # COST div AMOUNT, multiply by 100 for percent
-        cur_df['PERCENT'] = np.multiply(
-            np.divide(cur_df.loc[:, ('COST')], cur_df.loc[:, ('AMOUNT')]), 100)
-        cur_df['STARTHOUR'] = pd.to_datetime(cur_df['STARTHOUR'], format='%H')
-        cur_df['STARTMIN'] = pd.to_datetime(cur_df['STARTMIN'], format='%M')
-        cur_df['STARTHOUR'] = cur_df['STARTHOUR'].dt.strftime('%I%p')
-        cur_df['STARTMIN'] = cur_df['STARTMIN'].dt.strftime('%M')
-
-        if self.verbose_debug:
-            cur_df.to_csv('debug/calc_hourly_labor' + self.day + '.csv')
-
-        return cur_df
-
     def calc_tiprate_df(self):
         '''returns a dataframe with a daily summary report'''
         names = [
