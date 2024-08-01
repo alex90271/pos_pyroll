@@ -457,20 +457,23 @@ class Payroll(ReportWriter):
         #self.primary['ACTUAL_HOURLY'] = '**this is just a calculation, see paystub for actual pay info** Average Hourly (with Tips): ' + \
         #    self.primary['ACTUAL_HOURLY'].astype(str)
         
-        # some magic merging to get the format needed for gusto (first jobcode must be primary and all tips have to be under primary-- but we still need hours broken down by jobcode)
+        #first jobcode must be primary and all tips have to be under primary so we merge tips data with the primary jobcode list
         df = self.primary.merge(df_tips, how='inner', on='ID')
+        #we now must add the hours, and include the rest of the jobcodes
         df = df_hours.merge(df, how='outer', on=[
                             'ID', 'JOBCODE', 'FIRSTNAME', 'LASTNAME', 'EXP_ID'])
+        #we now have a dataframe where primary jobcode has the tips, with secondary jobcodes only having hours
         df['JOB_NAME_y'] = np.where(df['JOB_NAME_y'].astype(
             str) == 'nan', df['JOB_NAME_x'].astype(str), df['JOB_NAME_y'].astype(str))
 
-        # drop interface employees
+        #drop interface employees listed in settings
         for x in self.c.query("SETTINGS", "interface_employees", return_type='int_array'):
             try:
                 df.drop([float(x)], inplace=True, errors=False)
             except:
                 pass
         # match gusto columns
+        #title = job
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
         df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
                            'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ADJUSTMENTS':'personal_note','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
