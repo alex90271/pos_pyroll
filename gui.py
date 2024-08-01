@@ -314,10 +314,12 @@ If Aloha is incorrect, these reports will also be incorrect
         def on_report_changed(e):
             self.rpt_type = report_combo.get()
             if self.rpt_type == "tip_rate":
-                showinfo('Note', "This report ignores employee or jobcode selections")
+                showinfo('Note', "This report ignores employee and jobcode selections")
+            if self.rpt_type == "labor_rate":
+                showinfo('Note', "This report uses jobcode selections only\n\nIgnores employee selections")
             if self.rpt_type == "hourly":
                 showinfo('Note', "If you have a job selected, it will only show the hourly for that job\n\nIncludes Tips")
-            if self.rpt_type == "labor_avg_hours":
+            if self.rpt_type == "avg_hours_per_week":
                 showinfo('Note',"Report requires 2+ weeks selection")
 
         report_combo.bind("<<ComboboxSelected>>", on_report_changed)   
