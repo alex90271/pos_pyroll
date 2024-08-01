@@ -194,45 +194,46 @@ Percent: how much they contribute
 
     def rpt_help_window(self):
         showinfo('Note', """
-1.labor_main
-By Jobcode, Shows a breakdown of tips, and hours
+--labor_main--
+Shows a breakdown of tips, and hours by Job
 TTL_TIPS are tips paid out on check
-TTL_CONTRIBUTIONS are what they gave to tip pool
+TTL_CONT[RIBUTIONS] are what was paid to tip pool
 DECTIPS are declared cash tips
                                   
-2.labor_total,
+--labor_total--
 Same as "Labor_Main", but only employee totals
-                                                           
-3.labor_weekly,
-Requires 2+ weeks
-Shows a sum of labor for each week
                  
-4.tipshare_detail,
-A complex breakdown of tipshare
+--punctuality--
+Shows when employees clocked in, and out                                
                  
-5.punctuality,
-Shows when employees clocked in, and out                 
-                 
-6.hourly,
-Shows employee hourly, including their tips
-Includes pay from payrates set in Aloha
-                 
-7.tip_rate,
+--tip_rate--
 Shows the daily tip payrate, and info
 Broken down by tip pool (takeout, servers, etc)
                  
-8.labor_rate,
+--labor_rate--
 Shows the daily labor paid out, against sales
 Based on labor rates set in Aloha
                  
-9.cout_eod,
-Shows each employee that Aloha force clocked out
-Any 3am outhours should be fixed                 
-outhour, outmin, shows the latest outhour, and min from Aloha
+--cout_eod--
+Shows each employee that Aloha automatically clocked out (displays in 24hr time)\nAny 3am outhours should be fixed\n\nEx. If \"outhour\" was 3 and \"outmin\" 00, that is 3:00 clockout.
                  
-10.labor_avg_hours
+--hourly--
+Calculates the hourly rate earned during the selected period
+Includes tips in the calculation
+                 
+--avg_hours_per_week--
 Requires 2+ weeks
-Shows the average hours an employee worked through the period                
+Shows the average hours an employee worked through the selection   
+
+--adjustments--
+Reports any adjustments that were input through the selection   
+                 
+--tip_rate_graph--
+[experimental] Runs the tip_rate and exports it as a graph
+
+--tipshare_detail--
+A complex breakdown of tipshare
+Columns prefixed with c_ are contribution  
         """)
 
     def startup_help_window(self):
@@ -245,16 +246,17 @@ RUN A REPORT:
     3.(Optional) Filter by employee or job
     4.Press "view", or send to printer with "print"
                  
-CSV EXPORT:
+EXPORT PAYROLL:
     Only relies on you setting the Dates
-    Ignores the report, and employee/job selections
+    Ignores any other selections
 
 TO UPDATE HOURS/TIPS:
     For hours, update these in Aloha. Then run a new report
-    To adjust tips, click the 'Adjustments' button on the next screen
+    To adjust tips, click the 'Adjustments' button
 
-The data reported is only as accurate as data in Aloha 
-(For example, incorrect clockins)
+The data reported uses Aloha as the source of truth
+If Aloha is incorrect, these reports will also be incorrect
+(Incorrect clockin/clockout, declared tips, or CC tips, etc.)
 
         """)
 
@@ -311,20 +313,12 @@ The data reported is only as accurate as data in Aloha
 
         def on_report_changed(e):
             self.rpt_type = report_combo.get()
-            if self.rpt_type == "tipshare_detail":
-                showinfo('Note', "This is a complex breakdown of tipshare\n\nColumns prefixed with c_ are contribution\nShows contributions and payouts broken down by each tip pool")
             if self.rpt_type == "tip_rate":
-                showinfo('Note', "This report ignores employee or jobcode selections\nShows the daily tip payrate, and info Broken down by tip pool (takeout, servers, etc)\n\nReport can be changed to show just a total")
-            if self.rpt_type == "punctuality":
-                showinfo('Note', "This report displays clockin times, converting from 24 hour time to am/pm")
+                showinfo('Note', "This report ignores employee or jobcode selections")
             if self.rpt_type == "hourly":
-                showinfo('Note', "Jobcode selections will restrict calculation to hours from that job only\n\nCalculates total hourly payrate, based on their rate set in Aloha PLUS tips. Average is based on timeframe selected\n\nCalculated as total payment divided by total hours")
+                showinfo('Note', "If you have a job selected, it will only show the hourly for that job\n\nIncludes Tips")
             if self.rpt_type == "labor_avg_hours":
-                showinfo('Note',"Report requires 2+ weeks selection\n\nIt Shows the average hours an employee worked through the selection")
-            if self.rpt_type == "labor_weekly":
-                showinfo('Note',"Report requires 2+ weeks selection\n\nIt Shows the sum of hours an worked through the selection")
-            if self.rpt_type == "cout_eod":
-                showinfo('Note',"Shows each employee that Aloha force clocked out\nAny 3am outhours should be fixed\nThe columns: outhour, outmin, shows the latest clockout from Aloha\n\nEx. If outhour was 3 and out min 00, that is 3:00 clockout")
+                showinfo('Note',"Report requires 2+ weeks selection")
 
         report_combo.bind("<<ComboboxSelected>>", on_report_changed)   
 

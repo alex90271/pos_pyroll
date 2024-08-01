@@ -163,7 +163,7 @@ class ReportWriter():
         plt.hlines(y=7.25, xmin=0, xmax=15, linewidth=2, color='r',label='Min Wage Threshold')
         plt.xticks(df['Date'], rotation=45, ha="right")
         plt.tight_layout()  # Adjust layout for better label display
-        plt.savefig('exports/tip_rate_plot.png')
+        plt.savefig('exports/tip_rate_graph_'+ self.first_day '_' self.last_day +'.png')
 
     def cout_by_eod(
         self,
@@ -384,7 +384,7 @@ class ReportWriter():
         elif rpt == 'adjustments':
             df = self.adjustments_report()
 
-        elif rpt == 'tip_rate_plot':
+        elif rpt == 'tip_rate_graph':
             df = self.rate_rpt_plot()
             #BETA REPORT\nReport was exported\nThere are no guarantees of accuracy of this report
 
@@ -410,7 +410,7 @@ class ReportWriterReports():
             'hourly',
             'avg_hours_per_week', 
             'adjustments',
-            'tip_rate_plot',
+            'tip_rate_graph',
             'tipshare_detail',]
 
 
