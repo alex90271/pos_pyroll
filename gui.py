@@ -318,7 +318,7 @@ If Aloha is incorrect, these reports will also be incorrect
             if self.rpt_type == "labor_rate":
                 showinfo('Note', "This report uses jobcode selections only\n\nIgnores employee selections")
             if self.rpt_type == "hourly":
-                showinfo('Note', "If you have a job selected, it will only show the hourly for that job\n\nIncludes Tips")
+                showinfo('Note', "If a job is selected, it will only show the hourly for that job\n\nIncludes Tips")
             if self.rpt_type == "avg_hours_per_week":
                 showinfo('Note',"Report requires 2+ weeks selection")
 
