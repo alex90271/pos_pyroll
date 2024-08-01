@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import timeit
+from process_pools import ProcessPools
 
 
 class ReportWriter():
@@ -327,7 +328,8 @@ class ReportWriter():
 
         elif rpt == 'tipshare_detail':
             ttlrs = ['HOURS', 'OVERHRS']
-            for pool in ['luncheon_pool', 'server_pool', 'takeout_pool']:
+            pools = [x for x in ProcessPools(self.last_day).get_pool_info().keys()]
+            for pool in pools:
                 ttlrs.append('CCTIP_' + pool)
                 ttlrs.append('c_' + pool)
                 ttlrs.append(pool)
@@ -549,7 +551,7 @@ if __name__ == '__main__':
 
     def main():
         # print(WeeklyWriter('20211101','20220128').weekly_labor(selected_jobs=[7,8]))
-         print(ReportWriter('20230909', '20230915').print_to_json('adjustments'))
+         print(ReportWriter('20240709', '20240715').print_to_json('tipshare_detail'))
         # print(ReportWriter('20230912','20230919').hourly_pay_rate(report=True, selected_jobs=[1]))
         # print(Payroll('20230909', '20230909'))
     r = 1
