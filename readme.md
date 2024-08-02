@@ -6,7 +6,7 @@
     Note: This script was designed to run on Windows 10 or 11 only. 
 
     1. Create your environment `python -m venv .venv`\
-        a. Activate the script on the windows system, using an elevated powershell terminal `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
+        a. Activate the script on the windows system, using an elevated powershell terminal `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`
         b. Connect to the environment (windows) `./.venv/Scripts/Activate.ps1`
 
     2. Install dependencies with `python -m pip install -r "requirements.txt"`
