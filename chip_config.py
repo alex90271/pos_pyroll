@@ -74,11 +74,6 @@ class ChipConfig():
             'pay_period_days': "15",
             'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999'
         }
-        data['LABOR_PERCENT_SETTINGS'] = {
-            'tracked_labor': '8',  # array
-            'pay_period_days': '15',  # array
-        }
-    
 
         return data
     
