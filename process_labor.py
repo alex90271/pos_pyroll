@@ -128,25 +128,7 @@ class ProcessLabor():
 
         return cur_df
 
-    def calc_salary(self):
-        '''returns a dataframe of the salary employees'''
-        salary_df = pd.DataFrame()  # blank dataframe
-        salary_path = 'data/salary.csv'
-        # check if the salary csv already exists
-        if not os.path.exists(salary_path):
-            salary_df = pd.DataFrame(data={'FIRSTNAME': ['NEW'], 'LASTNAME': ['NEW'], 'RATE': [
-                                     0], 'HOURS': [0], 'OVERHRS': [0], 'JOB_NAME': ['Salary']})
-            salary_df.to_csv(salary_path)
-            print('new salary file generated, open salary.csv to add salaried employees')
-        else:
-            salary_df = pd.read_csv(salary_path)
-        salary_df.loc[:, ('HOURS')] = np.divide(
-            salary_df.loc[:, ('HOURS')], self.pay_period)
-        salary_df.loc[:, ('OVERHRS')] = np.divide(
-            salary_df.loc[:, ('OVERHRS')], self.pay_period)
-        return salary_df
-
-    def calc_labor_cost(self, tracked_labor=[], salary=True):
+    def calc_labor_cost(self, tracked_labor=[]):
         '''returns a dataframe with pay based on pay rate and hours on tracked labor
            use salary=False to skip calculating salary'''
         if tracked_labor != []:
@@ -155,9 +137,6 @@ class ProcessLabor():
         else:
             cur_df = self.df.copy()
 
-        if salary:
-            #cur_df = cur_df.append(self.calc_salary())
-            cur_df = pd.concat([cur_df, self.calc_salary()])
         reg = np.multiply(cur_df.loc[:, ('HOURS')], cur_df.loc[:, ('RATE')])
         over = np.multiply(cur_df.loc[:, ('OVERHRS')], np.multiply(
             cur_df.loc[:, ('RATE')], 1.5))
