@@ -449,14 +449,19 @@ class Payroll(ReportWriter):
         df_hours = df[['LASTNAME', 'FIRSTNAME',
                        'JOB_NAME', 'JOBCODE', 'HOURS', 'OVERHRS', 'EXP_ID']]
 
-        df_tips = df[['LASTNAME', 'FIRSTNAME',
+        if 'ADJUSTMENTS' in df.index:
+            df_tips = df[['LASTNAME', 'FIRSTNAME',
+                     'DECTIPS', 'TTL_TIPS',
+                      'AUTGRTTOT', 'EXP_ID' ,'ADJUSTMENTS']]
+        else:
+            df_tips = df[['LASTNAME', 'FIRSTNAME',
                       'DECTIPS', 'TTL_TIPS',
-                      'AUTGRTTOT', 'EXP_ID', 'ADJUSTMENTS']]
+                      'AUTGRTTOT', 'EXP_ID']]
 
         df_tips = pd.pivot_table(df_tips,
                                  index=['ID', 'LASTNAME', 'FIRSTNAME', 'EXP_ID'],
                                  aggfunc=np.sum,
-                                 fill_value=np.NaN).reset_index().set_index('ID')
+                                 fill_value=np.nan).reset_index().set_index('ID')
 
         #get the hourly pay rate and print it on paychecks
         #hr_df = self.hourly_pay_rate()
@@ -484,11 +489,20 @@ class Payroll(ReportWriter):
         # match gusto columns
         #title = job
         # ['last_name','first_name','title','gusto_employee_id','regular_hours','overtime_hours','paycheck_tips','cash_tips','personal_note']
-        df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
+        #this really could be better, but works for now
+        if 'ADJUSTMENTS' in df.index:
+            df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
                            'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips', 'ADJUSTMENTS':'personal_note','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
-        df = df.sort_values(by='ID')
-        df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
+            df = df.sort_values(by='ID')
+            df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
                  'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity', 'personal_note']]
+        else:
+            df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
+                           'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
+            df = df.sort_values(by='ID')
+            df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
+                 'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity']]
+
 
         return df
 
