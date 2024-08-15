@@ -165,13 +165,12 @@ class ChipGui():
             print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
             result = ReportWriter(self.day_one, self.day_two).print_to_json(
                 self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
+            print(result)
             if type(result) == 'empty':
                 showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
                 return '' #exit the program if no data to display
             name_string = self.rpt_type + '-' + self.day_one + '-through-' + self.day_two
-            result.to_csv(
-                ("exports/" + name_string + '.csv'),
-                index=False)
+            result.to_csv(("exports/" + name_string + '.csv'))
         
             showinfo('Note', ("Exported\n\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nCheck the exports folder for the CSV"))
 
