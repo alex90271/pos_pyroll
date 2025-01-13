@@ -21,4 +21,7 @@ build
 
 #environment
 .venv
+venv
 foo.png
+token.pickle
+client_secret.json

@@ -8,6 +8,7 @@
     1. Create your environment `python -m venv .venv`\
         a. Activate the script on the windows system, using an elevated powershell terminal `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`
         b. Connect to the environment (windows) `./.venv/Scripts/Activate.ps1`
+        c. Connect to the environment (mac/liunx) `source ./venv/bin/activate`
 
     2. Install dependencies with `python -m pip install -r "requirements.txt"`
 
