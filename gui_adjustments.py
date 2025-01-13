@@ -80,7 +80,9 @@ class AdjustmentsGui():
             conn.execute(sql, data)
             conn.commit()
             conn.close()
-            showinfo('Note',"Adjustment saved")
+            showinfo('Note',"Adjustment saved. Please close the window to avoid proccesing adjustment twice")
+            self.adjust_window.destroy()
+
 
     def run_date(self):
         self.day = datetime.strptime(self.day, "%a, %b %d, %y").strftime('%Y%m%d')
