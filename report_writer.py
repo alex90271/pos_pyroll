@@ -501,7 +501,7 @@ class Payroll(ReportWriter):
                            'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
             df = df.sort_values(by='ID')
             df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
-                 'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity']]
+                 'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity', 'personal_note']]
             
         try:
             csv_data = pd.read_csv('data/salaried.csv')
