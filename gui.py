@@ -147,9 +147,7 @@ class ChipGui():
                 print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
                 '''exports payroll to gusto'''
                 result = Payroll(self.day_one, self.day_two).process_payroll()
-
-                result['personal_note'] = ' '  # Adds empty string for all rows
-
+                
                 if type(result) == 'empty':
                     showinfo('Note', "There is no data to export for this selection\n(This is not an error)")
                     return '' #exit the program if no data to export
