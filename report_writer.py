@@ -502,7 +502,13 @@ class Payroll(ReportWriter):
             df = df.sort_values(by='ID')
             df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
                  'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity']]
-
+            
+        try:
+            csv_data = pd.read_csv('data/salaried.csv')
+            df = pd.concat([df, csv_data], ignore_index=True)
+        except FileNotFoundError:
+            print('salaried not found')
+            pass
 
         return df
 

@@ -12,7 +12,6 @@ class ChipConfig():
         self.config_name = 'data/'+config_name
         self.pooler_name = 'data/'+pooler_name
         self.adjustments_db_name = 'data/'+'adjustments.db'
-        self.generate_salaried()
 
         Path('data').mkdir(exist_ok=True)
         Path('debug').mkdir(exist_ok=True)
@@ -27,6 +26,10 @@ class ChipConfig():
                     print('removing old report: ' + filename)
                     os.remove(path + filename)
 
+
+        if not os.path.isfile('data/salaried.csv'):
+            print('generating new salary file')
+            self.generate_salaried()
         if not os.path.isfile(self.config_name):
             print('generating new default config')
             self.save_json(self.generate_config(),self.config_name)
