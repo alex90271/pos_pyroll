@@ -42,6 +42,7 @@ class ChipGui():
             style.theme_use('clam')
         
         #tk font
+        Style().configure('.', font=('Verdana', 12))
         self.root.option_add("*font", ("Verdana", 12))
 
         try:
