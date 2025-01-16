@@ -12,6 +12,7 @@ class ChipConfig():
         self.config_name = 'data/'+config_name
         self.pooler_name = 'data/'+pooler_name
         self.adjustments_db_name = 'data/'+'adjustments.db'
+        self.generate_salaried()
 
         Path('data').mkdir(exist_ok=True)
         Path('debug').mkdir(exist_ok=True)
@@ -76,6 +77,13 @@ class ChipConfig():
         }
 
         return data
+    
+    def generate_salaried(self):
+        df = pd.DataFrame(columns=['last_name', 'first_name', 'title', 'gusto_employee_id', 
+                                'regular_hours', 'overtime_hours', 'paycheck_tips', 
+                                'cash_tips', 'custom_earning_gratuity', 'personal_note'])
+        
+        df.to_csv('data/salaried.csv', index=False)
     
     def generate_pooler(self):
         '''generates the default pools file, with default settings. To reset config file, just delete it'''
