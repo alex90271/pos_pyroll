@@ -80,7 +80,7 @@ class AdjustmentsGui():
             conn.execute(sql, data)
             conn.commit()
             conn.close()
-            showinfo('Note',"Adjustment saved. Please close the window to avoid proccesing adjustment twice")
+            showinfo('Note',"Adjustment saved.")
             self.adjust_window.destroy()
 
 
