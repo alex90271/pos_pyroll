@@ -7,10 +7,12 @@ import pandas as pd
 import numpy as np
 import os.path
 import pickle
+from chip_config import ChipConfig
+
 
 class GoogleSheetsUpload():
-    def __init__(self, folder_id='1KUIw85hQrx3D8QyB-d3AFkbqE0z6YZQf'):
-        self.folder_id = folder_id  # Store folder ID when initializing the class
+    def __init__(self):
+        self.folder_id = ChipConfig.query('google_sheets_folder_id') # Store folder ID when initializing the class
         
     def get_credentials(self):
         SCOPES = ['https://www.googleapis.com/auth/drive.file',
@@ -62,9 +64,12 @@ class GoogleSheetsUpload():
         spreadsheet_id = spreadsheet.get('spreadsheetId')
         
         # Move the spreadsheet to the specified folder
-        file = drive_service.files().get(fileId=spreadsheet_id,
-                                       fields='parents').execute()
-        previous_parents = ",".join(file.get('parents', []))
+        try:
+            file = drive_service.files().get(fileId=spreadsheet_id,
+                                        fields='parents').execute()
+            previous_parents = ",".join(file.get('parents', []))
+        except:
+            print('no folder id provided. saving to root folder')
         
         # Move the file to the new folder
         drive_service.files().update(fileId=spreadsheet_id,

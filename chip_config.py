@@ -76,7 +76,8 @@ class ChipConfig():
             'dropped_pools_from_tiprate': 'luncheon_pool',
             'database': 'D:\\Bootdrv\\Aloha\\',  # set to database\ for testing -- str
             'pay_period_days': "15",
-            'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999'
+            'interface_employees': '100, 200, 1002, 1009, 1021, 1022, 9998, 9999',
+            'google_sheets_folder_id': ''
         }
 
         return data
