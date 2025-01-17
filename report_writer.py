@@ -497,6 +497,7 @@ class Payroll(ReportWriter):
             df = df[['last_name', 'first_name', 'title', 'gusto_employee_id', 'regular_hours',
                  'overtime_hours', 'paycheck_tips', 'cash_tips', 'custom_earning_gratuity', 'personal_note']]
         else:
+            df['personal_note'] = ''
             df.rename(columns={'LASTNAME': 'last_name', 'FIRSTNAME': 'first_name', 'JOB_NAME_y': 'title', 'EXP_ID': 'gusto_employee_id',
                            'HOURS': 'regular_hours', 'OVERHRS': 'overtime_hours', 'TTL_TIPS': 'paycheck_tips', 'DECTIPS': 'cash_tips','AUTGRTTOT':'custom_earning_gratuity'}, inplace=True)
             df = df.sort_values(by='ID')
