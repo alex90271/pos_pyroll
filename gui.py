@@ -156,7 +156,10 @@ class ChipGui():
                 result.to_csv(
                     ("exports/" + name_string + '.csv'),
                     index=False)
-                GoogleSheetsUpload().create_and_upload_spreadsheet(name_string= '' + name_string + '.csv')
+                
+                response = askyesno("Export to Google Sheets", "Do you want to upload this export to Google Sheets?")
+                if response:
+                    GoogleSheetsUpload().create_and_upload_spreadsheet(name_string= '' + name_string + '.csv')
                 
                 #generate report tooltip
                 paycheck_tips = np.round(np.sum(result['paycheck_tips']),2)
