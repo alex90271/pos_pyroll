@@ -12,7 +12,7 @@ from chip_config import ChipConfig
 
 class GoogleSheetsUpload():
     def __init__(self):
-        self.folder_id = ChipConfig.query('google_sheets_folder_id') # Store folder ID when initializing the class
+        self.folder_id = ChipConfig().query('SETTINGS','google_sheets_folder_id') # Store folder ID when initializing the class
         
     def get_credentials(self):
         SCOPES = ['https://www.googleapis.com/auth/drive.file',
@@ -51,8 +51,8 @@ class GoogleSheetsUpload():
         sheets_service = build('sheets', 'v4', credentials=credentials)
         
         # Generate current timestamp for filename
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        spreadsheet_name = f'{name_string}_Imported_{timestamp}'
+        timestamp = datetime.now().strftime('%Y-%m-%d__%I:%M:%S_%p')
+        spreadsheet_name = f'{name_string}__{timestamp}'
         
         # Create new spreadsheet
         spreadsheet = {
@@ -64,12 +64,9 @@ class GoogleSheetsUpload():
         spreadsheet_id = spreadsheet.get('spreadsheetId')
         
         # Move the spreadsheet to the specified folder
-        try:
-            file = drive_service.files().get(fileId=spreadsheet_id,
-                                        fields='parents').execute()
-            previous_parents = ",".join(file.get('parents', []))
-        except:
-            print('no folder id provided. saving to root folder')
+        file = drive_service.files().get(fileId=spreadsheet_id,
+                                    fields='parents').execute()
+        previous_parents = ",".join(file.get('parents', []))
         
         # Move the file to the new folder
         drive_service.files().update(fileId=spreadsheet_id,
