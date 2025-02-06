@@ -7,10 +7,12 @@ import pandas as pd
 import numpy as np
 import os.path
 import pickle
+from chip_config import ChipConfig
+
 
 class GoogleSheetsUpload():
-    def __init__(self, folder_id='1KUIw85hQrx3D8QyB-d3AFkbqE0z6YZQf'):
-        self.folder_id = folder_id  # Store folder ID when initializing the class
+    def __init__(self):
+        self.folder_id = ChipConfig().query('SETTINGS','google_sheets_folder_id') # Store folder ID when initializing the class
         
     def get_credentials(self):
         SCOPES = ['https://www.googleapis.com/auth/drive.file',
@@ -49,8 +51,8 @@ class GoogleSheetsUpload():
         sheets_service = build('sheets', 'v4', credentials=credentials)
         
         # Generate current timestamp for filename
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        spreadsheet_name = f'{name_string}_Imported_{timestamp}'
+        timestamp = datetime.now().strftime('%Y-%m-%d__%I:%M:%S_%p')
+        spreadsheet_name = f'{name_string}__{timestamp}'
         
         # Create new spreadsheet
         spreadsheet = {
@@ -63,7 +65,7 @@ class GoogleSheetsUpload():
         
         # Move the spreadsheet to the specified folder
         file = drive_service.files().get(fileId=spreadsheet_id,
-                                       fields='parents').execute()
+                                    fields='parents').execute()
         previous_parents = ",".join(file.get('parents', []))
         
         # Move the file to the new folder
@@ -93,3 +95,4 @@ class GoogleSheetsUpload():
         print(f"Spreadsheet ID: {spreadsheet_id}")
         print(f"Updated {result.get('updatedCells')} cells")
         print(f"File moved to specified folder successfully")
+        return spreadsheet_id
