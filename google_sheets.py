@@ -95,3 +95,4 @@ class GoogleSheetsUpload():
         print(f"Spreadsheet ID: {spreadsheet_id}")
         print(f"Updated {result.get('updatedCells')} cells")
         print(f"File moved to specified folder successfully")
+        return spreadsheet_id
