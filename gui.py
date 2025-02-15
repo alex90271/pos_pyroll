@@ -170,7 +170,7 @@ class ChipGui():
                     response = askyesno("Export to Google Sheets", "Do you want to upload this to Google Drive?")
                     if response:
                         resultID = GoogleSheetsUpload().create_and_upload_spreadsheet(name_string= '' + name_string + '.csv')
-                        showinfo("Sucessfully Uploaded","Press OK to open spreadsheet\n\nSpreadsheetID: " + resultID + "")
+                        showinfo("Sucessfully Uploaded","Uploaded, press OK to open spreadsheet\n\nSpreadsheetID: " + resultID + "")
                         webbrowser.open_new(f"https://docs.google.com/spreadsheets/d/{resultID}")
                     
 
