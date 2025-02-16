@@ -169,9 +169,9 @@ class ChipGui():
                 if ChipConfig().query('SETTINGS','google_sheets_folder_id'):
                     response = askyesno("Export to Google Sheets", "Do you want to upload this to Google Drive?")
                     if response:
-                        resultID = GoogleSheetsUpload().create_and_upload_spreadsheet(name_string= '' + name_string + '.csv')
-                        showinfo("Sucessfully Uploaded","Uploaded, press OK to open spreadsheet\n\nSpreadsheetID: " + resultID + "")
-                        webbrowser.open_new(f"https://docs.google.com/spreadsheets/d/{resultID}")
+                        result = GoogleSheetsUpload().create_and_upload_spreadsheet(name_string= '' + name_string + '.csv')
+                        showinfo("Successfully Uploaded", f"Your file has been loaded to the {result['folder_name']} folder on Google Drive. Press OK to open that folder")
+                        webbrowser.open_new(f"https://drive.google.com/drive/folders/{result['folder_id']}")
                     
 
     def export_csv(self):

@@ -15,7 +15,7 @@ class GoogleSheetsUpload():
         self.folder_id = ChipConfig().query('SETTINGS','google_sheets_folder_id') # Store folder ID when initializing the class
         
     def get_credentials(self):
-        SCOPES = ['https://www.googleapis.com/auth/drive.file',
+        SCOPES = ['https://www.googleapis.com/auth/drive',
                   'https://www.googleapis.com/auth/spreadsheets']
         creds = None
         
@@ -49,6 +49,10 @@ class GoogleSheetsUpload():
         # Create Drive and Sheets API services
         drive_service = build('drive', 'v3', credentials=credentials)
         sheets_service = build('sheets', 'v4', credentials=credentials)
+
+        # Get the folder name from the settings json 
+        folder = drive_service.files().get(fileId=self.folder_id, fields='name').execute()
+        folder_name = folder.get('name')
         
         # Generate current timestamp for filename
         timestamp = datetime.now().strftime('%Y-%m-%d__%I:%M:%S_%p')
@@ -94,5 +98,8 @@ class GoogleSheetsUpload():
         print(f"Spreadsheet created: {spreadsheet_name}")
         print(f"Spreadsheet ID: {spreadsheet_id}")
         print(f"Updated {result.get('updatedCells')} cells")
-        print(f"File moved to specified folder successfully")
-        return spreadsheet_id
+        print(f"File moved to folder '{folder_name}' successfully")        
+        return {
+            'folder_name': folder_name,
+            'folder_id': self.folder_id
+        }
