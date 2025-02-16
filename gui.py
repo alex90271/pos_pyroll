@@ -167,7 +167,7 @@ class ChipGui():
                 total_hr_overtim_exp_sum = np.round((total_exp_hours + total_exp_overtime),2)
                 showinfo('Note', ("Exported\nPlease verify the export dates below\n\nFirst day: " + datetime.strptime(self.day_one, "%Y%m%d").strftime("%b %d, %y") + "\nLast day: " + datetime.strptime(self.day_two, "%Y%m%d").strftime("%b %d, %y") + "\n\nTips Paid Out: $" + str(paycheck_tips) + "\nGratuities Paid Out: $" + str(gratuties) + "\nTotal: $" + str(tip_grat_sum) + "\n\nHours: " + str(total_exp_hours) + "\nOvertime: " + str(total_exp_overtime) + "\nTotal: " + str(total_hr_overtim_exp_sum) + ""))
                 if ChipConfig().query('SETTINGS','google_sheets_folder_id'):
-                    response = askyesno("Export to Google Sheets", "Do you want to upload this to Google Drive?")
+                    response = askyesno("Export to Google Sheets", "Do you want to upload this to Google Drive? (Make take a few seconds)")
                     if response:
                         result = GoogleSheetsUpload().create_and_upload_spreadsheet(name_string= '' + name_string + '.csv')
                         showinfo("Successfully Uploaded", f"Your file has been uploaded to the {result['folder_name']} folder on Google Drive. Press OK to open that folder")
