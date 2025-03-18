@@ -535,7 +535,9 @@ class WeeklyWriter(ReportWriter):
                                                 'FIRSTNAME'],
                                     totaled_cols=[],
                                     addl_cols=[],
-                                    append_totals=False).reset_index()
+                                    append_totals=False,
+                                    selected_jobs=selected_jobs,
+                                    selected_employees=selected_employees).reset_index()
                 if type(t) != str:
                     data.append(t)
             df = pd.concat(data)
