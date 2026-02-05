@@ -102,7 +102,7 @@ class QueryDB():
                                               'CCTIPS', 'DECTIPS', 'COUTBYEOD', 'SALES', 'INHOUR', 'INMINUTE', 'OUTHOUR', 'OUTMINUTE',
                                               'RATE', 'TIPSHCON', 'AUTGRTTOT'])
                 # get rid of any invalid shifts (deleted or shifts that have been edited)
-                df = df.loc[np.where(df['INVALID'] == 'N')]
+                df = df[df['INVALID'] == 'N']
                 # when the data is pulled in and HOURS includes OVERHRS
                 df['HOURS'] = np.subtract(
                     df['HOURS'].values, df['OVERHRS'].values)
