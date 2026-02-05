@@ -1,9 +1,9 @@
 from datetime import date, datetime, timedelta
 import warnings
-from tkinter import END, SUNKEN, W, S, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel
+from tkinter import END, SUNKEN, W, S, E, N, Listbox, StringVar, Tk, Label, OptionMenu, Frame, Toplevel, BOTH, LEFT, RIGHT, VERTICAL, Y
 from tkinter import ttk
 from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
-from tkinter.ttk import Button, Combobox, Frame, Separator, Style
+from tkinter.ttk import Button, Combobox, Separator, Style
 import webbrowser
 import numpy as np
 # GoogleSheetsUpload lazy loaded when needed (saves ~100MB if feature disabled)
@@ -65,30 +65,164 @@ class ChipGui():
         report_window = Toplevel()
         report_window.iconbitmap(self.icon)
         report_window.wm_title(self.title)
-        report_frame = Frame(report_window)
-        report_frame.grid()
+        report_window.geometry("1500x800")
+        report_window.configure(bg='#FFFFFF')
+
         print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
         if self.rpt_type == 'labor_avg_hours' or self.rpt_type =='labor_weekly':
             if (int(self.day_two) - int(self.day_one)) < 14:
                 showerror('Error', "You must select a range greater than two weeks")
-                return 0 #exit the program if no data to display
-            
+                return 0
+
         df = ReportWriter(self.day_one, self.day_two).print_to_json(
             self.rpt_type, selected_employees=self.select_emps, selected_jobs=self.select_jobs, json_fmt=True)
         if type(df) == str:
             showinfo('Note', "There is no data to display for this selection\n(This is not an error)")
-            pt.delete()
-            return 0 #exit the program if no data to display
-        
+            return 0
+
         df.reset_index(inplace=True)
         if self.verbose_debug:
             df.to_csv('debug/latest_viewed.csv')
 
-        #df.to_dict(orient='index')
-        pt = Table(report_frame, dataframe=df, width=1100, height=600,
-                showstatusbar=True)
-        pt.autoResizeColumns()
-        pt.show()
+        # === PROFESSIONAL BUSINESS REPORT LAYOUT ===
+
+        # Header section with report title, date range, and print button
+        header_frame = Frame(report_window, bg='#FFFFFF', pady=20, padx=30)
+        header_frame.pack(fill='x')
+
+        # Left side - Title and date
+        title_frame = Frame(header_frame, bg='#FFFFFF')
+        title_frame.pack(side=LEFT, fill='x', expand=True)
+
+        # Format report title nicely
+        report_name = self.rpt_type.replace('_', ' ').title()
+        report_title = Label(title_frame, text=f"{report_name} Report",
+                            font=('Arial', 18, 'bold'), bg='#FFFFFF', fg='#1a1a1a')
+        report_title.pack(anchor='w')
+
+        date_range = f"Period: {datetime.strptime(self.day_one, '%Y%m%d').strftime('%B %d, %Y')} - {datetime.strptime(self.day_two, '%Y%m%d').strftime('%B %d, %Y')}"
+        date_label = Label(title_frame, text=date_range,
+                          font=('Arial', 11), bg='#FFFFFF', fg='#666666')
+        date_label.pack(anchor='w', pady=(5, 0))
+
+        # Right side - Print button
+        button_frame = Frame(header_frame, bg='#FFFFFF')
+        button_frame.pack(side=RIGHT)
+
+        def print_report():
+            """Print the current report"""
+            import tempfile
+            # Create a temporary HTML file for printing
+            temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False)
+
+            # Generate HTML table
+            html_content = f"""
+            <html>
+            <head>
+                <title>{report_name} Report</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; margin: 40px; }}
+                    h1 {{ color: #1a1a1a; border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }}
+                    .date {{ color: #666; margin-bottom: 20px; }}
+                    table {{ border-collapse: collapse; width: 100%; margin-top: 20px; }}
+                    th {{ background-color: #2c3e50; color: white; padding: 12px; text-align: left; }}
+                    td {{ padding: 10px; border-bottom: 1px solid #ddd; }}
+                    tr:nth-child(even) {{ background-color: #f8f9fa; }}
+                    .footer {{ margin-top: 20px; color: #666; font-size: 12px; }}
+                </style>
+            </head>
+            <body>
+                <h1>{report_name} Report</h1>
+                <div class="date">{date_range}</div>
+                {df.to_html(index=False, classes='report-table', float_format=lambda x: f'{x:.2f}')}
+                <div class="footer">Total Records: {len(df)} | Generated: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}</div>
+            </body>
+            </html>
+            """
+            temp_file.write(html_content)
+            temp_file.close()
+
+            # Open in default browser for printing
+            webbrowser.open('file://' + temp_file.name)
+            showinfo('Print', 'Report opened in browser. Use your browser\'s print function (Ctrl+P or Cmd+P)')
+
+        print_btn = Button(button_frame, text="🖨 Print Report", command=print_report)
+        print_btn.pack(padx=5)
+
+        # Separator line
+        ttk.Separator(report_window, orient='horizontal').pack(fill='x', padx=30)
+
+        # Table container with professional styling
+        table_frame = Frame(report_window, bg='#FFFFFF', padx=30, pady=20)
+        table_frame.pack(fill=BOTH, expand=True)
+
+        # Create Treeview (professional read-only table)
+        style = ttk.Style()
+        style.theme_use('clam')
+
+        # Professional report styling
+        style.configure("Report.Treeview",
+                       background="#FFFFFF",
+                       foreground="#1a1a1a",
+                       fieldbackground="#FFFFFF",
+                       borderwidth=0,
+                       font=('Arial', 10),
+                       rowheight=28)
+
+        style.configure("Report.Treeview.Heading",
+                       background="#2c3e50",
+                       foreground="#FFFFFF",
+                       font=('Arial', 11, 'bold'),
+                       borderwidth=1,
+                       relief='flat')
+
+        style.map("Report.Treeview",
+                 background=[('selected', '#e8f4f8')])
+
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(table_frame, orient=VERTICAL)
+        scrollbar.pack(side=RIGHT, fill=Y)
+
+        # Create Treeview with columns
+        columns = list(df.columns)
+        tree = ttk.Treeview(table_frame, columns=columns, show='headings',
+                           style="Report.Treeview", yscrollcommand=scrollbar.set)
+        scrollbar.config(command=tree.yview)
+
+        # Configure column headings and widths
+        for col in columns:
+            tree.heading(col, text=col, anchor='w')
+            # Auto-size columns based on content
+            max_width = max(len(str(col)) * 10, 100)
+            tree.column(col, width=max_width, anchor='w')
+
+        # Insert data with alternating row colors
+        for idx, row in df.iterrows():
+            values = [row[col] for col in columns]
+            # Format numerical values
+            formatted_values = []
+            for val in values:
+                if isinstance(val, (int, float)) and not pd.isna(val):
+                    formatted_values.append(f"{val:.2f}" if isinstance(val, float) else str(val))
+                else:
+                    formatted_values.append(str(val) if not pd.isna(val) else '')
+
+            tag = 'evenrow' if idx % 2 == 0 else 'oddrow'
+            tree.insert('', 'end', values=formatted_values, tags=(tag,))
+
+        # Alternating row colors for better readability
+        tree.tag_configure('evenrow', background='#FFFFFF')
+        tree.tag_configure('oddrow', background='#f8f9fa')
+
+        tree.pack(fill=BOTH, expand=True)
+
+        # Footer with record count
+        footer_frame = Frame(report_window, bg='#f5f5f5', pady=10, padx=30)
+        footer_frame.pack(fill='x', side='bottom')
+
+        record_count = Label(footer_frame, text=f"Total Records: {len(df)}",
+                            font=('Arial', 9), bg='#f5f5f5', fg='#666666')
+        record_count.pack(anchor='e')
         
     def export_rpt(self):
             print('PROCESSING: ' + ' ' + self.day_one + ' ' + self.day_two + ' ' + self.rpt_type)
