@@ -6,7 +6,7 @@ from tkinter.messagebox import askokcancel, askyesno, showerror, showinfo
 from tkinter.ttk import Button, Combobox, Frame, Separator, Style
 import webbrowser
 import numpy as np
-from google_sheets import GoogleSheetsUpload
+# GoogleSheetsUpload lazy loaded when needed (saves ~100MB if feature disabled)
 from tkcalendar import DateEntry
 import pandas as pd
 from process_pools import ProcessPools
@@ -169,6 +169,8 @@ class ChipGui():
                 if ChipConfig().query('SETTINGS','google_sheets_folder_id'):
                     response = askyesno("Export to Google Sheets", "Do you want to upload this to Google Drive? (Make take a few seconds)")
                     if response:
+                        # Lazy import - only load Google Sheets dependencies when actually used
+                        from google_sheets import GoogleSheetsUpload
                         result = GoogleSheetsUpload().create_and_upload_spreadsheet(name_string= '' + name_string + '.csv')
                         showinfo("Successfully Uploaded", f"Your file has been uploaded to the {result['folder_name']} folder on Google Drive. Press OK to open that folder")
                         webbrowser.open_new(f"https://drive.google.com/drive/folders/{result['folder_id']}")

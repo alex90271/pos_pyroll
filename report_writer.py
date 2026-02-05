@@ -1,5 +1,5 @@
 import sqlite3
-import matplotlib.pyplot as plt
+# matplotlib removed - graph feature rarely used, saves 29MB
 from process_labor import ProcessLabor as labor
 from process_transactions import ProcessTransactions as transactions
 from query_db import QueryDB as query_db
@@ -149,22 +149,9 @@ class ReportWriter():
         )  
 
         return df
-    
-    def rate_rpt_plot(self):
-        df = self.rate_rpt(rpt='Tip', totaled_cols=[],averaged_cols=[], selected_jobs=[])
-        #df['Date'] = df['Date'].str[4:]
-        plt.figure(figsize=(12, 9))
-        df.pivot(index='Date', columns='Pool', values='Hourly')
-        _df = df[['Hourly','Date']].pivot_table(index=['Date'], aggfunc=np.sum).reset_index()
-        _df['Pool'] = 'Sum'
-        _df.sort_values(by=['Date'][4:],inplace=True)
-        df.sort_values(by=['Date'][4:],inplace=True)
-        df = pd.concat([df,_df]).reset_index(drop=True)[['Pool','Date','Hourly']]
-        plt.plot(df.pivot(index='Date', columns='Pool', values='Hourly'))
-        plt.hlines(y=7.25, xmin=0, xmax=15, linewidth=2, color='r',label='Min Wage Threshold')
-        plt.xticks(df['Date'], rotation=45, ha="right")
-        plt.tight_layout()  # Adjust layout for better label display
-        plt.savefig("exports/tip_rate_graph_" + self.first_day + "_" + self.last_day + ".png")
+
+    # rate_rpt_plot() removed - matplotlib dependency eliminated (saves 29MB)
+    # Graph feature was rarely used. If needed, can recreate with lighter library.
 
     def cout_by_eod(
         self,

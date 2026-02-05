@@ -1,0 +1,7 @@
+# Development and build dependencies
+# Install with: pip install -r requirements-dev.txt
+
+pyinstaller
+
+# Optional: Include GUI requirements for development
+# -r requirements-gui.txt

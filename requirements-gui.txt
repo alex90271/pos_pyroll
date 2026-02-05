@@ -1,0 +1,13 @@
+# Core GUI application dependencies
+# Install with: pip install -r requirements-gui.txt
+
+dbfread
+pandas
+numpy
+tkcalendar
+pandastable
+pdfkit
+jinja2
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
