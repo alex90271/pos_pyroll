@@ -36,7 +36,7 @@ class ChipGui():
         self.root = Tk()
         self.title = title
         self.root.wm_title(title)
-        self.root.geometry("460x700")
+        self.root.geometry("700x800")
 
         if os.name == 'posix':
             style = ttk.Style(self.root)
@@ -388,50 +388,186 @@ Columns prefixed with c_ are contribution
         """)
 
     def startup_help_window(self):
-        showinfo('Note', """
-RUN A REPORT:
-    1.Select the report dates in the dropdown
-       1a.For a single day, enter it in both first and last dates
-    2.Select a report type
-       2a. Click "Report Help" for details on each report
-    3.(Optional) Filter by employee or job
-    4.Press "view", or send to printer with "print"
-                 
-EXPORT PAYROLL:
-    Only relies on you setting the Dates
-    Ignores any other selections
+        """Modern welcome/help popup with professional styling"""
+        help_window = Toplevel()
+        help_window.title("Welcome to Payroll Reports")
+        help_window.geometry("650x750")
+        help_window.configure(bg='#FFFFFF')
 
-TO UPDATE HOURS/TIPS:
-    For hours, update these in Aloha. Then run a new report
-    To adjust tips, click the 'Adjustments' button
+        try:
+            help_window.iconbitmap(self.icon)
+        except:
+            pass
 
-The data reported uses Aloha as the source of truth
-If Aloha is incorrect, these reports will also be incorrect
-(Incorrect clockin/clockout, declared tips, or CC tips, etc.)
+        # Header
+        header_frame = Frame(help_window, bg='#2c3e50', pady=25, padx=30)
+        header_frame.pack(fill='x')
 
-        """)
+        title = Label(header_frame, text="Getting Started",
+                     font=('Arial', 22, 'bold'), bg='#2c3e50', fg='#FFFFFF')
+        title.pack()
+
+        subtitle = Label(header_frame, text="Quick guide to using Payroll Reports",
+                        font=('Arial', 11), bg='#2c3e50', fg='#CCCCCC')
+        subtitle.pack(pady=(5, 0))
+
+        # Content area with scrollbar
+        content_frame = Frame(help_window, bg='#FFFFFF')
+        content_frame.pack(fill='both', expand=True, padx=30, pady=30)
+
+        # Section 1: Run a Report
+        section1 = Frame(content_frame, bg='#f8f9fa', relief='flat', bd=1)
+        section1.pack(fill='x', pady=(0, 15))
+
+        section1_inner = Frame(section1, bg='#f8f9fa', padx=20, pady=20)
+        section1_inner.pack(fill='x')
+
+        s1_title = Label(section1_inner, text="📊  RUN A REPORT",
+                        font=('Arial', 14, 'bold'), bg='#f8f9fa', fg='#2c3e50', anchor='w')
+        s1_title.pack(fill='x')
+
+        s1_text = Label(section1_inner,
+                       text="1. Select the report dates in the dropdown\n"
+                            "    • For a single day, enter it in both first and last dates\n\n"
+                            "2. Select a report type\n"
+                            "    • Click 'Report Help' for details on each report\n\n"
+                            "3. (Optional) Filter by employee or job\n\n"
+                            "4. Press 'View' or send to printer with 'Print'",
+                       font=('Arial', 10), bg='#f8f9fa', fg='#333333',
+                       anchor='w', justify='left')
+        s1_text.pack(fill='x', pady=(10, 0))
+
+        # Section 2: Export Payroll
+        section2 = Frame(content_frame, bg='#f8f9fa', relief='flat', bd=1)
+        section2.pack(fill='x', pady=(0, 15))
+
+        section2_inner = Frame(section2, bg='#f8f9fa', padx=20, pady=20)
+        section2_inner.pack(fill='x')
+
+        s2_title = Label(section2_inner, text="💾  EXPORT PAYROLL",
+                        font=('Arial', 14, 'bold'), bg='#f8f9fa', fg='#2c3e50', anchor='w')
+        s2_title.pack(fill='x')
+
+        s2_text = Label(section2_inner,
+                       text="• Only relies on you setting the Dates\n"
+                            "• Ignores any other selections",
+                       font=('Arial', 10), bg='#f8f9fa', fg='#333333',
+                       anchor='w', justify='left')
+        s2_text.pack(fill='x', pady=(10, 0))
+
+        # Section 3: Update Hours/Tips
+        section3 = Frame(content_frame, bg='#f8f9fa', relief='flat', bd=1)
+        section3.pack(fill='x', pady=(0, 15))
+
+        section3_inner = Frame(section3, bg='#f8f9fa', padx=20, pady=20)
+        section3_inner.pack(fill='x')
+
+        s3_title = Label(section3_inner, text="✏️  TO UPDATE HOURS/TIPS",
+                        font=('Arial', 14, 'bold'), bg='#f8f9fa', fg='#2c3e50', anchor='w')
+        s3_title.pack(fill='x')
+
+        s3_text = Label(section3_inner,
+                       text="• For hours: Update in Aloha, then run a new report\n"
+                            "• To adjust tips: Click the 'Adjustments' button",
+                       font=('Arial', 10), bg='#f8f9fa', fg='#333333',
+                       anchor='w', justify='left')
+        s3_text.pack(fill='x', pady=(10, 0))
+
+        # Important note section
+        note_frame = Frame(content_frame, bg='#fff3cd', relief='flat', bd=1)
+        note_frame.pack(fill='x', pady=(0, 15))
+
+        note_inner = Frame(note_frame, bg='#fff3cd', padx=20, pady=20)
+        note_inner.pack(fill='x')
+
+        note_title = Label(note_inner, text="⚠️  IMPORTANT",
+                          font=('Arial', 14, 'bold'), bg='#fff3cd', fg='#856404', anchor='w')
+        note_title.pack(fill='x')
+
+        note_text = Label(note_inner,
+                         text="The data reported uses Aloha as the source of truth.\n"
+                              "If Aloha is incorrect, these reports will also be incorrect\n"
+                              "(Incorrect clockin/clockout, declared tips, or CC tips, etc.)",
+                         font=('Arial', 10), bg='#fff3cd', fg='#856404',
+                         anchor='w', justify='left')
+        note_text.pack(fill='x', pady=(10, 0))
+
+        # Close button
+        button_frame = Frame(help_window, bg='#FFFFFF', pady=20)
+        button_frame.pack(fill='x')
+
+        close_btn = Button(button_frame, text="Got it!",
+                          command=help_window.destroy,
+                          width=15)
+        close_btn.pack()
+
+        # Make it modal
+        help_window.transient(self.root)
+        help_window.grab_set()
+        self.root.wait_window(help_window)
 
     def main_window(self):
         self.startup_help_window()
 
-        label = Label(self.root, text="\nReport Options")
-        label.grid(row=0, column=2, columnspan=2)
+        # Configure modern styling
+        self.root.configure(bg='#f5f5f5')
 
-        ##DATE PICKERS##
+        # Main container with padding
+        main_container = Frame(self.root, bg='#f5f5f5')
+        main_container.pack(fill='both', expand=True, padx=20, pady=20)
 
-        label = Label(self.root, text="First day")
-        label.grid(row=1, column=2)
-        start_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(weeks=162)))
-        start_date_picker.grid(row=2, column=2)
-        print((date.today()-timedelta(days=365)))
+        # Header section
+        header_frame = Frame(main_container, bg='#2c3e50', relief='flat')
+        header_frame.pack(fill='x', pady=(0, 20))
 
-        label = Label(self.root, text="Last day")
-        label.grid(row=1, column=3)
-        end_date_picker = DateEntry(self.root, width=12, background='darkblue', foreground='white', borderwidth=2,
-                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)), mindate=(date.today()-timedelta(weeks=162)))
-        end_date_picker.grid(row=2, column=3)
-        self.root.grid_rowconfigure(3, weight=1)
+        header_inner = Frame(header_frame, bg='#2c3e50', padx=20, pady=15)
+        header_inner.pack(fill='x')
+
+        header_label = Label(header_inner, text="Report Options",
+                            font=('Arial', 18, 'bold'), bg='#2c3e50', fg='#FFFFFF')
+        header_label.pack(anchor='w')
+
+        # Date Range Section
+        date_card = Frame(main_container, bg='#FFFFFF', relief='flat', bd=1)
+        date_card.pack(fill='x', pady=(0, 15))
+
+        date_inner = Frame(date_card, bg='#FFFFFF', padx=20, pady=20)
+        date_inner.pack(fill='both', expand=True)
+
+        date_title = Label(date_inner, text="📅  Date Range",
+                          font=('Arial', 13, 'bold'), bg='#FFFFFF', fg='#2c3e50')
+        date_title.pack(anchor='w', pady=(0, 15))
+
+        date_pickers_frame = Frame(date_inner, bg='#FFFFFF')
+        date_pickers_frame.pack(fill='x')
+
+        # First day picker
+        first_day_frame = Frame(date_pickers_frame, bg='#FFFFFF')
+        first_day_frame.pack(side=LEFT, expand=True, fill='x', padx=(0, 10))
+
+        label = Label(first_day_frame, text="First day",
+                     font=('Arial', 10), bg='#FFFFFF', fg='#666666')
+        label.pack(anchor='w', pady=(0, 5))
+
+        start_date_picker = DateEntry(first_day_frame, width=18, background='#2c3e50',
+                                    foreground='white', borderwidth=0,
+                                    showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)),
+                                    mindate=(date.today()-timedelta(weeks=162)))
+        start_date_picker.pack(fill='x')
+
+        # Last day picker
+        last_day_frame = Frame(date_pickers_frame, bg='#FFFFFF')
+        last_day_frame.pack(side=LEFT, expand=True, fill='x', padx=(10, 0))
+
+        label = Label(last_day_frame, text="Last day",
+                     font=('Arial', 10), bg='#FFFFFF', fg='#666666')
+        label.pack(anchor='w', pady=(0, 5))
+
+        end_date_picker = DateEntry(last_day_frame, width=18, background='#2c3e50',
+                                   foreground='white', borderwidth=0,
+                                   showweeknumbers=False, maxdate=(date.today()-timedelta(days=1)),
+                                   mindate=(date.today()-timedelta(weeks=162)))
+        end_date_picker.pack(fill='x')
 
         start_date_picker.set_date((date.today()-timedelta(days=7)))
         end_date_picker.set_date((date.today()-timedelta(days=1)))
@@ -442,24 +578,29 @@ If Aloha is incorrect, these reports will also be incorrect
             end_date = end_date_picker.get()
             self.day_one = datetime.strptime(start_date, '%m/%d/%y').strftime('%Y%m%d')
             self.day_two = datetime.strptime(end_date, '%m/%d/%y').strftime('%Y%m%d')
-            #print(self.day_one, self.day_two)
-
 
         start_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
         end_date_picker.bind("<<DateEntrySelected>>", on_date_changed)
 
-        ##REPORT DROPDOWN##
+        # Report Selection Section
+        report_card = Frame(main_container, bg='#FFFFFF', relief='flat', bd=1)
+        report_card.pack(fill='x', pady=(0, 15))
 
-        dropdown_val = StringVar(self.root)
-        dropdown_val.set("labor_main")
-        label = Label(self.root, text="Select a report:")
-        label2 = Label(self.root, text="**report, employee, and jobcode selections\n do not apply to payroll csv**")
-        label2.config(font=("Courier", 10))
-        label.grid(row=3, column=2, columnspan=2)
-        label2.grid(row=4, column=2, columnspan=2)
+        report_inner = Frame(report_card, bg='#FFFFFF', padx=20, pady=20)
+        report_inner.pack(fill='both', expand=True)
 
-        report_combo = Combobox(self.root, values=self.reports, width=16, exportselection=False)
-        report_combo.grid(row=5, column=2, columnspan=2)
+        report_title = Label(report_inner, text="📋  Report Type",
+                           font=('Arial', 13, 'bold'), bg='#FFFFFF', fg='#2c3e50')
+        report_title.pack(anchor='w', pady=(0, 5))
+
+        report_note = Label(report_inner,
+                           text="Note: Report, employee, and jobcode selections do not apply to payroll CSV",
+                           font=('Arial', 9), bg='#FFFFFF', fg='#999999')
+        report_note.pack(anchor='w', pady=(0, 10))
+
+        report_combo = Combobox(report_inner, values=self.reports, width=30,
+                               font=('Arial', 11), exportselection=False)
+        report_combo.pack(fill='x', pady=(5, 0))
         report_combo.set("labor_main")
 
         def on_report_changed(e):
@@ -473,76 +614,120 @@ If Aloha is incorrect, these reports will also be incorrect
             if self.rpt_type == "avg_hours_per_week":
                 showinfo('Note',"Requires 2+ weeks selection\n\nThis report ignores employee and jobcode selections")
 
-        report_combo.bind("<<ComboboxSelected>>", on_report_changed)   
+        report_combo.bind("<<ComboboxSelected>>", on_report_changed)
 
-        ##EMPLOYEE LISTBOX##
+        # Filters Section (Employee & Jobcode)
+        filters_card = Frame(main_container, bg='#FFFFFF', relief='flat', bd=1)
+        filters_card.pack(fill='both', expand=True, pady=(0, 15))
 
-        self.root.grid_rowconfigure(5, weight=1)
-        label = Label(self.root, text="Select an employee:\n(to select all, leave blank)")
-        label.grid(row=6, column=2)
+        filters_inner = Frame(filters_card, bg='#FFFFFF', padx=20, pady=20)
+        filters_inner.pack(fill='both', expand=True)
 
-        employee_listbox = Listbox(self.root, height=10, listvariable=StringVar(self.root, value=self.employee_df["NAME"].to_list()), selectmode='multiple', exportselection=False)
-        employee_listbox.grid(row=7, column=2, padx=1, pady=2)
+        filters_title = Label(filters_inner, text="🔍  Filters (Optional)",
+                            font=('Arial', 13, 'bold'), bg='#FFFFFF', fg='#2c3e50')
+        filters_title.pack(anchor='w', pady=(0, 15))
+
+        filters_row = Frame(filters_inner, bg='#FFFFFF')
+        filters_row.pack(fill='both', expand=True)
+
+        # Employee filter
+        employee_frame = Frame(filters_row, bg='#FFFFFF')
+        employee_frame.pack(side=LEFT, expand=True, fill='both', padx=(0, 10))
+
+        emp_label = Label(employee_frame, text="Select Employee",
+                         font=('Arial', 10), bg='#FFFFFF', fg='#666666')
+        emp_label.pack(anchor='w', pady=(0, 5))
+
+        emp_note = Label(employee_frame, text="(leave blank to select all)",
+                        font=('Arial', 8), bg='#FFFFFF', fg='#999999')
+        emp_note.pack(anchor='w', pady=(0, 5))
+
+        employee_listbox = Listbox(employee_frame, height=10,
+                                  listvariable=StringVar(self.root, value=self.employee_df["NAME"].to_list()),
+                                  selectmode='multiple', exportselection=False,
+                                  font=('Arial', 10), borderwidth=1, relief='solid',
+                                  highlightthickness=0)
+
+        employee_listbox.pack(fill='both', expand=True)
 
         # Set the callback function
         def on_employee_changed(e):
             self.select_emps = [self.employee_df.index[i]
                         for i in employee_listbox.curselection()]
-            
+
         employee_listbox.bind("<<ListboxSelect>>", on_employee_changed)
 
-        ##JOBCODE LISTBOX##
+        # Jobcode filter
+        jobcode_frame = Frame(filters_row, bg='#FFFFFF')
+        jobcode_frame.pack(side=LEFT, expand=True, fill='both', padx=(10, 0))
 
-        label = Label(self.root, text="Select a job code:\n(to select all, leave blank)")
-        label.grid(row=6, column=3)
+        job_label = Label(jobcode_frame, text="Select Job Code",
+                         font=('Arial', 10), bg='#FFFFFF', fg='#666666')
+        job_label.pack(anchor='w', pady=(0, 5))
 
-        jobcode_listbox = Listbox(
-            self.root, height=10, listvariable=StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()), selectmode='multiple', exportselection=False)
-        jobcode_listbox.grid(row=7, column=3, padx=1, pady=2)
+        job_note = Label(jobcode_frame, text="(leave blank to select all)",
+                        font=('Arial', 8), bg='#FFFFFF', fg='#999999')
+        job_note.pack(anchor='w', pady=(0, 5))
+
+        jobcode_listbox = Listbox(jobcode_frame, height=10,
+                                 listvariable=StringVar(self.root, value=self.jobcode_df["SHORTNAME"].to_list()),
+                                 selectmode='multiple', exportselection=False,
+                                 font=('Arial', 10), borderwidth=1, relief='solid',
+                                 highlightthickness=0)
+        jobcode_listbox.pack(fill='both', expand=True)
 
         # Set the callback function
         def on_jobcode_changed(e):
             self.select_jobs = [self.jobcode_df.index[i]
                         for i in jobcode_listbox.curselection()]
-     
+
         jobcode_listbox.bind("<<ListboxSelect>>", on_jobcode_changed)
 
-        ##PROCESS BUTTONS#
+        # Action Buttons Section
+        actions_card = Frame(main_container, bg='#FFFFFF', relief='flat', bd=1)
+        actions_card.pack(fill='x', pady=(0, 15))
 
-        label = Label(self.root, text="\nProcess Reports")
-        label.grid(row=8, column=2, columnspan=2)
-        
+        actions_inner = Frame(actions_card, bg='#FFFFFF', padx=20, pady=20)
+        actions_inner.pack(fill='both', expand=True)
 
-        view_button = Button(self.root, text="View", command=self.view_rpt)
-        view_button.grid(row=9, column=2)
+        actions_title = Label(actions_inner, text="⚡  Actions",
+                            font=('Arial', 13, 'bold'), bg='#FFFFFF', fg='#2c3e50')
+        actions_title.pack(anchor='w', pady=(0, 15))
 
-        export_button = Button(self.root, text="Print", command=self.export_rpt)
-        export_button.grid(row=9, column=3)
+        # Primary action buttons
+        primary_buttons = Frame(actions_inner, bg='#FFFFFF')
+        primary_buttons.pack(fill='x', pady=(0, 10))
 
-        self.root.grid_rowconfigure(10, weight=1)
+        view_button = Button(primary_buttons, text="👁  View Report",
+                           command=self.view_rpt, width=20)
+        view_button.pack(side=LEFT, padx=(0, 10))
 
-        report_help = Button(self.root, text="Report Help", command=self.rpt_help_window)
-        report_help.grid(row=11, column=3)
+        export_button = Button(primary_buttons, text="🖨  Print Report",
+                             command=self.export_rpt, width=20)
+        export_button.pack(side=LEFT, padx=(0, 10))
 
-        payroll_button = Button(self.root, text="Export Payroll", command=self.gusto_rpt)
-        payroll_button.grid(row=11, column=2)
+        report_help = Button(primary_buttons, text="❓ Report Help",
+                           command=self.rpt_help_window, width=20)
+        report_help.pack(side=LEFT)
 
-        self.root.grid_rowconfigure(13, weight=1)
+        # Secondary action buttons
+        secondary_buttons = Frame(actions_inner, bg='#FFFFFF')
+        secondary_buttons.pack(fill='x')
 
-        separator = Label(self.root, text="\nOther Options")
-        separator.grid(column=1, row=14, columnspan=3, sticky='ns')
-
-        export_csv_button = Button(self.root, text="Debug Export", command=self.export_csv)
-        export_csv_button.grid(row=15, column=2)
-
+        payroll_button = Button(secondary_buttons, text="💾 Export Payroll",
+                              command=self.gusto_rpt, width=20)
+        payroll_button.pack(side=LEFT, padx=(0, 10))
 
         def init_adjustment_gui():
             AdjustmentsGui().mainloop()
 
-        add_adjustment_button = Button(self.root, text="Adjustments", command=init_adjustment_gui)
-        add_adjustment_button.grid(row=15, column=3, columnspan=2)
+        add_adjustment_button = Button(secondary_buttons, text="✏️  Adjustments",
+                                      command=init_adjustment_gui, width=20)
+        add_adjustment_button.pack(side=LEFT, padx=(0, 10))
 
-        self.root.grid_rowconfigure(16, weight=1)
+        export_csv_button = Button(secondary_buttons, text="🔧 Debug Export",
+                                  command=self.export_csv, width=20)
+        export_csv_button.pack(side=LEFT)
 
 
     def mainloop(self):
